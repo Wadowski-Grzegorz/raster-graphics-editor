@@ -1,8 +1,6 @@
 import sys
-from email.mime import image
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTabWidget, QPushButton, QLabel
 from Canvas import Canvas
 from Palette import Palette

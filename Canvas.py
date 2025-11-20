@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPainter
@@ -43,21 +44,9 @@ class Canvas(QWidget):
         x, y = int(e.position().x()), int(e.position().y())
         if (0 <= x < self.currImage.shape[1] and 0 <= y < self.currImage.shape[0] and
                 0 <= self.old_x < self.currImage.shape[1] and 0 <= self.old_y < self.currImage.shape[0]):
-            # check which value has more to grow
-            dx = abs(x - self.old_x)
-            dy = abs(y - self.old_y)
 
-            # steps - how many pixel to color
-            steps = dx if dx >= dy else dy
-            step_x = dx / steps if x >= self.old_x else -dx / steps
-            step_y = dy / steps if y >= self.old_y else -dy / steps
-
-            # color pixels
-            a, b = self.old_x, self.old_y
-            for _ in range(steps):
-                self.currImage[int(b), int(a)] = [*self.curr_color, 255]
-                a += step_x
-                b += step_y
+            cv2.line(self.currImage, (self.old_x, self.old_y), (x, y), self.curr_color, 1)
+            self.currImage[..., 3] = 255
 
             self.old_x = x
             self.old_y = y
