@@ -41,12 +41,14 @@ class Canvas(QWidget):
     def mouseMoveEvent(self, e):
         # get position and check if there are in image
         # print(f'{self.size()} canvas0')
+        b, g, r = self.curr_color
+        brush = (b, g, r, 255)
         x, y = int(e.position().x()), int(e.position().y())
         if (0 <= x < self.currImage.shape[1] and 0 <= y < self.currImage.shape[0] and
                 0 <= self.old_x < self.currImage.shape[1] and 0 <= self.old_y < self.currImage.shape[0]):
 
-            cv2.line(self.currImage, (self.old_x, self.old_y), (x, y), self.curr_color, 1)
-            self.currImage[..., 3] = 255
+            cv2.line(self.currImage, (self.old_x, self.old_y), (x, y), brush, 1)
+            # self.currImage[..., 3] = 255
 
             self.old_x = x
             self.old_y = y

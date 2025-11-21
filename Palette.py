@@ -2,7 +2,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QPushButton, QHBoxLayout
 
 
-#BGR
+# BGR
 COLORS = {
     (255, 0, 0): 'blue',
     (0, 255, 0): 'green',
