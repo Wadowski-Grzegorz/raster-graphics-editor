@@ -11,6 +11,15 @@ COLORS = {
     (255, 255, 255): 'white',
 }
 
+# RGB
+COLORS = {
+    (255, 0, 0): 'red',
+    (0, 255, 0): 'green',
+    (0, 0, 255): 'blue',
+    (0, 0, 0): 'black',
+    (255, 255, 255): 'white',
+}
+
 class Palette(QHBoxLayout):
     color_signal = pyqtSignal(tuple)
 
@@ -20,8 +29,9 @@ class Palette(QHBoxLayout):
         for value, color in COLORS.items():
             button = QPushButton()
 
-            b, g, r = value
-            button.setStyleSheet(f"background-color:rgb{(r, g, b)};")
+            # b, g, r = value
+            # button.setStyleSheet(f"background-color:rgb{(r, g, b)};")
+            button.setStyleSheet(f"background-color:rgb{value};")
 
             button.clicked.connect(lambda _, v=value: self.color_signal.emit(v))
             self.addWidget(button)

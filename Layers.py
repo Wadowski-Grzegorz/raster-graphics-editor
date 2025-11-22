@@ -14,7 +14,7 @@ class Layers(QObject):
 
     def create(self):
         # create new layer; emit QImage and index
-        image = QImage(640, 480, QImage.Format.Format_ARGB32)
+        image = QImage(640, 480, QImage.Format.Format_RGBA8888)
         # image.fill(Qt.GlobalColor.white)
         self.layers.append(image)
         # self.signal_layer_created.emit(image, len(self.layers) - 1)
