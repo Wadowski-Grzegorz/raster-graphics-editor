@@ -25,3 +25,6 @@ class Brush():
 
     def get_spacing(self):
         return self.spacing
+
+    def get_flow(self):
+        return self.flow

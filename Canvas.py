@@ -12,11 +12,12 @@ class Canvas(QWidget):
 
         self.currImage = None
         self.layers = {} # { idx: [QImage, npImage] }
+        self.temp_layer = [None, None] # [QImage, npImage]
 
         self.old_x = None
         self.old_y = None
 
-        self.curr_brush = Brush(size=100)
+        self.curr_brush = Brush(size=100, opacity=0.5)
         self.curr_color = (0, 0, 0)
 
 
@@ -24,13 +25,15 @@ class Canvas(QWidget):
         painter = QPainter(self)
         for image, npImage in self.layers.values():
             painter.drawImage(0, 0, image)
+        if self.temp_layer[0] is not None:
+            painter.drawImage(0, 0, self.temp_layer[0])
 
-    def paintMasking(self, x, y, img_x, img_y, brush_radius, brush_color, flow=0.2):
+    def paintMasking(self, x, y, img_x, img_y, brush_radius, brush_color, flow):
         img_y_s, img_y_e = max(y - brush_radius, 0), min(y + brush_radius, img_y)
         img_x_s, img_x_e = max(x - brush_radius, 0), min(x + brush_radius, img_x)
 
         # cut a peace of image which user will paint with a brush
-        paint_image = self.currImage[img_y_s:img_y_e, img_x_s:img_x_e].astype(np.float32)
+        paint_image = self.temp_layer[1][img_y_s:img_y_e, img_x_s:img_x_e].astype(np.float32)
 
         # values 0-255 --> 0-1
         mask = self.curr_brush.get_mask().astype(np.float32) / 255.
@@ -45,7 +48,8 @@ class Canvas(QWidget):
         adjusted_mask = mask * flow
         paint_image = paint_image * (1 - adjusted_mask) + brush_color * adjusted_mask
 
-        self.currImage[img_y_s:img_y_e, img_x_s:img_x_e] = paint_image.astype(np.uint8)
+        self.temp_layer[1][img_y_s:img_y_e, img_x_s:img_x_e] = paint_image.astype(np.uint8)
+
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
@@ -53,13 +57,19 @@ class Canvas(QWidget):
             img_y, img_x = self.currImage.shape[:2]
 
             if 0 <= x < img_x and 0 <= y < img_y:
+                tmp_img = QImage(img_x, img_y, QImage.Format.Format_RGBA8888)
+                ptr = tmp_img.bits()
+                ptr.setsize(tmp_img.width() * tmp_img.height() * 4)
+                self.temp_layer[1] = np.frombuffer(ptr, np.uint8).reshape((tmp_img.height(), tmp_img.width(), 4))
+                self.temp_layer[0] = tmp_img
+
                 color = (*self.curr_color, 255)
                 brush_color = np.array(color, dtype=np.uint8)
 
                 brush_size = self.curr_brush.get_size()
                 brush_radius = brush_size // 2
 
-                self.paintMasking(x, y, img_x, img_y, brush_radius, brush_color)
+                self.paintMasking(x, y, img_x, img_y, brush_radius, brush_color, self.curr_brush.get_flow())
 
                 self.update()
 
@@ -92,15 +102,28 @@ class Canvas(QWidget):
             # ----- paint -----
             space = (brush_radius * self.curr_brush.get_spacing())
             points = np.arange(0, steps, space)
-            for i in range(steps):
+            for i in points:
                 a = self.old_x + step_x * i
                 b = self.old_y + step_y * i
-                self.paintMasking(int(a), int(b), img_x, img_y, brush_radius, brush_color)
+                self.paintMasking(int(a), int(b), img_x, img_y, brush_radius, brush_color, self.curr_brush.get_flow())
 
             self.update()
 
         self.old_x = x
         self.old_y = y
+
+    def mouseReleaseEvent(self, e):
+        opacity = self.curr_brush.get_opacity()
+        where_is_painted = (self.temp_layer[1] > 0).astype(np.float32)
+        real_opacity = opacity * where_is_painted
+
+        self.currImage[:] = (self.currImage.astype(np.float32) * (1 - real_opacity) +
+                             self.temp_layer[1].astype(np.float32) * real_opacity).astype(np.uint8)
+
+        self.temp_layer[0] = None
+        self.temp_layer[1] = None
+        self.update()
+
 
     def setColor(self, color: tuple):
         self.curr_color = color
