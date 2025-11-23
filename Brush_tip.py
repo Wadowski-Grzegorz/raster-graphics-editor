@@ -8,6 +8,6 @@ class Brush_tip():
 
         radius = self.size // 2
         self.mask = np.zeros((self.size, self.size), np.uint8)
-        cv.circle(self.mask, (radius, radius), radius, 150, -1)
+        cv.circle(self.mask, (radius, radius), radius, 255, -1)
 
 

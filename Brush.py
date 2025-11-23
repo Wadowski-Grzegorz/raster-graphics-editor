@@ -23,3 +23,5 @@ class Brush():
     def get_mask(self):
         return self.brush_tip.mask
 
+    def get_spacing(self):
+        return self.spacing

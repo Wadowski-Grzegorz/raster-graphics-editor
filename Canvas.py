@@ -19,19 +19,13 @@ class Canvas(QWidget):
         self.curr_brush = Brush(size=100)
         self.curr_color = (0, 0, 0)
 
-        # self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-        # self.setStyleSheet("background-color:rgb(55,55,55);")
-        # print(f'canvas: {self.width()}, {self.height()}')
-
 
     def paintEvent(self, e):
         painter = QPainter(self)
-        # print(f'canvas: {self.width()}, {self.height()}')
         for image, npImage in self.layers.values():
-            # print(f'painting image is: {id(i)}')
             painter.drawImage(0, 0, image)
 
-    def paintMasking(self, x, y, img_x, img_y, brush_radius, brush_color):
+    def paintMasking(self, x, y, img_x, img_y, brush_radius, brush_color, flow=0.2):
         img_y_s, img_y_e = max(y - brush_radius, 0), min(y + brush_radius, img_y)
         img_x_s, img_x_e = max(x - brush_radius, 0), min(x + brush_radius, img_x)
 
@@ -48,7 +42,8 @@ class Canvas(QWidget):
 
         # mask is [a, b] while image is [a, b, 4], so resize with None
         mask = mask[mask_y_s:mask_y_e, mask_x_s:mask_x_e, None]
-        paint_image = paint_image * (1 - mask) + brush_color * mask
+        adjusted_mask = mask * flow
+        paint_image = paint_image * (1 - adjusted_mask) + brush_color * adjusted_mask
 
         self.currImage[img_y_s:img_y_e, img_x_s:img_x_e] = paint_image.astype(np.uint8)
 
@@ -95,12 +90,12 @@ class Canvas(QWidget):
             brush_radius = brush_size // 2
 
             # ----- paint -----
-            a, b = self.old_x, self.old_y
-            for _ in range(steps):
+            space = (brush_radius * self.curr_brush.get_spacing())
+            points = np.arange(0, steps, space)
+            for i in range(steps):
+                a = self.old_x + step_x * i
+                b = self.old_y + step_y * i
                 self.paintMasking(int(a), int(b), img_x, img_y, brush_radius, brush_color)
-
-                a += step_x
-                b += step_y
 
             self.update()
 
@@ -128,6 +123,5 @@ class Canvas(QWidget):
 
     @QtCore.pyqtSlot(int)
     def changed_image(self, idx: int):
-        # print(f'changed image idx: {idx}')
         self.set_curr_image(idx)
         self.update()
