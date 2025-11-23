@@ -1,18 +1,13 @@
 import numpy as np
 import cv2 as cv
-from Brush_tip import Brush_tip
+from brush.Brush_tip import Brush_tip
 
 class Brush():
-    def __init__(self, color=(0, 0, 0), opacity=1, flow=1, spacing=0.25, size=1):
-        self.color = color
+    def __init__(self, opacity=1, flow=1, spacing=0.25, size=1):
         self.opacity = opacity
         self.flow = flow
         self.spacing = spacing
         self.brush_tip = Brush_tip(size=size)
-
-    def get_paint(self):
-        b, g, r = self.color
-        return (b, g, r, 255*self.opacity)
 
     def get_opacity(self):
         return self.opacity

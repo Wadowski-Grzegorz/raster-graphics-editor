@@ -1,12 +1,14 @@
 import sys
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTabWidget, QPushButton, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from Canvas import Canvas
 from Palette import Palette
-from Layers_panel import Layers_panel
-from Layers import Layers
+from layer.Layers_panel import Layers_panel
+from layer.Layers import Layers
 from Controller import Controller
+from tool.Tools_panel import Tools_panel
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -36,7 +38,10 @@ class MainWindow(QMainWindow):
         self.controller.signal_idx_changed.connect(self.canvas.changed_image)
         self.controller.signal_layer_created.connect(self.canvas.added_new_image)
 
+        self.tools_panel = Tools_panel()
+
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.layers_panel)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tools_panel)
 
 
         dummy = QWidget()

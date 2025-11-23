@@ -13,6 +13,7 @@ class Layers_panel(QDockWidget):
 
         dummy = QWidget()
         self.setWidget(dummy)
+        self.setTitleBarWidget(QWidget())
 
         layout_main = QVBoxLayout(dummy)
 

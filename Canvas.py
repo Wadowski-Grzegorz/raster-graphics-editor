@@ -3,8 +3,8 @@ import cv2 as cv
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPainter
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton
-from Brush import Brush
+from PyQt6.QtWidgets import QWidget
+from brush.Brush import Brush
 
 class Canvas(QWidget):
     def __init__(self):

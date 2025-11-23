@@ -1,7 +1,7 @@
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QImage
 from PyQt6.QtWidgets import QWidget
-from Layers import Layers
+from layer.Layers import Layers
 
 class Controller(QWidget):
     signal_layer_created = pyqtSignal(QImage, int)
