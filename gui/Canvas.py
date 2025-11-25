@@ -16,7 +16,7 @@ class Canvas(QWidget):
         self.old_x = None
         self.old_y = None
 
-        self.curr_brush = Brush(size=100, opacity=1)
+        self.curr_brush = Brush(size=100, opacity=0.5)
         self.curr_color = (0, 0, 0)
 
 
@@ -48,7 +48,6 @@ class Canvas(QWidget):
         paint_image = paint_image * (1 - adjusted_mask) + brush_color * adjusted_mask
 
         self.temp_layer[1][img_y_s:img_y_e, img_x_s:img_x_e] = paint_image.astype(np.uint8)
-
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
@@ -107,8 +106,9 @@ class Canvas(QWidget):
 
     def mouseReleaseEvent(self, e):
         opacity = self.curr_brush.get_opacity()
-        where_is_painted = (self.temp_layer[1] > 0).astype(np.float32)
+        where_is_painted = (self.temp_layer[1].sum(axis=2) > 0).astype(np.float32)
         real_opacity = opacity * where_is_painted
+        real_opacity = real_opacity[:, :, None]
 
         self.layers[self.curr_idx][1][:] = (self.layers[self.curr_idx][1].astype(np.float32) * (1 - real_opacity) +
                              self.temp_layer[1].astype(np.float32) * real_opacity).astype(np.uint8)
@@ -130,11 +130,10 @@ class Canvas(QWidget):
         self.layers[idx] = [qimage, image]
 
         if self.temp_layer[0] is None:
-            tmp_img = QImage(w, h, QImage.Format.Format_RGBA8888)
-            ptr = tmp_img.bits()
-            ptr.setsize(h * w * 4)
-            self.temp_layer[1] = np.frombuffer(ptr, np.uint8).reshape((h, w, 4))
-            self.temp_layer[0] = tmp_img
+            tmp_img = np.zeros((h, w, 4), dtype=np.uint8)
+            qtmp_img = QImage(tmp_img.data, w, h, QImage.Format.Format_RGBA8888)
+            self.temp_layer[0] = qtmp_img
+            self.temp_layer[1] = tmp_img
 
         self.set_curr_image(idx)
         self.update()
