@@ -2,6 +2,8 @@ import sys
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+
+from core.Paint import Paint
 from gui.Canvas import Canvas
 from gui.Palette import Palette
 from gui.Layers_panel import Layers_panel
@@ -30,13 +32,15 @@ class MainWindow(QMainWindow):
         layers_panel = Layers_panel()
         tools_panel = Tools_panel()
 
+        paint = Paint()
+
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, tools_panel)
 
         starting_window = Starting_window()
 
         self.controller = Controller(canvas=canvas, palette=palette,
-                                     layers=layers, layers_panel=layers_panel,
+                                     layers=layers, layers_panel=layers_panel, paint=paint,
                                      starting_window=starting_window)
 
         starting_window.do()
