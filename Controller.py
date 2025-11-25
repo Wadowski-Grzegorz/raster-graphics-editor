@@ -9,8 +9,6 @@ from gui.Layers_panel import Layers_panel
 import numpy as np
 
 class Controller(QWidget):
-    signal_layer_created = pyqtSignal(np.ndarray, int)
-    signal_idx_changed = pyqtSignal(int)
 
     def __init__(self, canvas: Canvas, palette: Palette, layers: Layers, layers_panel: Layers_panel):
         super().__init__()
@@ -21,15 +19,13 @@ class Controller(QWidget):
 
         self.palette.color_signal.connect(self.canvas.setColor)
         self.layers_panel.signal_layer_create_order.connect(self.layer_create)
-        self.signal_layer_created.connect(self.layers_panel.added_new_layer)
         self.layers_panel.signal_layer_choose.connect(self.idx_chosen)
-        self.signal_idx_changed.connect(self.canvas.changed_image)
-        self.signal_layer_created.connect(self.canvas.added_new_image)
 
     def layer_create(self):
         image, idx = self.layers.create()
-        self.signal_layer_created.emit(image, idx)
+        self.layers_panel.added_new_layer(image, idx)
+        self.canvas.added_new_image(image, idx)
 
     @pyqtSlot(int)
     def idx_chosen(self, idx: int):
-        self.signal_idx_changed.emit(idx)
+        self.canvas.changed_image(idx)

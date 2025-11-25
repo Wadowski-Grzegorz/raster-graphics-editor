@@ -12,6 +12,7 @@ class Layers(QObject):
     def __init__(self):
         super().__init__()
         self.layers = [] # numpy images rgba
+        self.temp_layer = None
 
     def create(self):
         # create new layer; emit QImage and index
@@ -20,6 +21,11 @@ class Layers(QObject):
         self.layers.append(image)
         # self.signal_layer_created.emit(image, len(self.layers) - 1)
         return (image, len(self.layers) - 1)
+
+    def create_temp(self):
+        layer = np.zeros((480, 640, 4), dtype=np.uint8)
+        self.temp_layer.append(layer)
+        return layer
     
     # @pyqtSlot(int)
     # def idx_chosen(self, idx: int):
