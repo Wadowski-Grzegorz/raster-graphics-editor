@@ -129,18 +129,19 @@ class Canvas(QWidget):
 
         self.layers[idx] = [qimage, image]
 
-        if self.temp_layer[0] is None:
-            tmp_img = np.zeros((h, w, 4), dtype=np.uint8)
-            qtmp_img = QImage(tmp_img.data, w, h, QImage.Format.Format_RGBA8888)
-            self.temp_layer[0] = qtmp_img
-            self.temp_layer[1] = tmp_img
-
         self.set_curr_image(idx)
         self.update()
 
     @QtCore.pyqtSlot(np.ndarray, int)
     def added_new_image(self, image: QImage, idx: int):
         self.add_image(image, idx)
+
+    @QtCore.pyqtSlot(np.ndarray)
+    def added_temp_layer(self, layer: np.ndarray):
+        h, w, _ = layer.shape
+        qLayer = QImage(layer.data, w, h, QImage.Format.Format_RGBA8888)
+        self.temp_layer[0] = qLayer
+        self.temp_layer[1] = layer
 
     @QtCore.pyqtSlot(int)
     def changed_image(self, idx: int):

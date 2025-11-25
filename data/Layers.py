@@ -14,18 +14,24 @@ class Layers(QObject):
         self.layers = [] # numpy images rgba
         self.temp_layer = None
 
+        self.width = None
+        self.height = None
+
     def create(self):
         # create new layer; emit QImage and index
         # image = QImage(640, 480, QImage.Format.Format_RGBA8888)
-        image = np.zeros((480, 640, 4), dtype=np.uint8)
+        image = np.zeros((self.height, self.width, 4), dtype=np.uint8)
         self.layers.append(image)
         # self.signal_layer_created.emit(image, len(self.layers) - 1)
         return (image, len(self.layers) - 1)
 
-    def create_temp(self):
-        layer = np.zeros((480, 640, 4), dtype=np.uint8)
-        self.temp_layer.append(layer)
-        return layer
+    def create_temp(self, width, height):
+        self.width = width
+        self.height = height
+
+        layer = np.zeros((self.height, self.width, 4), dtype=np.uint8)
+        self.temp_layer = layer
+        return self.temp_layer
     
     # @pyqtSlot(int)
     # def idx_chosen(self, idx: int):
@@ -34,3 +40,6 @@ class Layers(QObject):
 
     def get_layers(self):
         return self.layers
+
+    def get_layers_size(self):
+        return len(self.layers)

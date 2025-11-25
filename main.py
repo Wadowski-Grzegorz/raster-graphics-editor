@@ -7,6 +7,7 @@ from gui.Palette import Palette
 from gui.Layers_panel import Layers_panel
 from data.Layers import Layers
 from Controller import Controller
+from gui.starting_window import Starting_window
 from gui.tool.Tools_panel import Tools_panel
 
 
@@ -32,11 +33,16 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, tools_panel)
 
+        starting_window = Starting_window()
+
         self.controller = Controller(canvas=canvas, palette=palette,
-                                layers=layers, layers_panel=layers_panel)
+                                     layers=layers, layers_panel=layers_panel,
+                                     starting_window=starting_window)
+
+        starting_window.do()
+
         dummy = QWidget()
         dummy.setLayout(layout)
-
         self.setCentralWidget(dummy)
 
 
