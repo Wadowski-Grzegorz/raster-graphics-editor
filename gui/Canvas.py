@@ -1,10 +1,9 @@
 import numpy as np
-import cv2 as cv
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPainter
 from PyQt6.QtWidgets import QWidget
-from brush.Brush import Brush
+from core.brush.Brush import Brush
 
 class Canvas(QWidget):
     def __init__(self):
@@ -17,7 +16,7 @@ class Canvas(QWidget):
         self.old_x = None
         self.old_y = None
 
-        self.curr_brush = Brush(size=100, opacity=0.5)
+        self.curr_brush = Brush(size=100, opacity=1)
         self.curr_color = (0, 0, 0)
 
 
@@ -57,12 +56,6 @@ class Canvas(QWidget):
             img_y, img_x = self.currImage.shape[:2]
 
             if 0 <= x < img_x and 0 <= y < img_y:
-                tmp_img = QImage(img_x, img_y, QImage.Format.Format_RGBA8888)
-                ptr = tmp_img.bits()
-                ptr.setsize(tmp_img.width() * tmp_img.height() * 4)
-                self.temp_layer[1] = np.frombuffer(ptr, np.uint8).reshape((tmp_img.height(), tmp_img.width(), 4))
-                self.temp_layer[0] = tmp_img
-
                 color = (*self.curr_color, 255)
                 brush_color = np.array(color, dtype=np.uint8)
 
@@ -120,8 +113,7 @@ class Canvas(QWidget):
         self.currImage[:] = (self.currImage.astype(np.float32) * (1 - real_opacity) +
                              self.temp_layer[1].astype(np.float32) * real_opacity).astype(np.uint8)
 
-        self.temp_layer[0] = None
-        self.temp_layer[1] = None
+        self.temp_layer[1].fill(0)
         self.update()
 
 
@@ -131,16 +123,27 @@ class Canvas(QWidget):
     def set_curr_image(self, idx: int):
         self.currImage = self.layers[idx][1]
 
-    def add_image(self, image: QImage, idx: int):
-        ptr = image.bits()
-        ptr.setsize(image.width() * image.height() * 4)
-        npImage = np.frombuffer(ptr, np.uint8).reshape((image.height(), image.width(), 4))
-        self.layers[idx] = [image, npImage]
+    def add_image(self, image, idx: int):
+        # ptr = image.bits()
+        # ptr.setsize(image.width() * image.height() * 4)
+        # npImage = np.frombuffer(ptr, np.uint8).reshape((image.height(), image.width(), 4))
+
+        h, w = image.shape[:2]
+        qimage = QImage(image.data, w, h, 4*w, QImage.Format.Format_RGBA8888)
+
+        self.layers[idx] = [qimage, image]
+
+        if self.temp_layer[0] is None:
+            tmp_img = QImage(w, h, QImage.Format.Format_RGBA8888)
+            ptr = tmp_img.bits()
+            ptr.setsize(h * w * 4)
+            self.temp_layer[1] = np.frombuffer(ptr, np.uint8).reshape((h, w, 4))
+            self.temp_layer[0] = tmp_img
 
         self.set_curr_image(idx)
         self.update()
 
-    @QtCore.pyqtSlot(QImage, int)
+    @QtCore.pyqtSlot(np.ndarray, int)
     def added_new_image(self, image: QImage, idx: int):
         self.add_image(image, idx)
 

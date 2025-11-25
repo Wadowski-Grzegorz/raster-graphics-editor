@@ -1,6 +1,7 @@
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QObject
 from PyQt6.QtGui import QImage, QColor
 from PyQt6.QtCore import Qt
+import numpy as np
 
 
 class Layers(QObject):
@@ -10,12 +11,12 @@ class Layers(QObject):
 
     def __init__(self):
         super().__init__()
-        self.layers = []
+        self.layers = [] # numpy images rgba
 
     def create(self):
         # create new layer; emit QImage and index
-        image = QImage(640, 480, QImage.Format.Format_RGBA8888)
-        # image.fill(Qt.GlobalColor.white)
+        # image = QImage(640, 480, QImage.Format.Format_RGBA8888)
+        image = np.zeros((480, 640, 4), dtype=np.uint8)
         self.layers.append(image)
         # self.signal_layer_created.emit(image, len(self.layers) - 1)
         return (image, len(self.layers) - 1)

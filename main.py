@@ -2,48 +2,38 @@ import sys
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
-from Canvas import Canvas
-from Palette import Palette
-from layer.Layers_panel import Layers_panel
-from layer.Layers import Layers
+from gui.Canvas import Canvas
+from gui.Palette import Palette
+from gui.Layers_panel import Layers_panel
+from data.Layers import Layers
 from Controller import Controller
-from tool.Tools_panel import Tools_panel
+from gui.tool.Tools_panel import Tools_panel
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('pre-app')
-        # self.resize(800, 600)
-        # print(f'{self.size()} main')
+        self.setWindowTitle('app-TION')
 
         layout = QVBoxLayout()
 
         layers = Layers()
-        self.controller = Controller(layers)
 
-        self.canvas = Canvas()
-        layout.addWidget(self.canvas)
+        canvas = Canvas()
+        layout.addWidget(canvas)
 
+        palette = Palette()
+        layout.addLayout(palette)
 
-        self.palette = Palette()
-        self.palette.color_signal.connect(self.canvas.setColor)
-        layout.addLayout(self.palette)
+        layers_panel = Layers_panel()
+        tools_panel = Tools_panel()
 
-        self.layers_panel = Layers_panel()
-        self.layers_panel.signal_layer_create_order.connect(self.controller.layer_create)
-        self.controller.signal_layer_created.connect(self.layers_panel.added_new_layer)
-        self.layers_panel.signal_layer_choose.connect(self.controller.idx_chosen)
-        self.controller.signal_idx_changed.connect(self.canvas.changed_image)
-        self.controller.signal_layer_created.connect(self.canvas.added_new_image)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, tools_panel)
 
-        self.tools_panel = Tools_panel()
-
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.layers_panel)
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tools_panel)
-
-
+        self.controller = Controller(canvas=canvas, palette=palette,
+                                layers=layers, layers_panel=layers_panel)
         dummy = QWidget()
         dummy.setLayout(layout)
 

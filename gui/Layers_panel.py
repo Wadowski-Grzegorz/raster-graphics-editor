@@ -2,6 +2,7 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QImage
 from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout
+import numpy as np
 
 
 class Layers_panel(QDockWidget):
@@ -32,6 +33,6 @@ class Layers_panel(QDockWidget):
         self.layout_menu.addWidget(button)
         # print(f'added new button, idx: {idx}')
 
-    @QtCore.pyqtSlot(QImage, int)
-    def added_new_layer(self, i: QImage, idx: int):
+    @QtCore.pyqtSlot(np.ndarray, int)
+    def added_new_layer(self, i: np.ndarray, idx: int):
         self.add_button_layer(idx)

@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from tool.ValueField import ValueField
+from PyQt6.QtWidgets import QDockWidget, QWidget, QHBoxLayout
+from gui.tool.ValueField import ValueField
 
 class Tools_panel(QDockWidget):
     def __init__(self, parent=None):

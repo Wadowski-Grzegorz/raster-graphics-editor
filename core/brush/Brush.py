@@ -1,6 +1,4 @@
-import numpy as np
-import cv2 as cv
-from brush.Brush_tip import Brush_tip
+from core.brush.Brush_tip import Brush_tip
 
 class Brush():
     def __init__(self, opacity=1, flow=1, spacing=0.25, size=1):
