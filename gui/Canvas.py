@@ -9,7 +9,7 @@ class Canvas(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.currImage = None
+        self.curr_idx = None
         self.layers = {} # { idx: [QImage, npImage] }
         self.temp_layer = [None, None] # [QImage, npImage]
 
@@ -53,7 +53,7 @@ class Canvas(QWidget):
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
             x, y = int(e.position().x()), int(e.position().y())
-            img_y, img_x = self.currImage.shape[:2]
+            img_y, img_x = self.layers[self.curr_idx][1].shape[:2]
 
             if 0 <= x < img_x and 0 <= y < img_y:
                 color = (*self.curr_color, 255)
@@ -71,7 +71,7 @@ class Canvas(QWidget):
 
     def mouseMoveEvent(self, e):
         x, y = int(e.position().x()), int(e.position().y())
-        img_y, img_x = self.currImage.shape[:2]
+        img_y, img_x = self.layers[self.curr_idx][1].shape[:2]
         if (0 <= x < img_x and 0 <= y < img_y and
                 0 <= self.old_x < img_x and 0 <= self.old_y < img_y):
 
@@ -110,7 +110,7 @@ class Canvas(QWidget):
         where_is_painted = (self.temp_layer[1] > 0).astype(np.float32)
         real_opacity = opacity * where_is_painted
 
-        self.currImage[:] = (self.currImage.astype(np.float32) * (1 - real_opacity) +
+        self.layers[self.curr_idx][1][:] = (self.layers[self.curr_idx][1].astype(np.float32) * (1 - real_opacity) +
                              self.temp_layer[1].astype(np.float32) * real_opacity).astype(np.uint8)
 
         self.temp_layer[1].fill(0)
@@ -121,13 +121,9 @@ class Canvas(QWidget):
         self.curr_color = color
 
     def set_curr_image(self, idx: int):
-        self.currImage = self.layers[idx][1]
+        self.curr_idx = idx
 
     def add_image(self, image, idx: int):
-        # ptr = image.bits()
-        # ptr.setsize(image.width() * image.height() * 4)
-        # npImage = np.frombuffer(ptr, np.uint8).reshape((image.height(), image.width(), 4))
-
         h, w = image.shape[:2]
         qimage = QImage(image.data, w, h, 4*w, QImage.Format.Format_RGBA8888)
 
