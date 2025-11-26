@@ -3,11 +3,10 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPainter
 from PyQt6.QtWidgets import QWidget
-from core.brush.Brush import Brush
 
 class Canvas(QWidget):
-    signal_paint_masking = QtCore.pyqtSignal(int, int, int, np.ndarray, float)
-    signal_paint_masking_line = QtCore.pyqtSignal(int, int, int, int, int, np.ndarray, float, float)
+    signal_paint_masking = QtCore.pyqtSignal(int, int, np.ndarray)
+    signal_paint_masking_line = QtCore.pyqtSignal(int, int, int, int, np.ndarray)
     signal_blend = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -23,7 +22,6 @@ class Canvas(QWidget):
         self.old_x = None
         self.old_y = None
 
-        self.curr_brush = Brush(size=100, opacity=0.5)
         self.curr_color = (0, 0, 0)
 
 
@@ -42,10 +40,7 @@ class Canvas(QWidget):
                 color = (*self.curr_color, 255)
                 brush_color = np.array(color, dtype=np.uint8)
 
-                brush_size = self.curr_brush.get_size()
-                brush_radius = brush_size // 2
-
-                self.signal_paint_masking.emit(x, y, brush_radius, brush_color, self.curr_brush.get_flow())
+                self.signal_paint_masking.emit(x, y, brush_color)
 
                 self.update()
 
@@ -60,13 +55,10 @@ class Canvas(QWidget):
             color = (*self.curr_color, 255)
             brush_color = np.array(color, dtype=np.uint8)
 
-            brush_size = self.curr_brush.get_size()
-            brush_radius = brush_size // 2
-
             self.signal_paint_masking_line.emit(
-                self.old_x, self.old_y, x, y,
-                brush_radius, brush_color,
-                self.curr_brush.get_flow(), self.curr_brush.get_spacing()
+                self.old_x, self.old_y,
+                x, y,
+                brush_color
             )
 
             self.update()

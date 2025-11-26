@@ -1,6 +1,7 @@
+import numpy as np
+
 from core.brush.Brush import Brush
 
-import numpy as np
 
 class Paint():
     def __init__(self):
@@ -15,7 +16,9 @@ class Paint():
 
         self.curr_brush = Brush(size=100, opacity=0.5)
 
-    def paint_masking(self, x, y, brush_radius, brush_color, flow):
+    def paint_masking(self, x, y, brush_color):
+        brush_radius = self.curr_brush.get_size() // 2
+
         img_y_s, img_y_e = max(y - brush_radius, 0), min(y + brush_radius, self.layer_height)
         img_x_s, img_x_e = max(x - brush_radius, 0), min(x + brush_radius, self.layer_width)
 
@@ -23,7 +26,7 @@ class Paint():
         paint_image = self.temp_layer[img_y_s:img_y_e, img_x_s:img_x_e].astype(np.float32)
 
         # values 0-255 --> 0-1
-        mask = self.curr_brush.get_mask().astype(np.float32) / 255.
+        mask = self.curr_brush.get_tip().astype(np.float32) / 255.
 
         mask_y_s = max(brush_radius - y, 0)
         mask_y_e = mask_y_s + img_y_e - img_y_s
@@ -32,12 +35,12 @@ class Paint():
 
         # mask is [a, b] while image is [a, b, 4], so resize with None
         mask = mask[mask_y_s:mask_y_e, mask_x_s:mask_x_e, None]
-        adjusted_mask = mask * flow
+        adjusted_mask = mask * self.curr_brush.get_flow()
         paint_image = paint_image * (1 - adjusted_mask) + brush_color * adjusted_mask
 
         self.temp_layer[img_y_s:img_y_e, img_x_s:img_x_e] = paint_image.astype(np.uint8)
 
-    def paint_masking_line(self, start_x, start_y, end_x, end_y, brush_radius, brush_color, flow, spacing):
+    def paint_masking_line(self, start_x, start_y, end_x, end_y, brush_color):
         # ----- calculating pixel position -----
         # check which value has more to grow
         dx = abs(end_x - start_x)
@@ -49,12 +52,16 @@ class Paint():
         step_y = dy / steps if end_y >= start_y else -dy / steps
 
         # ----- order paint -----
+        brush_radius = self.curr_brush.get_size() // 2
+        spacing = self.curr_brush.get_spacing()
+        flow = self.curr_brush.get_flow()
+
         space = (brush_radius * spacing)
         points = np.arange(0, steps, space)
         for i in points:
             a = start_x + step_x * i
             b = start_y + step_y * i
-            self.paint_masking(int(a), int(b), brush_radius, brush_color, flow)
+            self.paint_masking(int(a), int(b), brush_color)
 
     def blend(self):
         opacity = self.curr_brush.get_opacity()
@@ -85,3 +92,12 @@ class Paint():
 
     def changed_layer(self, idx: int):
         self.set_curr_idx(idx)
+
+    def changed_brush_size(self, size: float):
+        self.curr_brush.set_size(size)
+
+    def changed_brush_opacity(self, opacity: float):
+        self.curr_brush.set_opacity(opacity)
+
+    def changed_brush_flow(self, flow: float):
+        self.curr_brush.set_flow(flow)

@@ -10,7 +10,7 @@ from gui.Layers_panel import Layers_panel
 from data.Layers import Layers
 from Controller import Controller
 from gui.starting_window import Starting_window
-from gui.tool.Tools_panel import Tools_panel
+from gui.tool.ToolsPanel import ToolsPanel
 
 
 class MainWindow(QMainWindow):
@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(palette)
 
         layers_panel = Layers_panel()
-        tools_panel = Tools_panel()
+        tools_panel = ToolsPanel()
 
         paint = Paint()
 
@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
 
         starting_window = Starting_window()
 
-        self.controller = Controller(canvas=canvas, palette=palette,
+        self.controller = Controller(canvas=canvas, palette=palette, tools_panel=tools_panel,
                                      layers=layers, layers_panel=layers_panel, paint=paint,
                                      starting_window=starting_window)
 
