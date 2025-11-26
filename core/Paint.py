@@ -17,7 +17,7 @@ class Paint():
         self.curr_brush = Brush(size=100, opacity=1)
 
     def paint_masking(self, x, y, brush_color):
-        brush_radius = self.curr_brush.get_size() // 2
+        brush_radius = self.curr_brush.get_radius()
 
         img_y_s, img_y_e = max(y - brush_radius, 0), min(y + brush_radius, self.layer_height)
         img_x_s, img_x_e = max(x - brush_radius, 0), min(x + brush_radius, self.layer_width)
@@ -52,7 +52,7 @@ class Paint():
         step_y = dy / steps if end_y >= start_y else -dy / steps
 
         # ----- order paint -----
-        brush_radius = self.curr_brush.get_size() // 2
+        brush_radius = self.curr_brush.get_radius()
         spacing = self.curr_brush.get_spacing()
         flow = self.curr_brush.get_flow()
 

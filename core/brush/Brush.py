@@ -33,3 +33,6 @@ class Brush():
 
     def set_flow(self, flow):
         self.flow = flow
+
+    def get_radius(self):
+        return self.brush_tip.radius

@@ -6,3 +6,6 @@ Gui ToolsPanel at startup don't show real values.
 Implement other brush parameters.
 
 Make so temp_layer will drawn where current layer is.
+
+Look how size and radius works.
+It only changes every 2 pixel size - consider if it should work like that.
