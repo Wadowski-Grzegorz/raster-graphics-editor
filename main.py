@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from core.Paint import Paint
 from gui.Canvas import Canvas
 from gui.Palette import Palette
-from gui.Layers_panel import Layers_panel
+from gui.LayersPanel import LayersPanel
 from data.Layers import Layers
 from Controller import Controller
 from gui.starting_window import Starting_window
@@ -23,13 +23,13 @@ class MainWindow(QMainWindow):
 
         layers = Layers()
 
-        canvas = Canvas()
+        canvas = Canvas(layers)
         layout.addWidget(canvas)
 
         palette = Palette()
         layout.addLayout(palette)
 
-        layers_panel = Layers_panel()
+        layers_panel = LayersPanel(layers)
         tools_panel = ToolsPanel()
 
         paint = Paint()

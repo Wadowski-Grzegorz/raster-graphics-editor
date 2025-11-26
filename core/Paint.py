@@ -14,7 +14,7 @@ class Paint():
         self.layer_width = None
         self.layer_height = None
 
-        self.curr_brush = Brush(size=100, opacity=0.5)
+        self.curr_brush = Brush(size=100, opacity=1)
 
     def paint_masking(self, x, y, brush_color):
         brush_radius = self.curr_brush.get_size() // 2

@@ -2,3 +2,7 @@ Gui Brush.size is float, but it gets interpreted as int in core.
 You can make so it gets sometimes interpreted as float to be more accurate.
 
 Gui ToolsPanel at startup don't show real values.
+
+Implement other brush parameters.
+
+Make so temp_layer will drawn where current layer is.

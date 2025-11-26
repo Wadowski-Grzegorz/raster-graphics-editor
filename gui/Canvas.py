@@ -3,68 +3,71 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPainter
 from PyQt6.QtWidgets import QWidget
+from data.Layers import Layers
 
 class Canvas(QWidget):
     signal_paint_masking = QtCore.pyqtSignal(int, int, np.ndarray)
     signal_paint_masking_line = QtCore.pyqtSignal(int, int, int, int, np.ndarray)
     signal_blend = QtCore.pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, layers_source: Layers):
         super().__init__()
 
-        self.curr_idx = None
-        self.layers = {} # { idx: QImage }
-        self.temp_layer = None # QImage
+        self._layers_source = layers_source
+        self._layers = {} # { idx: QImage }
+        self._temp_layer = None # QImage
 
-        self.layer_width = None
-        self.layer_height = None
+        self._layer_width = None
+        self._layer_height = None
 
-        self.old_x = None
-        self.old_y = None
+        self._old_x = None
+        self._old_y = None
 
-        self.curr_color = (0, 0, 0)
+        self._curr_color = (0, 0, 0)
 
 
     def paintEvent(self, e):
         painter = QPainter(self)
-        for image in self.layers.values():
-            painter.drawImage(0, 0, image)
-        if self.temp_layer is not None:
-            painter.drawImage(0, 0, self.temp_layer)
+        for idx in self._layers_source.get_order():
+            layer = self._layers[idx]
+            painter.drawImage(0, 0, layer)
+
+        if self._temp_layer is not None:
+            painter.drawImage(0, 0, self._temp_layer)
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
             x, y = int(e.position().x()), int(e.position().y())
 
-            if 0 <= x < self.layer_width and 0 <= y < self.layer_height:
-                color = (*self.curr_color, 255)
+            if 0 <= x < self._layer_width and 0 <= y < self._layer_height:
+                color = (*self._curr_color, 255)
                 brush_color = np.array(color, dtype=np.uint8)
 
                 self.signal_paint_masking.emit(x, y, brush_color)
 
                 self.update()
 
-            self.old_x = x
-            self.old_y = y
+            self._old_x = x
+            self._old_y = y
 
     def mouseMoveEvent(self, e):
         x, y = int(e.position().x()), int(e.position().y())
-        if (0 <= x < self.layer_width and 0 <= y < self.layer_height and
-                0 <= self.old_x < self.layer_width and 0 <= self.old_y < self.layer_height):
+        if (0 <= x < self._layer_width and 0 <= y < self._layer_height and
+                0 <= self._old_x < self._layer_width and 0 <= self._old_y < self._layer_height):
 
-            color = (*self.curr_color, 255)
+            color = (*self._curr_color, 255)
             brush_color = np.array(color, dtype=np.uint8)
 
             self.signal_paint_masking_line.emit(
-                self.old_x, self.old_y,
+                self._old_x, self._old_y,
                 x, y,
                 brush_color
             )
 
             self.update()
 
-        self.old_x = x
-        self.old_y = y
+        self._old_x = x
+        self._old_y = y
 
     def mouseReleaseEvent(self, e):
         self.signal_blend.emit()
@@ -72,34 +75,31 @@ class Canvas(QWidget):
 
 
     def setColor(self, color: tuple):
-        self.curr_color = color
+        self._curr_color = color
 
-    def set_curr_image(self, idx: int):
-        self.curr_idx = idx
 
-    def add_image(self, image, idx: int):
-        qimage = QImage(image.data,
-                        self.layer_width, self.layer_height, 4*self.layer_width,
+    def add_image(self, image: np.ndarray, idx: int):
+        self._layers[idx] = QImage(image.data,
+                        self._layer_width, self._layer_height, 4*self._layer_width,
                         QImage.Format.Format_RGBA8888)
 
-        self.layers[idx] = qimage
-
-        self.set_curr_image(idx)
         self.update()
 
     @QtCore.pyqtSlot(np.ndarray, int)
-    def added_new_image(self, image: QImage, idx: int):
+    def added_new_image(self, image: np.ndarray, idx: int):
         self.add_image(image, idx)
 
     @QtCore.pyqtSlot(np.ndarray)
     def added_temp_layer(self, layer: np.ndarray):
         h, w, _ = layer.shape
-        qLayer = QImage(layer.data, w, h, QImage.Format.Format_RGBA8888)
-        self.temp_layer = qLayer
-        self.layer_width = w
-        self.layer_height = h
+        self._temp_layer = QImage(layer.data, w, h, QImage.Format.Format_RGBA8888)
+        self._layer_width = w
+        self._layer_height = h
 
     @QtCore.pyqtSlot(int)
     def changed_image(self, idx: int):
-        self.set_curr_image(idx)
+        self.update()
+
+    @QtCore.pyqtSlot()
+    def layers_order_changed(self):
         self.update()
