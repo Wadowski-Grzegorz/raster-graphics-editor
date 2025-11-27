@@ -23,7 +23,7 @@ class Canvas(QWidget):
         self._old_x = None
         self._old_y = None
 
-        self._curr_color = (0, 0, 0)
+        self._curr_color = [0, 0, 0, 255]
 
 
     def paintEvent(self, e):
@@ -40,8 +40,7 @@ class Canvas(QWidget):
             x, y = int(e.position().x()), int(e.position().y())
 
             if 0 <= x < self._layer_width and 0 <= y < self._layer_height:
-                color = (*self._curr_color, 255)
-                brush_color = np.array(color, dtype=np.uint8)
+                brush_color = np.array(self._curr_color, dtype=np.uint8)
 
                 self.signal_paint_masking.emit(x, y, brush_color)
 
@@ -55,8 +54,7 @@ class Canvas(QWidget):
         if (0 <= x < self._layer_width and 0 <= y < self._layer_height and
                 0 <= self._old_x < self._layer_width and 0 <= self._old_y < self._layer_height):
 
-            color = (*self._curr_color, 255)
-            brush_color = np.array(color, dtype=np.uint8)
+            brush_color = np.array(self._curr_color, dtype=np.uint8)
 
             self.signal_paint_masking_line.emit(
                 self._old_x, self._old_y,
@@ -74,8 +72,8 @@ class Canvas(QWidget):
         self.update()
 
 
-    def setColor(self, color: tuple):
-        self._curr_color = color
+    def set_color(self, color: list):
+        self._curr_color = [*color, 255]
 
 
     def add_image(self, image: np.ndarray, idx: int):

@@ -5,10 +5,10 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 from core.Paint import Paint
 from gui.Canvas import Canvas
-from gui.Palette import Palette
 from gui.LayersPanel import LayersPanel
 from data.Layers import Layers
 from Controller import Controller
+from gui.palette.Palette import Palette
 from gui.starting_window import Starting_window
 from gui.tool.ToolsPanel import ToolsPanel
 
@@ -27,15 +27,15 @@ class MainWindow(QMainWindow):
         layout.addWidget(canvas)
 
         palette = Palette()
-        layout.addLayout(palette)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, palette)
 
         layers_panel = LayersPanel(layers)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
+
         tools_panel = ToolsPanel()
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, tools_panel)
 
         paint = Paint()
-
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, tools_panel)
 
         starting_window = Starting_window()
 

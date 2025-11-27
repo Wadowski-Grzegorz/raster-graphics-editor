@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QWidget
 
 from core.Paint import Paint
 from gui.Canvas import Canvas
-from gui.Palette import Palette
+from gui.palette.Palette import Palette
 from data.Layers import Layers
 from gui.LayersPanel import LayersPanel
 from gui.tool.ToolsPanel import ToolsPanel
@@ -24,7 +24,7 @@ class Controller(QWidget):
         self.starting_window = starting_window
         self.tools_panel = tools_panel
 
-        self.palette.color_signal.connect(self.canvas.setColor)
+        self.palette.signal_color_changed.connect(self.canvas.set_color)
 
         self.layers_panel.signal_layer_create_order.connect(self.layer_create)
         self.layers_panel.signal_layer_choose.connect(self.idx_chosen)
