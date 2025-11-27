@@ -37,15 +37,21 @@ class Canvas(QWidget):
         scaled_layer_x, scaled_layer_y = int(self._layer_width * self._scale), int(self._layer_height * self._scale)
 
         if self.background:
-            painter.drawPixmap(self._offset_x, self._offset_y, self.background)
+            (painter
+             .drawPixmap(self._offset_x, self._offset_y, self.background
+                         .scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio)))
 
         for idx in self._layers_source.get_order():
             layer = self._layers[idx]
-            pixmap = QPixmap.fromImage(layer).scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio)
+            pixmap = (QPixmap
+                      .fromImage(layer)
+                      .scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio))
             painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
 
         if self._temp_layer is not None:
-            pixmap = QPixmap.fromImage(self._temp_layer).scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio)
+            pixmap = (QPixmap
+                      .fromImage(self._temp_layer)
+                      .scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio))
             painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
 
     def mousePressEvent(self, e):
@@ -94,14 +100,12 @@ class Canvas(QWidget):
         self._scale = max(0.1, min(10.0, self._scale))
 
         self.resize_values()
-        self.create_background()
 
         self.update()
 
     def resizeEvent(self, e):
         if self._layer_width is not None and self._layer_height is not None:
             self.resize_values()
-            self.create_background()
 
         self.update()
 
@@ -110,8 +114,7 @@ class Canvas(QWidget):
         self._offset_y = int((self.height() - self._layer_height * self._scale) // 2)
 
     def create_background(self):
-        scaled_layer_x, scaled_layer_y = int(self._layer_width * self._scale), int(self._layer_height * self._scale)
-        self.background = QPixmap(scaled_layer_x, scaled_layer_y)
+        self.background = QPixmap(self._layer_width, self._layer_height)
         self.background.fill(QColor(170, 170, 170))
 
     def convert_to_layer(self, position):
@@ -134,7 +137,6 @@ class Canvas(QWidget):
         self._layer_height = height
 
         self.resize_values()
-        self.create_background()
 
     @QtCore.pyqtSlot(np.ndarray, int)
     def added_new_image(self, image: np.ndarray, idx: int):
@@ -145,6 +147,7 @@ class Canvas(QWidget):
         h, w, _ = layer.shape
         self._temp_layer = QImage(layer.data, w, h, QImage.Format.Format_RGBA8888)
         self.set_layer_size(w, h)
+        self.create_background()
 
     @QtCore.pyqtSlot(int)
     def changed_image(self, idx: int):
