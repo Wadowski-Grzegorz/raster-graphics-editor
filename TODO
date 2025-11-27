@@ -9,3 +9,5 @@ Make so temp_layer will drawn where current layer is.
 
 Look how size and radius works.
 It only changes every 2 pixel size - consider if it should work like that.
+
+Currently Canvas.add_layer assumes that temp_layer exists.
