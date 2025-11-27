@@ -43,17 +43,22 @@ class Canvas(QWidget):
             layer = self._layers[idx]
             pixmap = (QPixmap
                       .fromImage(layer)
-                      .scaled(scaled_layer_x, scaled_layer_y,
-                              Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-                              )
+                      .scaled(
+                                scaled_layer_x, scaled_layer_y,
+                                Qt.AspectRatioMode.IgnoreAspectRatio,
+                                Qt.TransformationMode.SmoothTransformation
+                            )
                       )
             painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
 
         if self._temp_layer is not None:
             pixmap = (QPixmap
                       .fromImage(self._temp_layer)
-                      .scaled(scaled_layer_x, scaled_layer_y,
-                              Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                      .scaled(
+                                scaled_layer_x, scaled_layer_y,
+                                Qt.AspectRatioMode.IgnoreAspectRatio,
+                                Qt.TransformationMode.SmoothTransformation
+                        )
                       )
             painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
 
@@ -73,8 +78,11 @@ class Canvas(QWidget):
 
     def mouseMoveEvent(self, e):
         x, y = (int(v) for v in self.convert_to_layer(e.position()))
-        if (0 <= x < self._layer_width and 0 <= y < self._layer_height and
-                0 <= self._old_x < self._layer_width and 0 <= self._old_y < self._layer_height):
+        if (
+                0 <= x < self._layer_width and 0 <= y < self._layer_height and
+                0 <= self._old_x < self._layer_width and 0 <= self._old_y < self._layer_height and
+                abs(x - self._old_x) >= 1 and abs(y - self._old_y) >= 1
+        ):
 
             brush_color = np.array(self._curr_color, dtype=np.uint8)
 

@@ -51,10 +51,8 @@ class Paint():
         step_x = dx / steps if end_x >= start_x else -dx / steps
         step_y = dy / steps if end_y >= start_y else -dy / steps
 
-        # ----- order paint -----
         brush_radius = self.curr_brush.get_radius()
         spacing = self.curr_brush.get_spacing()
-        flow = self.curr_brush.get_flow()
 
         space = (brush_radius * spacing)
         points = np.arange(0, steps, space)
