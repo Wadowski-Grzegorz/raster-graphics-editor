@@ -1,11 +1,10 @@
-from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QWidget
 
 from core.Paint import Paint
 from gui.Canvas import Canvas
 from gui.palette.Palette import Palette
 from data.Layers import Layers
-from gui.LayersPanel import LayersPanel
+from gui.layersPanel.LayersPanel import LayersPanel
 from gui.tool.ToolsPanel import ToolsPanel
 from gui.starting_window import Starting_window
 

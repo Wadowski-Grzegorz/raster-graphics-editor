@@ -1,11 +1,9 @@
-from codecs import replace_errors
-
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem
 import numpy as np
 
-from gui.LayerTile import LayerTile
+from gui.layersPanel.LayerTile import LayerTile
 from data.Layers import Layers
 
 

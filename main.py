@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 from core.Paint import Paint
 from gui.Canvas import Canvas
-from gui.LayersPanel import LayersPanel
+from gui.layersPanel.LayersPanel import LayersPanel
 from data.Layers import Layers
 from Controller import Controller
 from gui.palette.Palette import Palette
