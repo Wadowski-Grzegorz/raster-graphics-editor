@@ -37,21 +37,24 @@ class Canvas(QWidget):
         scaled_layer_x, scaled_layer_y = int(self._layer_width * self._scale), int(self._layer_height * self._scale)
 
         if self.background:
-            (painter
-             .drawPixmap(self._offset_x, self._offset_y, self.background
-                         .scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio)))
+            (painter.drawPixmap(self._offset_x, self._offset_y, self.background))
 
         for idx in self._layers_source.get_order():
             layer = self._layers[idx]
             pixmap = (QPixmap
                       .fromImage(layer)
-                      .scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio))
+                      .scaled(scaled_layer_x, scaled_layer_y,
+                              Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+                              )
+                      )
             painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
 
         if self._temp_layer is not None:
             pixmap = (QPixmap
                       .fromImage(self._temp_layer)
-                      .scaled(scaled_layer_x, scaled_layer_y, Qt.AspectRatioMode.KeepAspectRatio))
+                      .scaled(scaled_layer_x, scaled_layer_y,
+                              Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                      )
             painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
 
     def mousePressEvent(self, e):
@@ -109,9 +112,21 @@ class Canvas(QWidget):
 
         self.update()
 
+    def resize_background(self):
+        if self.background is not None:
+            scaled_layer_x = int(self._layer_width * self._scale)
+            scaled_layer_y = int(self._layer_height * self._scale)
+
+            self.background = self.background.scaled(
+                scaled_layer_x, scaled_layer_y,
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.FastTransformation
+            )
+
     def resize_values(self):
         self._offset_x = int((self.width() - self._layer_width * self._scale) // 2)
         self._offset_y = int((self.height() - self._layer_height * self._scale) // 2)
+        self.resize_background()
 
     def create_background(self):
         self.background = QPixmap(self._layer_width, self._layer_height)
