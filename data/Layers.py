@@ -1,36 +1,26 @@
 import numpy as np
+import globals
+from data.Layer import Layer
 
-
-class Layers():
+class Layers:
 
     def __init__(self):
         super().__init__()
         self._layers = {} # numpy images rgba
         self._temp_layer = None
         self._layers_order = [] # first in order - first to draw, saved as IDs
-        self._idx = 0
-
-        self.width = None
-        self.height = None
 
     def create(self):
-        # create new layer; emit QImage and index
-        layer = np.zeros((self.height, self.width, 4), dtype=np.uint8)
-        self._idx += 1
-        self._layers[self._idx] = layer
-        self._layers_order.append(self._idx)
-        return layer, self._idx
+        layer = Layer(np.zeros((globals.layer['height'], globals.layer['width'], 4), dtype=np.uint8))
+        idx = layer.get_id()
+        self._layers[idx] = layer
+        self._layers_order.append(idx)
+        return layer.get_layer(), idx
 
     def create_temp(self, width, height):
-        self.width = width
-        self.height = height
-
-        layer = np.zeros((self.height, self.width, 4), dtype=np.uint8)
+        layer = np.zeros((globals.layer['height'], globals.layer['width'], 4), dtype=np.uint8)
         self._temp_layer = layer
         return self._temp_layer
-
-    def get_layers(self):
-        return self._layers
 
     def get_layers_size(self):
         return len(self._layers)

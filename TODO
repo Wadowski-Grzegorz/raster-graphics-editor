@@ -11,3 +11,5 @@ Look how size and radius works.
 It only changes every 2 pixel size - consider if it should work like that.
 
 Currently Canvas.add_layer assumes that temp_layer exists. Temp_layer also creates background.
+
+Make Qimage layer save in data, not in Cavnas.
