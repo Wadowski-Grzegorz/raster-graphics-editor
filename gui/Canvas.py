@@ -3,23 +3,24 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
-from data.Layers import Layers
+from data.DataCenter import data_center
+from data.Adapter import adapter
+
+import utils
+import settings
+
 
 class Canvas(QWidget):
     signal_paint_masking = QtCore.pyqtSignal(int, int, np.ndarray)
     signal_paint_masking_line = QtCore.pyqtSignal(int, int, int, int, np.ndarray)
     signal_blend = QtCore.pyqtSignal()
 
-    def __init__(self, layers_source: Layers):
+    def __init__(self):
         super().__init__()
 
-        self._layers_source = layers_source
-        self._layers = {} # { idx: QImage }
+        self._layers_dto = None
         self._temp_layer = None # QImage
         self.background = None
-
-        self._layer_width = None
-        self._layer_height = None
 
         self._scale = 1
 
@@ -34,15 +35,20 @@ class Canvas(QWidget):
 
     def paintEvent(self, e):
         painter = QPainter(self)
-        scaled_layer_x, scaled_layer_y = int(self._layer_width * self._scale), int(self._layer_height * self._scale)
+        scaled_layer_x, scaled_layer_y = (
+            int(settings.layer_width * self._scale),
+            int(settings.layer_height * self._scale)
+        )
 
         if self.background:
             (painter.drawPixmap(self._offset_x, self._offset_y, self.background))
 
-        for idx in self._layers_source.get_order():
-            layer = self._layers[idx]
+        for idx in data_center.get_order():
+            self._layers_dto = adapter.layers_to_dto(data_center.get_layers())
+
+            layer_dto = self._layers_dto[idx]
             pixmap = (QPixmap
-                      .fromImage(layer)
+                      .fromImage(layer_dto.qLayer)
                       .scaled(
                                 scaled_layer_x, scaled_layer_y,
                                 Qt.AspectRatioMode.IgnoreAspectRatio,
@@ -50,6 +56,13 @@ class Canvas(QWidget):
                             )
                       )
             painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
+
+            if layer_dto.objects:
+                for ob in layer_dto.objects:
+                    if ob.qImage is not None and not ob.qImage.isNull():
+                        pixmap_ob = QPixmap.fromImage(ob.qImage)
+                        painter.drawPixmap(self._offset_x, self._offset_y, pixmap_ob)
+
 
         if self._temp_layer is not None:
             pixmap = (QPixmap
@@ -66,7 +79,7 @@ class Canvas(QWidget):
         if e.button() == Qt.MouseButton.LeftButton:
             x, y = (int(v) for v in self.convert_to_layer(e.position()))
 
-            if 0 <= x < self._layer_width and 0 <= y < self._layer_height:
+            if 0 <= x < settings.layer_width and 0 <= y < settings.layer_height:
                 brush_color = np.array(self._curr_color, dtype=np.uint8)
 
                 self.signal_paint_masking.emit(x, y, brush_color)
@@ -79,8 +92,8 @@ class Canvas(QWidget):
     def mouseMoveEvent(self, e):
         x, y = (int(v) for v in self.convert_to_layer(e.position()))
         if (
-                0 <= x < self._layer_width and 0 <= y < self._layer_height and
-                0 <= self._old_x < self._layer_width and 0 <= self._old_y < self._layer_height and
+                0 <= x < settings.layer_width and 0 <= y < settings.layer_height and
+                0 <= self._old_x < settings.layer_width and 0 <= self._old_y < settings.layer_height and
                 abs(x - self._old_x) >= 1 and abs(y - self._old_y) >= 1
         ):
 
@@ -115,15 +128,15 @@ class Canvas(QWidget):
         self.update()
 
     def resizeEvent(self, e):
-        if self._layer_width is not None and self._layer_height is not None:
+        if settings.layer_width is not None and settings.layer_height is not None:
             self.resize_values()
 
         self.update()
 
     def resize_background(self):
         if self.background is not None:
-            scaled_layer_x = int(self._layer_width * self._scale)
-            scaled_layer_y = int(self._layer_height * self._scale)
+            scaled_layer_x = int(settings.layer_width * self._scale)
+            scaled_layer_y = int(settings.layer_height * self._scale)
 
             self.background = self.background.scaled(
                 scaled_layer_x, scaled_layer_y,
@@ -132,12 +145,12 @@ class Canvas(QWidget):
             )
 
     def resize_values(self):
-        self._offset_x = int((self.width() - self._layer_width * self._scale) // 2)
-        self._offset_y = int((self.height() - self._layer_height * self._scale) // 2)
+        self._offset_x = int((self.width() - settings.layer_width * self._scale) // 2)
+        self._offset_y = int((self.height() - settings.layer_height * self._scale) // 2)
         self.resize_background()
 
     def create_background(self):
-        self.background = QPixmap(self._layer_width, self._layer_height)
+        self.background = QPixmap(settings.layer_width, settings.layer_height)
         self.background.fill(QColor(170, 170, 170))
 
     def convert_to_layer(self, position):
@@ -149,17 +162,9 @@ class Canvas(QWidget):
         self._curr_color = [*color, 255]
 
     def add_image(self, image: np.ndarray, idx: int):
-        self._layers[idx] = QImage(image.data,
-                        self._layer_width, self._layer_height, 4*self._layer_width,
-                        QImage.Format.Format_RGBA8888)
+        self._layers_dto = adapter.layers_to_dto(data_center.get_layers())
 
         self.update()
-
-    def set_layer_size(self, width, height):
-        self._layer_width = width
-        self._layer_height = height
-
-        self.resize_values()
 
     @QtCore.pyqtSlot(np.ndarray, int)
     def added_new_image(self, image: np.ndarray, idx: int):
@@ -167,13 +172,12 @@ class Canvas(QWidget):
 
     @QtCore.pyqtSlot(np.ndarray)
     def added_temp_layer(self, layer: np.ndarray):
-        h, w, _ = layer.shape
-        self._temp_layer = QImage(layer.data, w, h, QImage.Format.Format_RGBA8888)
-        self.set_layer_size(w, h)
+        self._temp_layer = utils.np_to_q_ptr(layer)
         self.create_background()
+        self.resize_values()
 
-    @QtCore.pyqtSlot(int)
-    def changed_image(self, idx: int):
+    @QtCore.pyqtSlot()
+    def changed_image(self):
         self.update()
 
     @QtCore.pyqtSlot()

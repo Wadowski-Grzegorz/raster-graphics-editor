@@ -1,27 +1,33 @@
-import cv2 as cv
+import numpy as np
+
+import utils
 
 class Image:
     id_counter = 0
     def __init__(
             self,
-            # image: np.ndarray = None,
-            file_path: str = None,
-            visible: bool = True,
+            img: np.ndarray = None,
             position: tuple = (0, 0),
         ):
 
         super().__init__()
 
-        image = cv.imRead(file_path) # for now it can be rgb or rgba
-        if image is None:
-            raise FileNotFoundError
-        self._image = image # numpy rgba
-        self._size = self._image.shape[:2] if self._image else (0, 0)   # height, width
+        self._image = img # numpy rgba
+        self._width = self._image.shape[1]
+        self._height = self._image.shape[0]
+
+        self._qImage = utils.np_to_q_ptr_irr(self._image, self._width, self._height)
 
         Image.id_counter += 1
         self._idx = self.id_counter
 
-        self._visible = visible
+        self._position = position
 
-        self._position = position # Images in order
+    def get_qImage(self):
+        return self._qImage
 
+    def get_size(self):
+        return self._width, self._height
+
+    def get_position(self):
+        return self._position

@@ -5,8 +5,8 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 from core.Paint import Paint
 from gui.Canvas import Canvas
+from gui.ImageCaretaker import ImageCaretaker
 from gui.layersPanel.LayersPanel import LayersPanel
-from data.Layers import Layers
 from Controller import Controller
 from gui.palette.Palette import Palette
 from gui.starting_window import Starting_window
@@ -19,17 +19,17 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle('app-TION')
 
+        self.image_caretaker = ImageCaretaker()
+
         layout = QVBoxLayout()
 
-        layers = Layers()
-
-        canvas = Canvas(layers)
+        canvas = Canvas()
         layout.addWidget(canvas)
 
         palette = Palette()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, palette)
 
-        layers_panel = LayersPanel(layers)
+        layers_panel = LayersPanel()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
 
         tools_panel = ToolsPanel()
@@ -39,15 +39,33 @@ class MainWindow(QMainWindow):
 
         starting_window = Starting_window()
 
-        self.controller = Controller(canvas=canvas, palette=palette, tools_panel=tools_panel,
-                                     layers=layers, layers_panel=layers_panel, paint=paint,
-                                     starting_window=starting_window)
+        self.controller = Controller(
+            canvas=canvas, palette=palette, tools_panel=tools_panel, image_caretaker=self.image_caretaker,
+            layers_panel=layers_panel, paint=paint,
+            starting_window=starting_window
+        )
 
         starting_window.do()
 
         dummy = QWidget()
         dummy.setLayout(layout)
         self.setCentralWidget(dummy)
+
+    def dragEnterEvent(self, e):
+        if e.mimeData().hasImage:
+            e.accept()
+        else:
+            e.ignore()
+
+    def dropEvent(self, e):
+        if e.mimeData().hasImage:
+            e.setDropAction(Qt.DropAction.CopyAction)
+            file_path = e.mimeData().urls()[0].toLocalFile()
+            self.image_caretaker.read_image(file_path)
+
+            e.accept()
+        else:
+            e.ignore()
 
 
 if __name__ == "__main__":
