@@ -1,7 +1,10 @@
 import numpy as np
+from PyQt6.QtCore import pyqtSlot
 
 from core.brush.Brush import Brush
+from data.DataCenter import data_center
 
+import settings
 
 class Paint():
     def __init__(self):
@@ -11,16 +14,13 @@ class Paint():
         self.curr_idx = None
         self.temp_layer = None # as numpy
 
-        self.layer_width = None
-        self.layer_height = None
-
         self.curr_brush = Brush(size=100, opacity=1)
 
     def paint_masking(self, x, y, brush_color):
         brush_radius = self.curr_brush.get_radius()
 
-        img_y_s, img_y_e = max(y - brush_radius, 0), min(y + brush_radius, self.layer_height)
-        img_x_s, img_x_e = max(x - brush_radius, 0), min(x + brush_radius, self.layer_width)
+        img_y_s, img_y_e = max(y - brush_radius, 0), min(y + brush_radius, settings.layer_height)
+        img_x_s, img_x_e = max(x - brush_radius, 0), min(x + brush_radius, settings.layer_width)
 
         # cut a peace of image which user will paint with a brush
         paint_image = self.temp_layer[img_y_s:img_y_e, img_x_s:img_x_e].astype(np.float32)
@@ -85,10 +85,11 @@ class Paint():
         self.set_curr_idx(idx)
 
     def added_temp_layer(self, layer: np.ndarray):
-        self.layer_height, self.layer_width, _ = layer.shape
         self.temp_layer = layer
 
-    def changed_layer(self, idx: int):
+    @pyqtSlot()
+    def changed_layer(self):
+        idx = data_center.get_idx()
         self.set_curr_idx(idx)
 
     def changed_brush_size(self, size: float):

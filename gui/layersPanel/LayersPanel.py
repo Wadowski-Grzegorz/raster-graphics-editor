@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBo
 import numpy as np
 
 from gui.layersPanel.LayerTile import LayerTile
-from data.Layers import Layers
+from data.DataCenter import data_center
 
 
 class LayersPanel(QDockWidget):
@@ -12,10 +12,8 @@ class LayersPanel(QDockWidget):
     signal_layer_choose = pyqtSignal(int)
     signal_layer_reorder_order = pyqtSignal(list)
 
-    def __init__(self, layers_source: Layers):
+    def __init__(self):
         super().__init__()
-
-        self._layers_source = layers_source
 
         dummy = QWidget()
         self.setWidget(dummy)
@@ -81,6 +79,6 @@ class LayersPanel(QDockWidget):
 
     @QtCore.pyqtSlot()
     def layers_order_changed(self):
-        new_order = self._layers_source.get_order()
+        new_order = data_center.get_order()
         self.set_layers_order(new_order)
 
