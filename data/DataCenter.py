@@ -47,7 +47,7 @@ class DataCenter:
         self._layers_order = new_order.copy()
 
     def add_image(self, file_path: str):
-        img_file = cv.imread(file_path)
+        img_file = cv.imread(file_path, cv.IMREAD_UNCHANGED)
         if img_file is None:
             raise FileNotFoundError
 

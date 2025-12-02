@@ -32,6 +32,17 @@ class Canvas(QWidget):
 
         self._curr_color = [0, 0, 0, 255]
 
+    def paint(self, painter, paint_me, x, y, scaled_x, scaled_y):
+        pixmap = (
+            QPixmap
+                .fromImage(paint_me)
+                .scaled(
+                        scaled_x, scaled_y,
+                        Qt.AspectRatioMode.IgnoreAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                )
+        )
+        painter.drawPixmap(x, y, pixmap)
 
     def paintEvent(self, e):
         painter = QPainter(self)
@@ -47,33 +58,20 @@ class Canvas(QWidget):
             self._layers_dto = adapter.layers_to_dto(data_center.get_layers())
 
             layer_dto = self._layers_dto[idx]
-            pixmap = (QPixmap
-                      .fromImage(layer_dto.qLayer)
-                      .scaled(
-                                scaled_layer_x, scaled_layer_y,
-                                Qt.AspectRatioMode.IgnoreAspectRatio,
-                                Qt.TransformationMode.SmoothTransformation
-                            )
-                      )
-            painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
+            self.paint(painter, layer_dto.qLayer, self._offset_x, self._offset_y, scaled_layer_x, scaled_layer_y)
 
             if layer_dto.objects:
                 for ob in layer_dto.objects:
                     if ob.qImage is not None and not ob.qImage.isNull():
-                        pixmap_ob = QPixmap.fromImage(ob.qImage)
-                        painter.drawPixmap(self._offset_x, self._offset_y, pixmap_ob)
+                        scaled_img_x, scaled_img_y = (int(s * self._scale) for s in ob.size)
+                        img_px, img_py = ob.position
 
+                        self.paint(painter, ob.qImage,
+                                   self._offset_x + img_px, self._offset_y + img_py,
+                                   scaled_img_x, scaled_img_y)
 
         if self._temp_layer is not None:
-            pixmap = (QPixmap
-                      .fromImage(self._temp_layer)
-                      .scaled(
-                                scaled_layer_x, scaled_layer_y,
-                                Qt.AspectRatioMode.IgnoreAspectRatio,
-                                Qt.TransformationMode.SmoothTransformation
-                        )
-                      )
-            painter.drawPixmap(self._offset_x, self._offset_y, pixmap)
+            self.paint(painter, self._temp_layer, self._offset_x, self._offset_y, scaled_layer_x, scaled_layer_y)
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
