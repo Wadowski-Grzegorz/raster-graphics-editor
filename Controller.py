@@ -46,7 +46,7 @@ class Controller(QWidget):
     def layer_create(self):
         image, idx = data_center.create()
         self.layers_panel.added_new_layer(image, idx)
-        self.canvas.added_new_image(image, idx)
+        self.canvas.refresh_data()
         self.paint.added_new_layer(image, idx)
 
     def layer_temp_create(self):
@@ -69,3 +69,4 @@ class Controller(QWidget):
 
     def image_read(self, file_path: str):
         data_center.add_image(file_path)
+        self.canvas.refresh_data()

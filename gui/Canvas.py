@@ -159,14 +159,10 @@ class Canvas(QWidget):
     def set_color(self, color: list):
         self._curr_color = [*color, 255]
 
-    def add_image(self, image: np.ndarray, idx: int):
+    @QtCore.pyqtSlot()
+    def refresh_data(self):
         self._layers_dto = adapter.layers_to_dto(data_center.get_layers())
-
         self.update()
-
-    @QtCore.pyqtSlot(np.ndarray, int)
-    def added_new_image(self, image: np.ndarray, idx: int):
-        self.add_image(image, idx)
 
     @QtCore.pyqtSlot(np.ndarray)
     def added_temp_layer(self, layer: np.ndarray):
