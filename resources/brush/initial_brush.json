@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Normal",
+    "size": 50,
+    "shape": "circle",
+    "opacity": 1,
+    "flow": 1,
+    "spacing": 0.25,
+    "hardness": 1
+  }
+]

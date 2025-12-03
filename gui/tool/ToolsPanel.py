@@ -8,8 +8,8 @@ class ToolsPanel(QDockWidget):
     signal_brush_changed_flow = pyqtSignal(float)
 
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
 
         dummy = QWidget()
         self.setWidget(dummy)
