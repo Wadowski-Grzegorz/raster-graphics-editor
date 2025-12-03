@@ -7,24 +7,33 @@ class BrushTip:
         self.radius = size // 2 if size >= 2 else 1
         self.hardness = hardness
 
-        self.mask = self._make_mask()
-        print(self.mask)
+        self.mask = self.make_mask()
 
-    def _make_mask(self):
-        radius = self.size // 2
+    def make_mask(self):
+        radius = self.size / 2
         y, x = np.ogrid[:self.size, :self.size]
-        center = radius
+        dist = np.sqrt((x - radius) ** 2 + (y - radius) ** 2)
 
-        dist = np.sqrt((x - center) ** 2 + (y - center) ** 2)
-        mask = np.clip((radius - dist) / radius, 0, 1)
+        # normalize distance from center (0=center, 1=edge)
+        normalized = np.clip(dist / radius, 0, 1)
 
-        # nowy profil (wolno w środku, szybko na bokach)
-        mask = mask ** max(self.hardness, 0.01)
+        min_power = 1.5  # very soft
+        max_power = 8.0  # very hard
+        power = min_power + (max_power - min_power) * self.hardness
+        falloff = normalized ** power
 
-        return (mask * 255).astype(np.uint8)
+        mask = 255 * (1 - falloff)
+
+        mask[dist > radius] = 0
+
+        return mask.astype(np.uint8)
 
     def resize(self, size: int):
         self.size = size
         self.radius = size // 2 if size >= 2 else 1
 
-        self.mask = self._make_mask()
+        self.mask = self.make_mask()
+
+    def set_hardness(self):
+        self.hardness = self.hardness
+        self.mask = self.make_mask()

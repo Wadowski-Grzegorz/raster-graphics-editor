@@ -1,11 +1,11 @@
 from core.brush.BrushTip import BrushTip
 
 class Brush():
-    def __init__(self, opacity=1, flow=1, spacing=0.25, size=1):
+    def __init__(self, opacity=1, flow=1, spacing=0.25, size=1, hardness=1):
         self.opacity = opacity
         self.flow = flow
         self.spacing = spacing
-        self.brush_tip = BrushTip(size=size)
+        self.brush_tip = BrushTip(size=size, hardness=hardness)
 
     def get_opacity(self):
         return self.opacity
