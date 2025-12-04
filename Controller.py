@@ -47,7 +47,7 @@ class Controller(QWidget):
 
 
     def layer_create(self):
-        image, idx = data_center.create()
+        image, idx = data_center.create_empty()
         self.layers_panel.added_new_layer(image, idx)
         self.canvas.refresh_data()
         self.paint.added_new_layer(image, idx)
@@ -57,7 +57,7 @@ class Controller(QWidget):
         self.canvas.added_temp_layer(layer)
         self.paint.added_temp_layer(layer)
 
-        if data_center.get_layers_size() == 0:
+        if data_center.get_layers_len() == 0:
             self.layer_create()
 
     def layer_reorder_order(self, new_order: list):

@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
 from core.layer.DataCenter import data_center
-from adapters.Adapter import adapter
+from adapters.LayerAdapter import layer_adapter
 
 import utils
 from resources import settings
@@ -46,32 +46,31 @@ class Canvas(QWidget):
 
     def paintEvent(self, e):
         painter = QPainter(self)
-        scaled_layer_x, scaled_layer_y = (
-            int(settings.layer_width * self._scale),
-            int(settings.layer_height * self._scale)
-        )
 
         if self.background:
             (painter.drawPixmap(self._offset_x, self._offset_y, self.background))
 
+        self._layers_dto = layer_adapter.layers_to_dto(data_center.get_layers())
         for idx in data_center.get_order():
-            self._layers_dto = adapter.layers_to_dto(data_center.get_layers())
-
             layer_dto = self._layers_dto[idx]
-            self.paint(painter, layer_dto.qLayer, self._offset_x, self._offset_y, scaled_layer_x, scaled_layer_y)
-
-            if layer_dto.objects:
-                for ob in layer_dto.objects:
-                    if ob.qImage is not None and not ob.qImage.isNull():
-                        scaled_img_x, scaled_img_y = (int(s * self._scale) for s in ob.size)
-                        img_px, img_py = ob.position
-
-                        self.paint(painter, ob.qImage,
-                                   self._offset_x + img_px, self._offset_y + img_py,
-                                   scaled_img_x, scaled_img_y)
+            self.paint(
+                painter,
+                layer_dto.layer,
+                self._offset_x + layer_dto.position[0],
+                self._offset_y + layer_dto.position[1],
+                int(layer_dto.layer.width() * self._scale),
+                int(layer_dto.layer.height() * self._scale)
+            )
 
         if self._temp_layer is not None:
-            self.paint(painter, self._temp_layer, self._offset_x, self._offset_y, scaled_layer_x, scaled_layer_y)
+            self.paint(
+                painter,
+                self._temp_layer,
+                self._offset_x,
+                self._offset_y,
+                int(self._temp_layer.width() * self._scale),
+                int(self._temp_layer.height() * self._scale)
+            )
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
@@ -161,7 +160,7 @@ class Canvas(QWidget):
 
     @QtCore.pyqtSlot()
     def refresh_data(self):
-        self._layers_dto = adapter.layers_to_dto(data_center.get_layers())
+        self._layers_dto = layer_adapter.layers_to_dto(data_center.get_layers())
         self.update()
 
     @QtCore.pyqtSlot(np.ndarray)

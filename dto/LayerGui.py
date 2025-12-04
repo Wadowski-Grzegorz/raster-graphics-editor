@@ -1,9 +1,8 @@
 from PyQt6.QtGui import QImage
-from dto.ObjectGui import ObjectGui
 
 
 class LayerGui:
-    def __init__(self, qLayer: QImage, visible: bool, objects: list[ObjectGui]):
-        self.qLayer = qLayer
+    def __init__(self, layer: QImage, visible: bool, position: tuple):
+        self.layer = layer
         self.visible = visible
-        self.objects = objects
+        self.position = position
