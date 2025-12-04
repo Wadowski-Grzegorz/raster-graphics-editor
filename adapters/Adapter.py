@@ -1,4 +1,4 @@
-from data.Layer import Layer
+from core.layer.Layer import Layer
 from dto.LayerGui import LayerGui
 from dto.ObjectGui import ObjectGui
 

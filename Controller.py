@@ -3,12 +3,13 @@ from PyQt6.QtWidgets import QWidget
 from core.Paint import Paint
 from gui.Canvas import Canvas
 from gui.palette.Palette import Palette
-from data.DataCenter import data_center
 from gui.layersPanel.LayersPanel import LayersPanel
 from gui.tool.ToolsPanel import ToolsPanel
 from gui.starting_window import Starting_window
 from gui.ImageCaretaker import ImageCaretaker
 
+from core.layer.DataCenter import data_center
+from core.brush.BrushManager import brush_manager
 
 class Controller(QWidget):
 
@@ -36,9 +37,11 @@ class Controller(QWidget):
         self.canvas.signal_paint_masking_line.connect(self.paint.paint_masking_line)
         self.canvas.signal_blend.connect(self.paint.blend)
 
-        self.tools_panel.signal_brush_changed_size.connect(self.paint.changed_brush_size)
-        self.tools_panel.signal_brush_changed_opacity.connect(self.paint.changed_brush_opacity)
-        self.tools_panel.signal_brush_changed_flow.connect(self.paint.changed_brush_flow)
+        self.tools_panel.signal_brush_changed_size.connect(brush_manager.changed_brush_size)
+        self.tools_panel.signal_brush_changed_opacity.connect(brush_manager.changed_brush_opacity)
+        self.tools_panel.signal_brush_changed_flow.connect(brush_manager.changed_brush_flow)
+        self.tools_panel.signal_brush_changed_hardness.connect(brush_manager.changed_brush_hardness)
+        self.tools_panel.signal_brush_selected.connect(self.brush_selected)
 
         self.image_caretaker.signal_image_read_order.connect(self.image_read)
 
@@ -70,3 +73,8 @@ class Controller(QWidget):
     def image_read(self, file_path: str):
         data_center.add_image(file_path)
         self.canvas.refresh_data()
+
+    def brush_selected(self, idx):
+        brush_manager.set_curr_brush(idx)
+        self.paint.changed_brush()
+        self.tools_panel.changed_brush()

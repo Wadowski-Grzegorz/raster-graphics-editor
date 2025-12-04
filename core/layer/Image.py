@@ -16,7 +16,7 @@ class Image:
         self._width = self._image.shape[1]
         self._height = self._image.shape[0]
 
-        self._qImage = utils.np_to_q_ptr_irr(self._image, self._width, self._height)
+        self._qImage = utils.np_to_q_ptr(self._image)
 
         Image.id_counter += 1
         self._idx = self.id_counter

@@ -1,10 +1,11 @@
 import numpy as np
 import cv2 as cv
 
-from data.Image import Image
-from data.Layer import Layer
+from core.layer.Image import Image
+from core.layer.Layer import Layer
 
-import settings
+from resources import settings
+
 
 class DataCenter:
 

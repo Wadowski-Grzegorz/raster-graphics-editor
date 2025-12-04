@@ -1,12 +1,13 @@
 import numpy as np
 from PyQt6.QtCore import pyqtSlot
 
-from core.brush.Brush import Brush
-from data.DataCenter import data_center
+from core.layer.DataCenter import data_center
+from core.brush.BrushManager import brush_manager
 
-import settings
+from resources import settings
 
-class Paint():
+
+class Paint:
     def __init__(self):
         super().__init__()
 
@@ -14,7 +15,7 @@ class Paint():
         self.curr_idx = None
         self.temp_layer = None # as numpy
 
-        self.curr_brush = Brush(size=40, opacity=1, hardness=1)
+        self.curr_brush = brush_manager.get_curr_brush()
 
     def paint_masking(self, x, y, brush_color: np.ndarray):
         brush_radius = self.curr_brush.get_radius()
@@ -105,11 +106,5 @@ class Paint():
         idx = data_center.get_idx()
         self.set_curr_idx(idx)
 
-    def changed_brush_size(self, size: float):
-        self.curr_brush.set_size(size)
-
-    def changed_brush_opacity(self, opacity: float):
-        self.curr_brush.set_opacity(opacity)
-
-    def changed_brush_flow(self, flow: float):
-        self.curr_brush.set_flow(flow)
+    def changed_brush(self):
+        self.curr_brush = brush_manager.get_curr_brush()

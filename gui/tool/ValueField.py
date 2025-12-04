@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QDoubleSpinBox
 class ValueField(QWidget):
     signal_value_changed = pyqtSignal(float)
 
-    def __init__(self, text, value, min_v=0, max_v=100, suffix='', step=0.5):
+    def __init__(self, text, value=1, min_v=0, max_v=100, suffix='', step=0.5):
         super().__init__()
 
         self._value = value
@@ -53,3 +53,8 @@ class ValueField(QWidget):
     def mouseReleaseEvent(self, e):
         self._moving = False
         self.releaseMouse()
+
+    def set_value_quiet(self, value):
+        self.spinbox.blockSignals(True)
+        self.spinbox.setValue(value)
+        self.spinbox.blockSignals(False)

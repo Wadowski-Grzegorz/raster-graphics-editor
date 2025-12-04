@@ -1,6 +1,7 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget
-import settings
+from resources import settings
+
 
 class Starting_window(QWidget):
     signal_layer_temp_create_order = pyqtSignal()

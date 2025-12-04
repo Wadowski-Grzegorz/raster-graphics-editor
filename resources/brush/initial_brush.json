@@ -6,6 +6,24 @@
     "opacity": 1,
     "flow": 1,
     "spacing": 0.25,
+    "hardness": 0.25
+  },
+  {
+    "name": "Hard",
+    "size": 200,
+    "shape": "circle",
+    "opacity": 1,
+    "flow": 1,
+    "spacing": 0.25,
     "hardness": 1
+  },
+  {
+    "name": "Transparent",
+    "size": 500,
+    "shape": "circle",
+    "opacity": 0.4,
+    "flow": 0.8,
+    "spacing": 0.25,
+    "hardness": 0.25
   }
 ]

@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBo
 import numpy as np
 
 from gui.layersPanel.LayerTile import LayerTile
-from data.DataCenter import data_center
+from core.layer.DataCenter import data_center
 
 
 class LayersPanel(QDockWidget):

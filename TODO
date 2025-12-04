@@ -17,3 +17,7 @@ Make Qimage layer save in data, not in Cavnas.
 Make data.Image parent class SmartObject or something like that.
 
 Zrób poprawne zczytywanie img a nie tylko png.
+
+Przeglądnij jak tworzona jest maska dla BrushTip.
+
+Make so gui communitate only through adapter, not data.

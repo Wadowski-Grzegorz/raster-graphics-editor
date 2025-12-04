@@ -1,9 +1,8 @@
 from PyQt6.QtGui import QImage
-from data.Image import Image
 from dto.ObjectGui import ObjectGui
 
 
-class LayerGui():
+class LayerGui:
     def __init__(self, qLayer: QImage, visible: bool, objects: list[ObjectGui]):
         self.qLayer = qLayer
         self.visible = visible

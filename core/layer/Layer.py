@@ -1,6 +1,6 @@
 import numpy as np
 
-from data.Image import Image
+from core.layer.Image import Image
 import utils
 
 

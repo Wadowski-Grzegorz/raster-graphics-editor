@@ -1,13 +1,13 @@
 import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QImage, QPainter, QColor, QPixmap
+from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
-from data.DataCenter import data_center
-from data.Adapter import adapter
+from core.layer.DataCenter import data_center
+from adapters.Adapter import adapter
 
 import utils
-import settings
+from resources import settings
 
 
 class Canvas(QWidget):

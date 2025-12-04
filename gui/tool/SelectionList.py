@@ -1,20 +1,20 @@
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QComboBox
+
+from dto.SelectableItem import SelectableItem
 
 
 class SelectionList(QComboBox):
-    signal_selected = pyqtSignal()
-
-    def __init__(self, options: list, on_select=None):
+    def __init__(self, items: list[SelectableItem], select_fun=None):
         super().__init__()
+        self.select_fun = select_fun
 
-        for icon, text, data in options:
-            icon = QIcon(icon)
-            self.addItem(icon, text, data)
+        for it in items:
+            self.addItem(it.icon, it.name, it.idx)
 
+        self.currentIndexChanged.connect(self.selected)
 
-
-
-    # def currentTextChanged(self):
-    #     self.signal_selected.emit()
+    @pyqtSlot(int)
+    def selected(self, idx):
+        real_idx = self.itemData(idx)
+        self.select_fun(real_idx)
