@@ -2,7 +2,6 @@ import numpy as np
 
 from core.layer.Layer import Layer
 import utils
-import resources.settings as settings
 
 
 class RasterLayer(Layer):
@@ -17,7 +16,7 @@ class RasterLayer(Layer):
         super().__init__(visible, position)
 
         if layer is None:
-            self._layer = np.zeros((settings.layer_height, settings.layer_width, 4), dtype=np.uint8)
+            self._layer = utils.default_arr()
         else:
             self._layer = layer
 

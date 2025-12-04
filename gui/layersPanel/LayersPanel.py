@@ -44,7 +44,7 @@ class LayersPanel(QDockWidget):
         self.list_widget.setItemWidget(item, tile)
 
     @QtCore.pyqtSlot(np.ndarray, int)
-    def added_new_layer(self, _, idx: int):
+    def added_new_layer(self, idx: int):
         self.add_button_layer(idx)
 
     def layers_moved(self, parent, start, end, destination, row):

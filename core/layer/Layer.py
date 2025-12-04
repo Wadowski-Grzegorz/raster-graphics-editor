@@ -12,7 +12,7 @@ class Layer:
         super().__init__()
 
         Layer.id_counter += 1
-        self._idx = self.id_counter
+        self._idx = Layer.id_counter
         self._visible = visible
         self._position = position # x, y
 

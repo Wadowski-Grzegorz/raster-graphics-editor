@@ -47,10 +47,12 @@ class Controller(QWidget):
 
 
     def layer_create(self):
-        image, idx = data_center.create_empty()
-        self.layers_panel.added_new_layer(image, idx)
-        self.canvas.refresh_data()
-        self.paint.added_new_layer(image, idx)
+        idx = data_center.create_empty()
+        self._announce_new_layer(idx)
+
+    def image_read(self, file_path: str):
+        idx = data_center.add_image(file_path)
+        self._announce_new_layer(idx)
 
     def layer_temp_create(self):
         layer = data_center.create_temp()
@@ -59,6 +61,11 @@ class Controller(QWidget):
 
         if data_center.get_layers_len() == 0:
             self.layer_create()
+
+    def _announce_new_layer(self, idx: int):
+        self.canvas.refresh_data()
+        self.layers_panel.added_new_layer(idx)
+        self.paint.refresh_data()
 
     def layer_reorder_order(self, new_order: list):
         data_center.reorder(new_order)
@@ -69,10 +76,6 @@ class Controller(QWidget):
         data_center.set_current_idx(idx)
         self.canvas.changed_image()
         self.paint.changed_layer()
-
-    def image_read(self, file_path: str):
-        data_center.add_image(file_path)
-        self.canvas.refresh_data()
 
     def brush_selected(self, idx):
         brush_manager.set_curr_brush(idx)

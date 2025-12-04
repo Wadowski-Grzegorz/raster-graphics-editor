@@ -22,7 +22,7 @@ class DataCenter:
     def create_empty(self):
         layer = RasterLayer()
         self.append_layer(layer)
-        return layer.get_layer(), layer.get_id()
+        return layer.get_id()
 
     def add_image(self, file_path: str):
         img_file = cv.imread(file_path, cv.IMREAD_UNCHANGED)
@@ -36,6 +36,7 @@ class DataCenter:
 
         img = LosslessLayer(img_file)
         self.append_layer(img)
+        return img.get_id()
 
     def append_layer(self, layer: Layer):
         idx = layer.get_id()
@@ -57,6 +58,9 @@ class DataCenter:
     def set_current_idx(self, idx):
         self._current_idx = idx
 
+    def get_current_idx(self):
+        return self._current_idx
+
     def get_idx(self):
         return self._current_idx
 
@@ -68,5 +72,10 @@ class DataCenter:
 
     def get_layers(self):
         return list(self._layers.values())
+
+    def get_layers_arr(self):
+        return {idx: l.get_layer() for idx, l in self._layers.items()}
+
+
 
 data_center = DataCenter()

@@ -91,20 +91,21 @@ class Paint:
 
         self.temp_layer.fill(0)
 
-    def set_curr_idx(self, idx: int):
-        self.curr_idx = idx
+    @pyqtSlot()
+    def refresh_data(self):
+        self.layers = data_center.get_layers_arr()
+        self.refresh_idx()
 
-    def added_new_layer(self, layer: np.ndarray, idx: int):
-        self.layers[idx] = layer
-        self.set_curr_idx(idx)
+    def refresh_idx(self):
+        self.curr_idx = data_center.get_current_idx()
 
     def added_temp_layer(self, layer: np.ndarray):
         self.temp_layer = layer
 
     @pyqtSlot()
     def changed_layer(self):
-        idx = data_center.get_idx()
-        self.set_curr_idx(idx)
+        self.refresh_idx()
 
+    @pyqtSlot()
     def changed_brush(self):
         self.curr_brush = brush_manager.get_curr_brush()

@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 from PyQt6.QtGui import QImage
+import resources.settings as settings
 
 
 def np_to_q_ptr(arr: np.ndarray):
@@ -28,3 +29,6 @@ def np_to_q(arr: np.ndarray):
     h, w, _ = arr.shape
     q_img = QImage(arr.data, w, h, w * 4, QImage.Format.Format_RGBA8888)
     return q_img.copy()
+
+def default_arr():
+    return np.zeros((settings.layer_height, settings.layer_width, 4), dtype=np.uint8)
