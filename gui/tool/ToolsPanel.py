@@ -56,7 +56,7 @@ class ToolsPanel(QDockWidget):
         self.signal_brush_selected.emit(idx)
 
     def changed_brush(self):
-        brush = brush_adapter.get_curr_brush()
+        brush = brush_adapter.get_current_brush()
         self.size_field.set_value_quiet(brush.size)
         self.opacity_field.set_value_quiet(brush.opacity * 100)
         self.flow_field.set_value_quiet(brush.flow * 100)

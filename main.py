@@ -3,7 +3,7 @@ import sys
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
-from core.Paint import Paint
+from core.tool.ToolManager import ToolManager
 from gui.Canvas import Canvas
 from gui.ImageCaretaker import ImageCaretaker
 from gui.layersPanel.LayersPanel import LayersPanel
@@ -35,13 +35,13 @@ class MainWindow(QMainWindow):
         tools_panel = ToolsPanel()
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, tools_panel)
 
-        paint = Paint()
+        tool_manager = ToolManager()
 
         starting_window = Starting_window()
 
         self.controller = Controller(
             canvas=canvas, palette=palette, tools_panel=tools_panel, image_caretaker=self.image_caretaker,
-            layers_panel=layers_panel, paint=paint,
+            layers_panel=layers_panel, tool_manager=tool_manager,
             starting_window=starting_window
         )
 

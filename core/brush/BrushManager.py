@@ -36,7 +36,7 @@ class BrushManager:
     def get_brushes(self):
         return self._brushes.copy()
 
-    def get_curr_brush(self):
+    def get_current_brush(self):
         return self._curr_brush
 
     def set_curr_brush(self, idx: int):

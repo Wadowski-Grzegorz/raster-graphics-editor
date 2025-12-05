@@ -11,9 +11,9 @@ from resources import settings
 
 
 class Canvas(QWidget):
-    signal_paint_masking = QtCore.pyqtSignal(int, int, np.ndarray)
-    signal_paint_masking_line = QtCore.pyqtSignal(int, int, int, int, np.ndarray)
-    signal_blend = QtCore.pyqtSignal()
+    signal_cursor_pressed = QtCore.pyqtSignal(int, int)
+    signal_cursor_moved = QtCore.pyqtSignal(int, int, int, int)
+    signal_cursor_released = QtCore.pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -29,8 +29,6 @@ class Canvas(QWidget):
 
         self._old_x = None
         self._old_y = None
-
-        self._curr_color = [0, 0, 0, 255]
 
     def paint(self, painter, paint_me, x, y, scaled_x, scaled_y):
         pixmap = (
@@ -76,9 +74,8 @@ class Canvas(QWidget):
             x, y = (int(v) for v in self.convert_to_layer(e.position()))
 
             if 0 <= x < settings.layer_width and 0 <= y < settings.layer_height:
-                brush_color = np.array(self._curr_color, dtype=np.uint8)
 
-                self.signal_paint_masking.emit(x, y, brush_color)
+                self.signal_cursor_pressed.emit(x, y)
 
                 self.update()
 
@@ -93,12 +90,9 @@ class Canvas(QWidget):
                 abs(x - self._old_x) >= 1 and abs(y - self._old_y) >= 1
         ):
 
-            brush_color = np.array(self._curr_color, dtype=np.uint8)
-
-            self.signal_paint_masking_line.emit(
+            self.signal_cursor_moved.emit(
                 self._old_x, self._old_y,
-                x, y,
-                brush_color
+                x, y
             )
 
             self.update()
@@ -107,7 +101,7 @@ class Canvas(QWidget):
         self._old_y = y
 
     def mouseReleaseEvent(self, e):
-        self.signal_blend.emit()
+        self.signal_cursor_released.emit()
         self.update()
 
     def wheelEvent(self, e):
@@ -153,9 +147,6 @@ class Canvas(QWidget):
         x = (position.x() - self._offset_x) / self._scale
         y = (position.y() - self._offset_y) / self._scale
         return x, y
-
-    def set_color(self, color: list):
-        self._curr_color = [*color, 255]
 
     @QtCore.pyqtSlot()
     def refresh_data(self):
