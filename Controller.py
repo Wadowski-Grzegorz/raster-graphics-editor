@@ -8,7 +8,7 @@ from gui.tool.ToolsPanel import ToolsPanel
 from gui.starting_window import Starting_window
 from gui.ImageCaretaker import ImageCaretaker
 
-from core.layer.DataCenter import data_center
+from core.layer.LayerManager import layer_manager
 from core.brush.BrushManager import brush_manager
 
 class Controller(QWidget):
@@ -47,19 +47,19 @@ class Controller(QWidget):
 
 
     def layer_create(self):
-        idx = data_center.create_empty()
+        idx = layer_manager.create_empty()
         self._announce_new_layer(idx)
 
     def image_read(self, file_path: str):
-        idx = data_center.add_image(file_path)
+        idx = layer_manager.add_image(file_path)
         self._announce_new_layer(idx)
 
     def layer_temp_create(self):
-        layer = data_center.create_temp()
+        layer = layer_manager.create_temp()
         self.canvas.added_temp_layer(layer)
         self.paint.added_temp_layer(layer)
 
-        if data_center.get_layers_len() == 0:
+        if layer_manager.get_layers_len() == 0:
             self.layer_create()
 
     def _announce_new_layer(self, idx: int):
@@ -68,12 +68,12 @@ class Controller(QWidget):
         self.paint.refresh_data()
 
     def layer_reorder_order(self, new_order: list):
-        data_center.reorder(new_order)
+        layer_manager.reorder(new_order)
         self.layers_panel.layers_order_changed()
         self.canvas.layers_order_changed()
 
     def idx_chosen(self, idx: int):
-        data_center.set_current_idx(idx)
+        layer_manager.set_current_idx(idx)
         self.canvas.changed_image()
         self.paint.changed_layer()
 

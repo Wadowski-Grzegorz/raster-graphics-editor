@@ -1,7 +1,7 @@
 import numpy as np
 from PyQt6.QtCore import pyqtSlot
 
-from core.layer.DataCenter import data_center
+from core.layer.LayerManager import layer_manager
 from core.brush.BrushManager import brush_manager
 
 from resources import settings
@@ -93,11 +93,11 @@ class Paint:
 
     @pyqtSlot()
     def refresh_data(self):
-        self.layers = data_center.get_layers_arr()
+        self.layers = layer_manager.get_layers_arr()
         self.refresh_idx()
 
     def refresh_idx(self):
-        self.curr_idx = data_center.get_current_idx()
+        self.curr_idx = layer_manager.get_current_idx()
 
     def added_temp_layer(self, layer: np.ndarray):
         self.temp_layer = layer

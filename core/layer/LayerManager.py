@@ -8,7 +8,7 @@ from core.layer.LosslessLayer import LosslessLayer
 from resources import settings
 
 
-class DataCenter:
+class LayerManager:
 
     def __init__(self):
         super().__init__()
@@ -78,4 +78,4 @@ class DataCenter:
 
 
 
-data_center = DataCenter()
+layer_manager = LayerManager()

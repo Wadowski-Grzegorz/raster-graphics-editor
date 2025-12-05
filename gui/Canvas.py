@@ -3,7 +3,7 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
-from core.layer.DataCenter import data_center
+from core.layer.LayerManager import layer_manager
 from adapters.LayerAdapter import layer_adapter
 
 import utils
@@ -50,8 +50,7 @@ class Canvas(QWidget):
         if self.background:
             (painter.drawPixmap(self._offset_x, self._offset_y, self.background))
 
-        self._layers_dto = layer_adapter.layers_to_dto(data_center.get_layers())
-        for idx in data_center.get_order():
+        for idx in layer_manager.get_order():
             layer_dto = self._layers_dto[idx]
             self.paint(
                 painter,
@@ -160,7 +159,7 @@ class Canvas(QWidget):
 
     @QtCore.pyqtSlot()
     def refresh_data(self):
-        self._layers_dto = layer_adapter.layers_to_dto(data_center.get_layers())
+        self._layers_dto = layer_adapter.layers_to_dto(layer_manager.get_layers())
         self.update()
 
     @QtCore.pyqtSlot(np.ndarray)

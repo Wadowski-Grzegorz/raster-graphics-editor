@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBo
 import numpy as np
 
 from gui.layersPanel.LayerTile import LayerTile
-from core.layer.DataCenter import data_center
+from core.layer.LayerManager import layer_manager
 
 
 class LayersPanel(QDockWidget):
@@ -79,6 +79,6 @@ class LayersPanel(QDockWidget):
 
     @QtCore.pyqtSlot()
     def layers_order_changed(self):
-        new_order = data_center.get_order()
+        new_order = layer_manager.get_order()
         self.set_layers_order(new_order)
 
