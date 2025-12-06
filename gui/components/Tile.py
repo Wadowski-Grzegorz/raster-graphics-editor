@@ -17,7 +17,9 @@ class Tile(QWidget):
         self.setLayout(layout)
 
         if self._icon:
-            layout.addWidget(QPixmap(self._icon))
+            label = QLabel()
+            label.setPixmap(self._icon.pixmap(30, 30))
+            layout.addWidget(label)
         if show_name and self._name:
             layout.addWidget(QLabel(self._name))
 

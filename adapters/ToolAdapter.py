@@ -9,19 +9,17 @@ from core.tool.ToolManager import tool_manager
 import resources.settings as settings
 
 class ToolAdapter:
-    tools_icons_catalog = settings.program_catalog + "\\resources\\tools\\icons\\"
-    tools_file = settings.program_catalog + "\\resources\\tools\\tool.json"
+    tools_icons_catalog = settings.program_catalog + "\\resources\\icons\\"
+    tools_info_file = settings.program_catalog + "\\resources\\info\\tools.json"
 
     @staticmethod
     def tool_to_selectable(t: Tool) -> SelectableItem:
-        with open(ToolAdapter.tools_file, 'r', encoding="utf-8") as f:
+        with open(ToolAdapter.tools_info_file, 'r', encoding="utf-8") as f:
             data = json.load(f)
-        tool = data[t.get_name()]
 
-        icon_path = ToolAdapter.tools_icons_catalog + tool['icon_file']
-        print('icon_path: ', icon_path)
+        icon_path = ToolAdapter.tools_icons_catalog + data[t.get_name().lower()]
 
-        return SelectableItem(0, t.get_name(), QIcon(icon_path))
+        return SelectableItem(t.get_id(), t.get_name(), QIcon(icon_path))
 
     @staticmethod
     def tools_to_selectable(tools: list[Tool]) -> list[SelectableItem]:

@@ -9,9 +9,7 @@ class ToolManager:
         super().__init__()
 
         brush = BrushTool()
-        self._tools = {
-            brush.get_name(): brush
-        }
+        self._tools = [brush]
         self._curr_tool = brush
 
         self._layers = {} # as numpy

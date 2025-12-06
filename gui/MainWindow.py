@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 from core.tool.ToolManager import ToolManager
 from gui.Canvas import Canvas
 from gui.ImageCaretaker import ImageCaretaker
+from gui.ToolsPanelsController import ToolsPanelsController
 from gui.layersPanel.LayersPanel import LayersPanel
 from Controller import Controller
 from gui.palette.Palette import Palette
@@ -31,19 +32,15 @@ class MainWindow(QMainWindow):
         layers_panel = LayersPanel()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
 
-        tools_panel = ToolsPanel()
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, tools_panel)
-
-        tool_settings_panel = ToolsSettingsPanel()
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, tool_settings_panel)
-
-        tool_manager = ToolManager()
+        self.tools_panels_controller = ToolsPanelsController()
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.tools_panels_controller.get_tools_panel())
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tools_panels_controller.get_tools_settings_panel())
 
         starting_window = Starting_window()
 
         self.controller = Controller(
-            canvas=canvas, palette=palette, _, image_caretaker=self.image_caretaker,
-            layers_panel=layers_panel, tool_manager=tool_manager,
+            canvas=canvas, palette=palette, tools_settings_panel=self.tools_panels_controller.get_tools_settings_panel(), image_caretaker=self.image_caretaker,
+            layers_panel=layers_panel,
             starting_window=starting_window
         )
 

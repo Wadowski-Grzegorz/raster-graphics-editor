@@ -58,3 +58,6 @@ class ValueField(QWidget):
         self.spinbox.blockSignals(True)
         self.spinbox.setValue(value)
         self.spinbox.blockSignals(False)
+
+    def get_name(self):
+        return self._text
