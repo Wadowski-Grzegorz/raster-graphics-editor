@@ -8,10 +8,11 @@ class ToolManager:
     def __init__(self):
         super().__init__()
 
+        brush = BrushTool()
         self._tools = {
-            'brush': BrushTool()
+            brush.get_name(): brush
         }
-        self._curr_tool = self._tools['brush']
+        self._curr_tool = brush
 
         self._layers = {} # as numpy
         self._curr_idx = None
@@ -47,7 +48,6 @@ class ToolManager:
             color=self._curr_color
         )
 
-
     def refresh_data(self):
         self._layers = layer_manager.get_layers_arr()
         self.refresh_idx()
@@ -69,3 +69,8 @@ class ToolManager:
     
     def get_current_color(self):
         return self._curr_color.copy()
+
+    def get_tools(self):
+        return self._tools.copy()
+
+tool_manager = ToolManager()

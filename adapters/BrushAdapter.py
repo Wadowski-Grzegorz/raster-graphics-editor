@@ -25,7 +25,7 @@ class BrushAdapter:
         return BrushAdapter.brushes_to_selectable(brushes)
 
     @staticmethod
-    def get_current_brush():
+    def get_current_brush() -> BrushGui:
         brush = brush_manager.get_current_brush()
         return BrushGui(
             idx=brush.get_id(),

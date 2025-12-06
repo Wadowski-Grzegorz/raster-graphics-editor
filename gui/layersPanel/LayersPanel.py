@@ -3,7 +3,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem
 import numpy as np
 
-from gui.layersPanel.LayerTile import LayerTile
+from gui.components.Tile import Tile
 from core.layer.LayerManager import layer_manager
 
 
@@ -37,7 +37,7 @@ class LayersPanel(QDockWidget):
 
     def add_button_layer(self, idx: int, layer_tile=None):
         item = QListWidgetItem()
-        tile = LayerTile(idx) if layer_tile is None else layer_tile
+        tile = Tile(idx, name=f'Layer {idx}', show_name=True) if layer_tile is None else layer_tile
         item.setSizeHint(tile.sizeHint())
 
         self.list_widget.addItem(item)
@@ -74,8 +74,8 @@ class LayersPanel(QDockWidget):
         self.list_widget.clear()
 
         for idx in new_order:
-            tile = LayerTile(idx, tiles[idx])
-            self.add_button_layer(idx, tile)
+            tile = Tile(idx, tiles[idx])
+            self.add_button_layer(idx, name=tile, show_name=True)
 
     @QtCore.pyqtSlot()
     def layers_order_changed(self):

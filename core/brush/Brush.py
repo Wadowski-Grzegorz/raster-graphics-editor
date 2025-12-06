@@ -2,7 +2,7 @@ from core.brush.BrushTip import BrushTip
 
 class Brush:
     id_counter = 0
-    def __init__(self, name='Brush', opacity=1, flow=1, spacing=0.25, size=1, hardness=1, shape='circle'):
+    def __init__(self, name='Normal Brush', opacity=1, flow=1, spacing=0.25, size=1, hardness=1, shape='circle'):
         Brush.id_counter += 1
         self._idx = self.id_counter
         self._name = name
@@ -52,3 +52,14 @@ class Brush:
 
     def get_hardness(self):
         return self._brush_tip.hardness
+
+    def set_parameter(self, par_name: str, value: float|int):
+        match par_name:
+            case 'size':
+                self.set_size(value)
+            case 'opacity':
+                self.set_opacity(value)
+            case 'flow':
+                self.set_flow(value)
+            case 'hardness':
+                self.set_hardness(value)

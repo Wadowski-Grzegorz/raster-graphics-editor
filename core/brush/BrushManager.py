@@ -1,11 +1,12 @@
-import os
 import json
 
 from core.brush.Brush import Brush
 
+import resources.settings as settings
+
 
 class BrushManager:
-    brush_specs_path = os.path.join(os.path.dirname(__file__), "..//..//resources//brush//initial_brush.json")
+    brush_specs_path = settings.program_catalog + "\\resources\\brush\\initial_brushes.json"
 
     def __init__(self):
         self._brushes = None
@@ -14,7 +15,7 @@ class BrushManager:
         self.fetch_brushes()
 
     def fetch_brushes(self):
-        with open(self.brush_specs_path, 'r', encoding="utf-8") as f:
+        with open(BrushManager.brush_specs_path, 'r', encoding="utf-8") as f:
             data = json.load(f)
 
         brushes = []
@@ -44,17 +45,8 @@ class BrushManager:
         if brush is not None:
             self._curr_brush = brush
 
-    def changed_brush_size(self, size: float):
-        self._curr_brush.set_size(size)
-
-    def changed_brush_opacity(self, opacity: float):
-        self._curr_brush.set_opacity(opacity)
-
-    def changed_brush_flow(self, flow: float):
-        self._curr_brush.set_flow(flow)
-
-    def changed_brush_hardness(self, hardness: float):
-        self._curr_brush.set_hardness(hardness)
+    def changed_brush_parameter(self, par_name: str, value: float|int):
+        self._curr_brush.set_parameter(par_name, value)
 
 
 brush_manager = BrushManager()

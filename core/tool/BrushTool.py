@@ -1,12 +1,13 @@
 import numpy as np
 
-from core.tool.Tool import Tool
+from core.tool.CoreTool import CoreTool
 
 import resources.settings as settings
 
-class BrushTool(Tool):
+class BrushTool(CoreTool):
     def __init__(self):
         super().__init__()
+        self._name = 'Brush'
 
     def on_press(self, x, y, layer=None, temp_layer=None, brush=None, color=None):
         brush_radius = brush.get_radius()

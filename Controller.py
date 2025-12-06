@@ -4,7 +4,7 @@ from core.tool.ToolManager import ToolManager
 from gui.Canvas import Canvas
 from gui.palette.Palette import Palette
 from gui.layersPanel.LayersPanel import LayersPanel
-from gui.tool.ToolsPanel import ToolsPanel
+from gui.tool.ToolsSettingsPanel import ToolsSettingsPanel
 from gui.starting_window import Starting_window
 from gui.ImageCaretaker import ImageCaretaker
 
@@ -13,7 +13,7 @@ from core.brush.BrushManager import brush_manager
 
 class Controller(QWidget):
 
-    def __init__(self, canvas: Canvas, palette: Palette, tools_panel: ToolsPanel, image_caretaker: ImageCaretaker,
+    def __init__(self, canvas: Canvas, palette: Palette, tools_panel: ToolsSettingsPanel, image_caretaker: ImageCaretaker,
                  layers_panel: LayersPanel, tool_manager: ToolManager,
                  starting_window: Starting_window):
         super().__init__()
@@ -37,10 +37,7 @@ class Controller(QWidget):
         self.canvas.signal_cursor_moved.connect(self.tool_manager.on_move)
         self.canvas.signal_cursor_released.connect(self.tool_manager.on_release)
 
-        self.tools_panel.signal_brush_changed_size.connect(brush_manager.changed_brush_size)
-        self.tools_panel.signal_brush_changed_opacity.connect(brush_manager.changed_brush_opacity)
-        self.tools_panel.signal_brush_changed_flow.connect(brush_manager.changed_brush_flow)
-        self.tools_panel.signal_brush_changed_hardness.connect(brush_manager.changed_brush_hardness)
+        self.tools_panel.signal_brush_changed_parameter.connect(brush_manager.changed_brush_parameter)
         self.tools_panel.signal_brush_selected.connect(self.brush_selected)
 
         self.image_caretaker.signal_image_read_order.connect(self.image_read)

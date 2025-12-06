@@ -21,3 +21,5 @@ Zrób poprawne zczytywanie img a nie tylko png.
 Przeglądnij jak tworzona jest maska dla BrushTip.
 
 Make so gui communitate only through adapter, not data.
+
+Przy zmianie ustawień pędzla na panelu górnym wartości nie zaczynają zmieniać się od poprawnej

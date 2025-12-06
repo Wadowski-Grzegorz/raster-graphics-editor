@@ -1,12 +1,14 @@
 from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QWidget, QLabel, QHBoxLayout
 
 
-class LayerTile(QWidget):
-    def __init__(self, idx: int, name=None):
+class Tile(QWidget):
+    def __init__(self, idx: int, name=None, icon=None, show_name=False):
         super().__init__()
         self._idx = idx
-        self._name = name if name else f'Layer {idx}'
+        self._name = name if name else None
+        self._icon = icon if icon else None
 
         self.setMinimumHeight(60)
         self.setContentsMargins(0, 0, 0, 0)
@@ -14,7 +16,10 @@ class LayerTile(QWidget):
         layout = QHBoxLayout()
         self.setLayout(layout)
 
-        layout.addWidget(QLabel(self._name))
+        if self._icon:
+            layout.addWidget(QPixmap(self._icon))
+        if show_name and self._name:
+            layout.addWidget(QLabel(self._name))
 
     def sizeHint(self):
         return QSize(100, 60)

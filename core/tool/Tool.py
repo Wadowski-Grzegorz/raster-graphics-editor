@@ -1,18 +1,18 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 
-class Tool:
-    def __init__(self):
+class Tool(ABC):
+    id_counter = 0
+
+    def __init__(self, name: str = 'Tool'):
         super().__init__()
 
-    @abstractmethod
-    def on_press(self, x, y, layer=None, temp_layer=None, brush=None, color=None):
-        pass
+        Tool.id_counter += 1
+        self._idx = Tool.id_counter
+        self._name = name
 
-    @abstractmethod
-    def on_move(self, start_x, start_y, end_x, end_y, layer=None, temp_layer=None, brush=None, color=None):
-        pass
+    def get_name(self) -> str:
+        return self._name
 
-    @abstractmethod
-    def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
-        pass
+    def get_id(self) -> int:
+        return self._idx

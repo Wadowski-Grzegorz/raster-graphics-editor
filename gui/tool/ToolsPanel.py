@@ -1,63 +1,15 @@
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QDockWidget, QWidget, QHBoxLayout
-
-from adapters.BrushAdapter import brush_adapter
-from gui.tool.SelectionList import SelectionList
-from gui.tool.ValueField import ValueField
+from PyQt6.QtWidgets import QDockWidget, QWidget, QVBoxLayout, QListWidget
+from adapters.ToolAdapter import tool_adapter
 
 class ToolsPanel(QDockWidget):
-    signal_brush_changed_size = pyqtSignal(float)
-    signal_brush_changed_opacity = pyqtSignal(float)
-    signal_brush_changed_flow = pyqtSignal(float)
-    signal_brush_changed_hardness = pyqtSignal(float)
-    signal_brush_selected = pyqtSignal(int)
-
-
     def __init__(self):
         super().__init__()
 
         dummy = QWidget()
         self.setWidget(dummy)
-        layout_main = QHBoxLayout(dummy)
+        layout_main = QVBoxLayout()
 
         self.setTitleBarWidget(QWidget())
 
-        self.layout_options = QHBoxLayout()
-        layout_main.addLayout(self.layout_options)
-
-        self.brush_list = SelectionList(brush_adapter.get_brushes_selectable(), self.selected_brush)
-        self.layout_options.addWidget(self.brush_list)
-
-        self.size_field = ValueField('size', min_v=1, max_v=1000)
-        self.layout_options.addWidget(self.size_field)
-        self.size_field.signal_value_changed.connect(self.signal_brush_changed_size)
-
-        self.opacity_field = ValueField('opacity', suffix='%')
-        self.layout_options.addWidget(self.opacity_field)
-        self.opacity_field.signal_value_changed.connect(
-            lambda v: self.signal_brush_changed_opacity.emit(v/100)
-        )
-
-        self.flow_field = ValueField('flow', suffix='%')
-        self.layout_options.addWidget(self.flow_field)
-        self.flow_field.signal_value_changed.connect(
-            lambda v: self.signal_brush_changed_flow.emit(v / 100)
-        )
-
-        self.hardness_field = ValueField('hardness', suffix='%')
-        self.layout_options.addWidget(self.hardness_field)
-        self.hardness_field.signal_value_changed.connect(
-            lambda v: self.signal_brush_changed_hardness.emit(v / 100)
-        )
-
-        self.changed_brush()
-
-    def selected_brush(self, idx: int):
-        self.signal_brush_selected.emit(idx)
-
-    def changed_brush(self):
-        brush = brush_adapter.get_current_brush()
-        self.size_field.set_value_quiet(brush.size)
-        self.opacity_field.set_value_quiet(brush.opacity * 100)
-        self.flow_field.set_value_quiet(brush.flow * 100)
-        self.hardness_field.set_value_quiet(brush.hardness * 100)
+        self.tools = QListWidget()
+        get_tools_selectable()
