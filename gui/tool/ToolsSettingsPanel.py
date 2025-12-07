@@ -24,6 +24,8 @@ class ToolsSettingsPanel(QDockWidget):
                 self._init_brush()
             if t.name.lower() == 'eraser':
                 self._init_eraser()
+            if t.name.lower() == 'blur':
+                self._init_blur()
 
         self.setWidget(self._stacked_widgets)
         self.changed_brush()
@@ -36,6 +38,10 @@ class ToolsSettingsPanel(QDockWidget):
     def _init_eraser(self):
         container = Container('eraser')
         self._tool_uses_brush(container)
+        self._stacked_widgets.addWidget(container)
+
+    def _init_blur(self):
+        container = Container('blur')
         self._stacked_widgets.addWidget(container)
 
     def _tool_uses_brush(self, container):

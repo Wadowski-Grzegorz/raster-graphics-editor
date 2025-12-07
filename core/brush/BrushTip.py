@@ -13,7 +13,7 @@ class BrushTip:
     def make_mask(self):
         if self.shape != 'circle':
             return None
-        radius = self.size / 2
+        radius = (self.size - 1) / 2
         y, x = np.ogrid[:self.size, :self.size]
         dist = np.sqrt((x - radius) ** 2 + (y - radius) ** 2)
 
@@ -32,7 +32,7 @@ class BrushTip:
 
     def resize(self, size: int):
         self.size = size
-        self.radius = size // 2 if size >= 2 else 1
+        self.radius = (size - 1) // 2 if size >= 2 else 1
 
         self.mask = self.make_mask()
 

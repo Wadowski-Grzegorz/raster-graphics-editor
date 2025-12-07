@@ -2,6 +2,7 @@ import numpy as np
 
 from core.layer.LayerManager import layer_manager
 from core.brush.BrushManager import brush_manager
+from core.tool.BlurTool import BlurTool
 from core.tool.BrushTool import BrushTool
 from core.tool.EraserTool import EraserTool
 
@@ -11,8 +12,7 @@ class ToolManager:
         super().__init__()
 
         brush = BrushTool()
-        eraser = EraserTool()
-        self._tools = [brush, eraser]
+        self._tools = [brush, EraserTool(), BlurTool()]
         self._curr_tool = brush
 
         self._layers = {} # as numpy

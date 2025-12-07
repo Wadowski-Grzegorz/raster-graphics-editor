@@ -1,13 +1,14 @@
 import numpy as np
+import cv2 as cv
 
 from core.tool.CoreTool import CoreTool
 
 import resources.settings as settings
 
-class EraserTool(CoreTool):
+class BlurTool(CoreTool):
     def __init__(self):
         super().__init__()
-        self._name = 'Eraser'
+        self._name = 'Blur'
 
     def on_press(self, x, y, layer=None, temp_layer=None, brush=None, color=None):
         brush_radius = brush.get_radius()
@@ -17,9 +18,9 @@ class EraserTool(CoreTool):
         img_x_s = max(x - brush_radius, 0)
         img_x_e = min(x + brush_radius, settings.layer_width)
 
-        paint_image = temp_layer[img_y_s:img_y_e, img_x_s:img_x_e, 3].astype(np.float32)
+        paint_image = temp_layer[img_y_s:img_y_e, img_x_s:img_x_e, 3]
 
-        mask = brush.get_tip().astype(np.float32) / 255.0
+        mask = brush.get_tip()
 
         mask_y_s = max(brush_radius - y, 0)
         mask_y_e = mask_y_s + (img_y_e - img_y_s)
@@ -28,12 +29,9 @@ class EraserTool(CoreTool):
 
         mask = mask[mask_y_s:mask_y_e, mask_x_s:mask_x_e]
 
-        flow = brush.get_flow()
-        alpha_add = (mask * flow * 255.0).astype(np.float32)
-
-        paint_image = np.clip(paint_image + alpha_add, 0, 255)
-
-        temp_layer[..., 3][img_y_s:img_y_e, img_x_s:img_x_e] = paint_image.astype(np.uint8)
+        paint_image = paint_image + mask
+        paint_image[paint_image > 0] = 160
+        temp_layer[img_y_s:img_y_e, img_x_s:img_x_e][..., 3] = paint_image
 
     def on_move(self, start_x, start_y, end_x, end_y, layer=None, temp_layer=None, brush=None, color=None):
         # check which value has more to grow
@@ -57,21 +55,9 @@ class EraserTool(CoreTool):
 
     def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
         # blend temp layer with real layer
-        opacity = brush.get_opacity()
+        where_blur = temp_layer[..., 3] > 0
 
-        src = temp_layer.astype(np.float32)
-        src_a = src[..., 3] * (opacity / 255.0)
-
-        dst = layer.astype(np.float32)
-        dst_a = dst[..., 3] / 255.0
-
-        dst_where_is_not_painted = (dst_a == 0)
-
-        # blend
-
-        out_a = dst_a - src_a
-        out_a = np.clip(out_a, 0.0, 1.0)
-
-        layer[..., 3] = (out_a * 255).astype(np.uint8)
+        blurred_rgb = cv.GaussianBlur(layer[..., :3], (11, 11), 0)
+        layer[..., :3][where_blur] = blurred_rgb[where_blur]
 
         temp_layer.fill(0)
