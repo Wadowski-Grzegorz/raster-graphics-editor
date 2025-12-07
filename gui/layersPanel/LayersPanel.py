@@ -35,7 +35,7 @@ class LayersPanel(QDockWidget):
         self.list_widget.model().rowsMoved.connect(self.layers_moved)
         layout_main.addWidget(self.list_widget)
 
-    def add_button_layer(self, idx: int, name: str=None, layer_tile=None):
+    def add_button_layer(self, idx: int, layer_tile=None):
         item = QListWidgetItem()
         tile = Tile(idx, name=f'Layer {idx}', show_name=True) if layer_tile is None else layer_tile
         item.setSizeHint(tile.sizeHint())
@@ -74,8 +74,8 @@ class LayersPanel(QDockWidget):
         self.list_widget.clear()
 
         for idx in new_order:
-            tile = Tile(idx, tiles[idx])
-            self.add_button_layer(idx, name=tile, show_name=True)
+            tile = Tile(idx, tiles[idx], show_name=True)
+            self.add_button_layer(idx, layer_tile=tile)
 
     @QtCore.pyqtSlot()
     def layers_order_changed(self):

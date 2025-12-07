@@ -60,24 +60,27 @@ class BrushTool(CoreTool):
             self.on_press(int(a), int(b), layer, temp_layer, brush, color)
 
     def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
+        # blend temp layer with real layer
         opacity = brush.get_opacity()
 
-        # Mask of where brush has painted
-        src_where_is_painted = (temp_layer.sum(axis=2) > 0).astype(np.float32)
-        # take alpha from brush stroke from temp
-        src_stroke_alpha = (temp_layer[..., 3].astype(np.float32) * opacity * src_where_is_painted) / 255.0
-        src_stroke_alpha_extended = src_stroke_alpha[:, :, None]
+        src = temp_layer.astype(np.float32)
+        src_rgb = src[..., :3]
+        src_a = src[..., 3] * (opacity / 255.0)
 
         dst = layer.astype(np.float32)
-        src = temp_layer.astype(np.float32)
+        dst_rgb = dst[..., :3]
+        dst_a = dst[..., 3] / 255.0
 
-        out_a = (dst[..., 3] + src_stroke_alpha * 255.0)
-        out_a = np.clip(out_a, 0, 255)
+        dst_where_is_not_painted = (dst_a == 0)
 
-        layer[..., :3] = (
-            (dst[..., :3] * (1 - src_stroke_alpha_extended)
-            + src[..., :3] * src_stroke_alpha_extended)
-            .astype(np.uint8))
-        layer[..., 3] = out_a.astype(np.uint8)
+        # blend
+        out_rgb = dst_rgb * (1 - src_a[:, :, None]) + src_rgb * src_a[:, :, None]
+        out_rgb[dst_where_is_not_painted] = src_rgb[dst_where_is_not_painted]
+
+        out_a = dst_a + src_a
+        out_a = np.clip(out_a, 0.0, 1.0)
+
+        layer[..., :3] = out_rgb.astype(np.uint8)
+        layer[..., 3] = (out_a * 255).astype(np.uint8)
 
         temp_layer.fill(0)
