@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QDockWidget, QWidget, QStackedWidget
 
 from adapters.BrushAdapter import brush_adapter
@@ -8,67 +8,76 @@ from gui.components.ValueField import ValueField
 from dto.SelectableItem import SelectableItem
 
 class ToolsSettingsPanel(QDockWidget):
-    signal_brush_changed_parameter = pyqtSignal((str, float), (str, int))
-    signal_brush_selected = pyqtSignal(int)
 
-    def __init__(self, tools: list[SelectableItem]):
+    def __init__(self, tools: list[SelectableItem], fun_brush_change_parameter=None, fun_brush_selected=None):
         super().__init__()
+
+        self.fun_brush_change_parameter = fun_brush_change_parameter
+        self.fun_brush_selected = fun_brush_selected
 
         self.setTitleBarWidget(QWidget())
 
         self._stacked_widgets = QStackedWidget()
+        self._brush_affects_tool = []
         for t in tools:
             if t.name.lower() == 'brush':
                 self._init_brush()
+            if t.name.lower() == 'eraser':
+                self._init_eraser()
 
         self.setWidget(self._stacked_widgets)
-
+        self.changed_brush()
 
     def _init_brush(self):
         container = Container('brush')
+        self._tool_uses_brush(container)
+        self._stacked_widgets.addWidget(container)
 
+    def _init_eraser(self):
+        container = Container('eraser')
+        self._tool_uses_brush(container)
+        self._stacked_widgets.addWidget(container)
+
+    def _tool_uses_brush(self, container):
+        self._brush_affects_tool.append(container.get_name())
         brush_list = SelectionList(brush_adapter.get_brushes_selectable(), self.selected_brush)
         container.add_widget(brush_list, 'brush_list')
 
         size_field = ValueField('size', min_v=1, max_v=1000)
         container.add_widget(size_field, 'size')
         size_field.signal_value_changed.connect(
-            lambda v: self.signal_brush_changed_parameter.emit('size', v)
+            lambda v: self.fun_brush_change_parameter.emit('size', v)
         )
 
         opacity_field = ValueField('opacity', suffix='%')
         container.add_widget(opacity_field, 'opacity')
         opacity_field.signal_value_changed.connect(
-            lambda v: self.signal_brush_changed_parameter.emit('opacity', v / 100)
+            lambda v: self.fun_brush_change_parameter.emit('opacity', v / 100)
         )
 
         flow_field = ValueField('flow', suffix='%')
         container.add_widget(flow_field, 'flow')
         flow_field.signal_value_changed.connect(
-            lambda v: self.signal_brush_changed_parameter.emit('flow', v / 100)
+            lambda v: self.fun_brush_change_parameter.emit('flow', v / 100)
         )
 
         hardness_field = ValueField('hardness', suffix='%')
         container.add_widget(hardness_field, 'hardness')
         hardness_field.signal_value_changed.connect(
-            lambda v: self.signal_brush_changed_parameter.emit('hardness', v / 100)
+            lambda v: self.fun_brush_change_parameter.emit('hardness', v / 100)
         )
 
-        self._stacked_widgets.addWidget(container)
-
-        self.changed_brush()
-
     def selected_brush(self, idx: int):
-        self.signal_brush_selected.emit(idx)
+        self.fun_brush_selected.emit(idx)
 
     def changed_brush(self):
         brush = brush_adapter.get_current_brush()
-        i, container = self.get_tool_nr_widget('brush')
-
-        container.set_widget_value('size', brush.size)
-        container.set_widget_value('opacity', brush.opacity * 100)
-        container.set_widget_value('flow', brush.flow * 100)
-        container.set_widget_value('hardness', brush.hardness * 100)
+        for name in self._brush_affects_tool:
+            i, container = self.get_tool_nr_widget(name)
+            container.set_widget_value('size', brush.size)
+            container.set_widget_value('opacity', brush.opacity * 100)
+            container.set_widget_value('flow', brush.flow * 100)
+            container.set_widget_value('hardness', brush.hardness * 100)
 
     @pyqtSlot(str)
     def tool_changed(self, name: str):
@@ -76,8 +85,8 @@ class ToolsSettingsPanel(QDockWidget):
         self._stacked_widgets.setCurrentIndex(i)
 
     def get_tool_nr_widget(self, name: str):
-        name = name.lower()
+        name_low = name.lower()
         for i in range(self._stacked_widgets.count()):
             element = self._stacked_widgets.widget(i)
-            if element.get_name() == name:
+            if element.get_name() == name_low:
                 return i, element

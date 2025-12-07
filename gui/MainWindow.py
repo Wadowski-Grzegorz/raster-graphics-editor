@@ -2,16 +2,14 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
-from core.tool.ToolManager import ToolManager
 from gui.Canvas import Canvas
 from gui.ImageCaretaker import ImageCaretaker
-from gui.ToolsPanelsController import ToolsPanelsController
+from gui.tool.ToolsPanelsController import ToolsPanelsController
 from gui.layersPanel.LayersPanel import LayersPanel
 from Controller import Controller
 from gui.palette.Palette import Palette
 from gui.starting_window import Starting_window
-from gui.tool.ToolsPanel import ToolsPanel
-from gui.tool.ToolsSettingsPanel import ToolsSettingsPanel
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -39,7 +37,7 @@ class MainWindow(QMainWindow):
         starting_window = Starting_window()
 
         self.controller = Controller(
-            canvas=canvas, palette=palette, tools_settings_panel=self.tools_panels_controller.get_tools_settings_panel(), image_caretaker=self.image_caretaker,
+            canvas=canvas, palette=palette, tools_panels_controller=self.tools_panels_controller, image_caretaker=self.image_caretaker,
             layers_panel=layers_panel,
             starting_window=starting_window
         )

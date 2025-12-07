@@ -17,7 +17,7 @@ class ToolsPanel(QDockWidget):
         layout_main = QVBoxLayout(dummy)
 
         self.setTitleBarWidget(QWidget())
-        self.setMinimumWidth(40)
+        self.setMinimumWidth(30)
         self.setMaximumWidth(70)
 
         self.menu = SelectionMenu(self.tools_selectable, self.tool_choose, identify='name')

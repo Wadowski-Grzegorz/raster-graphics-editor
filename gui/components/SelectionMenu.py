@@ -11,7 +11,6 @@ class SelectionMenu(QListWidget):
         self._identify = identify
 
         for it in items:
-            print(it.name)
             tile = Tile(it.idx, name=it.name, icon=it.icon, show_name=False)
 
             item = QListWidgetItem()

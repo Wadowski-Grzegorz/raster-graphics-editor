@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
 
 class Container(QWidget):
@@ -10,7 +10,6 @@ class Container(QWidget):
 
         self._layout = QHBoxLayout()
         self.setLayout(self._layout)
-
 
     def add_widget(self, widget: QWidget, name: str):
         self._widgets[name] = widget

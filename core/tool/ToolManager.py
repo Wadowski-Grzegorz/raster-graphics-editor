@@ -3,13 +3,16 @@ import numpy as np
 from core.layer.LayerManager import layer_manager
 from core.brush.BrushManager import brush_manager
 from core.tool.BrushTool import BrushTool
+from core.tool.EraserTool import EraserTool
+
 
 class ToolManager:
     def __init__(self):
         super().__init__()
 
         brush = BrushTool()
-        self._tools = [brush]
+        eraser = EraserTool()
+        self._tools = [brush, eraser]
         self._curr_tool = brush
 
         self._layers = {} # as numpy
@@ -70,5 +73,12 @@ class ToolManager:
 
     def get_tools(self):
         return self._tools.copy()
+
+    def tool_selected(self, name:str):
+        for tool in self._tools:
+            if tool.get_name().lower() == name.lower():
+                self._curr_tool = tool
+                break
+
 
 tool_manager = ToolManager()

@@ -1,4 +1,5 @@
 {
     "brush": "tool_brush.png",
-    "hand": "tool_hand.png"
+    "hand": "tool_hand.png",
+    "eraser": "tool_eraser.png"
 }

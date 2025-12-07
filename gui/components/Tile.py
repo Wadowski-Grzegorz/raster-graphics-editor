@@ -10,7 +10,8 @@ class Tile(QWidget):
         self._name = name if name else None
         self._icon = icon if icon else None
 
-        self.setMinimumHeight(60)
+        self.setMinimumHeight(30)
+        self.setMinimumWidth(30)
         self.setContentsMargins(0, 0, 0, 0)
 
         layout = QHBoxLayout()

@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QWidget
 from gui.Canvas import Canvas
 from gui.palette.Palette import Palette
 from gui.layersPanel.LayersPanel import LayersPanel
-from gui.tool.ToolsSettingsPanel import ToolsSettingsPanel
+from gui.tool.ToolsPanelsController import ToolsPanelsController
 from gui.starting_window import Starting_window
 from gui.ImageCaretaker import ImageCaretaker
 
@@ -13,7 +13,7 @@ from core.brush.BrushManager import brush_manager
 
 class Controller(QWidget):
 
-    def __init__(self, canvas: Canvas, palette: Palette, tools_settings_panel: ToolsSettingsPanel, image_caretaker: ImageCaretaker,
+    def __init__(self, canvas: Canvas, palette: Palette, tools_panels_controller: ToolsPanelsController, image_caretaker: ImageCaretaker,
                  layers_panel: LayersPanel,
                  starting_window: Starting_window):
         super().__init__()
@@ -21,7 +21,7 @@ class Controller(QWidget):
         self.palette = palette
         self.layers_panel = layers_panel
         self.starting_window = starting_window
-        self.tools_settings_panel = tools_settings_panel
+        self.tools_panels_controller = tools_panels_controller
         self.image_caretaker = image_caretaker
 
         self.palette.signal_color_changed.connect(tool_manager.changed_color)
@@ -36,8 +36,9 @@ class Controller(QWidget):
         self.canvas.signal_cursor_moved.connect(tool_manager.on_move)
         self.canvas.signal_cursor_released.connect(tool_manager.on_release)
 
-        self.tools_settings_panel.signal_brush_changed_parameter.connect(brush_manager.changed_brush_parameter)
-        self.tools_settings_panel.signal_brush_selected.connect(self.brush_selected)
+        self.tools_panels_controller.signal_brush_change_parameter.connect(self.brush_change_parameter)
+        self.tools_panels_controller.signal_brush_selected.connect(self.brush_selected)
+        self.tools_panels_controller.signal_tool_selected.connect(tool_manager.tool_selected)
 
         self.image_caretaker.signal_image_read_order.connect(self.image_read)
 
@@ -76,4 +77,8 @@ class Controller(QWidget):
     def brush_selected(self, idx):
         brush_manager.set_curr_brush(idx)
         tool_manager.changed_brush()
-        self.tools_settings_panel.changed_brush()
+        self.tools_panels_controller.changed_brush()
+
+    def brush_change_parameter(self, name: str, value: int|float):
+        brush_manager.changed_brush_parameter(name, value)
+        self.tools_panels_controller.changed_brush()
