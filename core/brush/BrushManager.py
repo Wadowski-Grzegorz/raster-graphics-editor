@@ -9,7 +9,7 @@ class BrushManager:
     brush_specs_path = settings.program_catalog + "\\resources\\brush\\initial_brushes.json"
 
     def __init__(self):
-        self._brushes = None
+        self._brushes = []
         self._curr_brush = None
 
         self.fetch_brushes()

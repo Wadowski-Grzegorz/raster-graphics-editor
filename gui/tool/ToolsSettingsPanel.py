@@ -42,6 +42,11 @@ class ToolsSettingsPanel(QDockWidget):
 
     def _init_blur(self):
         container = Container('blur')
+        size_field = ValueField('size', min_v=1, max_v=1000)
+        container.add_widget(size_field, 'size')
+        size_field.signal_value_changed.connect(
+            lambda v: self.fun_brush_change_parameter.emit('size', v)
+        )
         self._stacked_widgets.addWidget(container)
 
     def _tool_uses_brush(self, container):
@@ -84,6 +89,9 @@ class ToolsSettingsPanel(QDockWidget):
             container.set_widget_value('opacity', brush.opacity * 100)
             container.set_widget_value('flow', brush.flow * 100)
             container.set_widget_value('hardness', brush.hardness * 100)
+
+        i, container = self.get_tool_nr_widget('blur')
+        container.set_widget_value('size', brush.size)
 
     @pyqtSlot(str)
     def tool_changed(self, name: str):
