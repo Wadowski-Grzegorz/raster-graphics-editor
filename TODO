@@ -1,25 +1,9 @@
-Gui Brush.size is float, but it gets interpreted as int in core.
-You can make so it gets sometimes interpreted as float to be more accurate.
-
-Gui ToolsPanel at startup don't show real values.
-
-Implement other brush parameters.
-
 Make so temp_layer will drawn where current layer is.
 
-Look how size and radius works.
-It only changes every 2 pixel size - consider if it should work like that.
-
 Currently Canvas.add_layer assumes that temp_layer exists. Temp_layer also creates background.
-
-Make Qimage layer save in data, not in Cavnas.
 
 Make data.Image parent class SmartObject or something like that.
 
 Zrób poprawne zczytywanie img a nie tylko png.
-
-Przeglądnij jak tworzona jest maska dla BrushTip.
-
-Make so gui communitate only through adapter, not data.
 
 Przy zmianie ustawień pędzla na panelu górnym wartości nie zaczynają zmieniać się od poprawnej

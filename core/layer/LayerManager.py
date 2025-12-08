@@ -76,6 +76,9 @@ class LayerManager:
     def get_layers_arr(self):
         return {idx: l.get_layer() for idx, l in self._layers.items()}
 
+    def get_temp_layer(self):
+        return self._temp_layer
+
 
 
 layer_manager = LayerManager()

@@ -166,3 +166,7 @@ class Canvas(QWidget):
     @QtCore.pyqtSlot()
     def layers_order_changed(self):
         self.update()
+
+    def move_offset(self, offset_x, offset_y):
+        self._offset_x += offset_x
+        self._offset_y += offset_y

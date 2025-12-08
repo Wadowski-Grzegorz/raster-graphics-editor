@@ -26,6 +26,8 @@ class ToolsSettingsPanel(QDockWidget):
                 self._init_eraser()
             if t.name.lower() == 'blur':
                 self._init_blur()
+            if t.name.lower() == 'hand':
+                self._init_hand()
 
         self.setWidget(self._stacked_widgets)
         self.changed_brush()
@@ -47,6 +49,10 @@ class ToolsSettingsPanel(QDockWidget):
         size_field.signal_value_changed.connect(
             lambda v: self.fun_brush_change_parameter.emit('size', v)
         )
+        self._stacked_widgets.addWidget(container)
+
+    def _init_hand(self):
+        container = Container('hand')
         self._stacked_widgets.addWidget(container)
 
     def _tool_uses_brush(self, container):

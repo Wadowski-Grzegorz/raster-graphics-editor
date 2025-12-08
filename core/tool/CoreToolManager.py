@@ -7,7 +7,7 @@ from core.tool.BrushTool import BrushTool
 from core.tool.EraserTool import EraserTool
 
 
-class ToolManager:
+class CoreToolManager:
     def __init__(self):
         super().__init__()
 
@@ -51,13 +51,11 @@ class ToolManager:
 
     def refresh_data(self):
         self._layers = layer_manager.get_layers_arr()
+        self._temp_layer = layer_manager.get_temp_layer()
         self.refresh_idx()
 
     def refresh_idx(self):
         self._curr_idx = layer_manager.get_current_idx()
-
-    def added_temp_layer(self, layer: np.ndarray):
-        self._temp_layer = layer
 
     def changed_layer(self):
         self.refresh_idx()
@@ -78,7 +76,7 @@ class ToolManager:
         for tool in self._tools:
             if tool.get_name().lower() == name.lower():
                 self._curr_tool = tool
-                break
+                return True
+        return False
 
-
-tool_manager = ToolManager()
+core_tool_manager = CoreToolManager()
