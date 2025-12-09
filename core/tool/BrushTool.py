@@ -67,7 +67,7 @@ class BrushTool(CoreTool):
         src_rgb = src[..., :3]
         src_a = src[..., 3] * (opacity / 255.0)
 
-        dst = layer.astype(np.float32)
+        dst = layer.get_layer().astype(np.float32)
         dst_rgb = dst[..., :3]
         dst_a = dst[..., 3] / 255.0
 
@@ -80,7 +80,7 @@ class BrushTool(CoreTool):
         out_a = dst_a + src_a
         out_a = np.clip(out_a, 0.0, 1.0)
 
-        layer[..., :3] = out_rgb.astype(np.uint8)
-        layer[..., 3] = (out_a * 255).astype(np.uint8)
+        layer.get_layer()[..., :3] = out_rgb.astype(np.uint8)
+        layer.get_layer()[..., 3] = (out_a * 255).astype(np.uint8)
 
         temp_layer.fill(0)

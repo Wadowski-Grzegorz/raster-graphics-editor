@@ -28,6 +28,8 @@ class ToolsSettingsPanel(QDockWidget):
                 self._init_blur()
             if t.name.lower() == 'hand':
                 self._init_hand()
+            if t.name.lower() == 'move':
+                self._init_move()
 
         self.setWidget(self._stacked_widgets)
         self.changed_brush()
@@ -39,6 +41,11 @@ class ToolsSettingsPanel(QDockWidget):
 
     def _init_eraser(self):
         container = Container('eraser')
+        self._tool_uses_brush(container)
+        self._stacked_widgets.addWidget(container)
+
+    def _init_move(self):
+        container = Container('move')
         self._tool_uses_brush(container)
         self._stacked_widgets.addWidget(container)
 

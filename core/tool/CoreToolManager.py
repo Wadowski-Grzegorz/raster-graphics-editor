@@ -5,6 +5,7 @@ from core.brush.BrushManager import brush_manager
 from core.tool.BlurTool import BlurTool
 from core.tool.BrushTool import BrushTool
 from core.tool.EraserTool import EraserTool
+from core.tool.MoveTool import MoveTool
 
 
 class CoreToolManager:
@@ -12,10 +13,10 @@ class CoreToolManager:
         super().__init__()
 
         brush = BrushTool()
-        self._tools = [brush, EraserTool(), BlurTool()]
+        self._tools = [brush, EraserTool(), BlurTool(), MoveTool()]
         self._curr_tool = brush
 
-        self._layers = {} # as numpy
+        self._layers = {}
         self._curr_idx = None
         self._temp_layer = None # as numpy
 
@@ -50,7 +51,9 @@ class CoreToolManager:
         )
 
     def refresh_data(self):
-        self._layers = layer_manager.get_layers_arr()
+        layers = layer_manager.get_layers()
+        for layer in layers:
+            self._layers[layer.get_id()] = layer
         self._temp_layer = layer_manager.get_temp_layer()
         self.refresh_idx()
 

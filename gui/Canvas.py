@@ -1,6 +1,6 @@
 import numpy as np
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRect, QPoint
 from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
 from core.layer.LayerManager import layer_manager
@@ -20,7 +20,8 @@ class Canvas(QWidget):
 
         self._layers_dto = None
         self._temp_layer = None # QImage
-        self.background = None
+        self._background = None
+        self._foreground = None
 
         self._scale = 1
 
@@ -44,9 +45,11 @@ class Canvas(QWidget):
 
     def paintEvent(self, e):
         painter = QPainter(self)
+        self._layers_dto = layer_adapter.layers_to_dto(layer_manager.get_layers())
 
-        if self.background:
-            (painter.drawPixmap(self._offset_x, self._offset_y, self.background))
+        if self._background is None:
+            self.create_background()
+        painter.drawPixmap(0, 0, self._background)
 
         for idx in layer_manager.get_order():
             layer_dto = self._layers_dto[idx]
@@ -68,6 +71,10 @@ class Canvas(QWidget):
                 int(self._temp_layer.width() * self._scale),
                 int(self._temp_layer.height() * self._scale)
             )
+
+        if self._foreground is None:
+            self.create_foreground()
+        painter.drawPixmap(0, 0, self._foreground)
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
@@ -123,25 +130,45 @@ class Canvas(QWidget):
 
         self.update()
 
-    def resize_background(self):
-        if self.background is not None:
-            scaled_layer_x = int(settings.layer_width * self._scale)
-            scaled_layer_y = int(settings.layer_height * self._scale)
-
-            self.background = self.background.scaled(
-                scaled_layer_x, scaled_layer_y,
-                Qt.AspectRatioMode.IgnoreAspectRatio,
-                Qt.TransformationMode.FastTransformation
-            )
-
     def resize_values(self):
         self._offset_x = int((self.width() - settings.layer_width * self._scale) // 2)
         self._offset_y = int((self.height() - settings.layer_height * self._scale) // 2)
-        self.resize_background()
+        self.create_foreground()
 
     def create_background(self):
-        self.background = QPixmap(settings.layer_width, settings.layer_height)
-        self.background.fill(QColor(170, 170, 170))
+        self._background = QPixmap(self.width(), self.height())
+        self._background.fill(QColor(170, 170, 170))
+
+    def create_foreground(self):
+        self._foreground = QPixmap(self.width(), self.height())
+        self._foreground.fill(QColor(0, 0, 0, 0))
+
+        painter = QPainter(self._foreground)
+        color = QColor(50, 50, 50, 255)
+
+        # left, right, top, bottom
+        painter.fillRect(QRect(
+            QPoint(0, 0),
+            QPoint(self._offset_x, self.height())),
+            color
+        )
+        painter.fillRect(QRect(
+     QPoint(self._offset_x + settings.layer_width * self._scale, 0),
+            QPoint(self.width(), self.height())),
+            color
+        )
+        painter.fillRect(QRect(
+     QPoint(self._offset_x, 0),
+            QPoint(self._offset_x + settings.layer_width * self._scale, self._offset_y)),
+            color
+        )
+        painter.fillRect(QRect(
+            QPoint(self._offset_x, self._offset_y + settings.layer_height * self._scale),
+            QPoint(self._offset_x + settings.layer_width * self._scale, self.height())),
+            color
+        )
+
+        painter.end()
 
     def convert_to_layer(self, position):
         x = (position.x() - self._offset_x) / self._scale
@@ -156,7 +183,6 @@ class Canvas(QWidget):
     @QtCore.pyqtSlot(np.ndarray)
     def added_temp_layer(self, layer: np.ndarray):
         self._temp_layer = utils.np_to_q_ptr(layer)
-        self.create_background()
         self.resize_values()
 
     @QtCore.pyqtSlot()

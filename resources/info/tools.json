@@ -2,5 +2,6 @@
     "brush": "tool_brush.png",
     "hand": "tool_hand.png",
     "eraser": "tool_eraser.png",
-    "blur": "tool_blur.png"
+    "blur": "tool_blur.png",
+    "move": "tool_move.png"
 }
