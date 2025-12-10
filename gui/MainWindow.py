@@ -6,7 +6,7 @@ from gui.Canvas import Canvas
 from gui.ImageCaretaker import ImageCaretaker
 from gui.tool.ToolsPanelsController import ToolsPanelsController
 from gui.layersPanel.LayersPanel import LayersPanel
-from Controller import Controller
+from controlleres.Controller import Controller
 from gui.palette.Palette import Palette
 from gui.starting_window import Starting_window
 

@@ -7,6 +7,7 @@ from core.tool.BrushTool import BrushTool
 from core.tool.EraserTool import EraserTool
 from core.tool.MoveTool import MoveTool
 
+from resources.tools_reversible import tools_reversible
 
 class CoreToolManager:
     def __init__(self):
@@ -24,6 +25,8 @@ class CoreToolManager:
         self._curr_color = np.array([0, 0, 0, 255], dtype="uint8")
 
     def on_press(self, x, y):
+        if self.check_usage() is False:
+            return
         self._curr_tool.on_press(
             x, y,
             layer=self._curr_layer,
@@ -33,6 +36,8 @@ class CoreToolManager:
         )
 
     def on_move(self, start_x, start_y, end_x, end_y):
+        if self.check_usage() is False:
+            return
         self._curr_tool.on_move(
             start_x, start_y,
             end_x, end_y,
@@ -43,12 +48,24 @@ class CoreToolManager:
         )
 
     def on_release(self):
+        if self.check_usage() is False:
+            return
         self._curr_tool.on_release(
             layer=self._curr_layer,
             temp_layer=self._temp_layer,
             brush=self._curr_brush,
             color=self._curr_color
         )
+
+    def check_usage(self):
+        # check if tool can be used on this layer
+        layer_flag = self._curr_layer.can_change()
+        if layer_flag:
+            return True
+
+        name = self._curr_tool.get_name().lower()
+        tool_flag = tools_reversible[name]
+        return tool_flag
 
     def refresh_data(self):
         self._curr_layer = layer_manager.get_current_layer()
@@ -66,7 +83,7 @@ class CoreToolManager:
 
     def changed_color(self, color: list[int, int, int]):
         self._curr_color[:3] = color
-    
+
     def get_current_color(self):
         return self._curr_color.copy()
 

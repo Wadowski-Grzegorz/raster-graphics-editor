@@ -57,21 +57,23 @@ class EraserTool(CoreTool):
 
     def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
         # blend temp layer with real layer
+        layer.adjust_size()
+
         opacity = brush.get_opacity()
 
         src = temp_layer.astype(np.float32)
         src_a = src[..., 3] * (opacity / 255.0)
 
-        dst = layer.get_layer().astype(np.float32)
+        dst = layer.get_cut_as(temp_layer).astype(np.float32)
         dst_a = dst[..., 3] / 255.0
 
-        dst_where_is_not_painted = (dst_a == 0)
+        # dst_where_is_not_painted = (dst_a == 0)
 
         # blend
 
         out_a = dst_a - src_a
         out_a = np.clip(out_a, 0.0, 1.0)
 
-        layer.get_layer()[..., 3] = (out_a * 255).astype(np.uint8)
+        layer.replace((out_a * 255).astype(np.uint8))
 
         temp_layer.fill(0)

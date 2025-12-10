@@ -55,9 +55,13 @@ class BlurTool(CoreTool):
 
     def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
         # blend temp layer with real layer
-        where_blur = temp_layer[..., 3] > 0
+        layer.adjust_size()
 
-        blurred_rgb = cv.GaussianBlur(layer.get_layer()[..., :3], (11, 11), 0)
-        layer.get_layer()[..., :3][where_blur] = blurred_rgb[where_blur]
+        dst = layer.get_cut_as(temp_layer)
+        dst_rgb = dst[..., :3]
+        where_blur = temp_layer[..., 3] > 0
+        blurred_rgb = cv.GaussianBlur(dst_rgb, (11, 11), 0)
+        dst_rgb[where_blur] = blurred_rgb[where_blur]
+        layer.replace(dst_rgb)
 
         temp_layer.fill(0)

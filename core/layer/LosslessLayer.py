@@ -46,3 +46,5 @@ class LosslessLayer(Layer):
 
         return dst
 
+    def can_change(self) -> bool:
+        return False

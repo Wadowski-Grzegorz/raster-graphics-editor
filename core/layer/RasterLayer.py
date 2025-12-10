@@ -68,3 +68,6 @@ class RasterLayer(Layer):
             self._layer[h[0]: h[1], w[0]: w[1], 3] = matrix
         if matrix.ndim == 3:
             self._layer[h[0]: h[1], w[0]: w[1], :3] = matrix
+
+    def can_change(self) -> bool:
+        return True

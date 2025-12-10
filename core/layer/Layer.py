@@ -35,3 +35,7 @@ class Layer:
     @abstractmethod
     def get_layer_q(self):
         pass
+
+    @abstractmethod
+    def can_change(self) -> bool:
+        pass
