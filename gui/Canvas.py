@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QRect, QPoint
@@ -53,6 +55,7 @@ class Canvas(QWidget):
 
         for idx in layer_manager.get_order():
             layer_dto = self._layers_dto[idx]
+            # layer_dto.layer.save(f'aaaa.png')
             self.paint(
                 painter,
                 layer_dto.layer,

@@ -26,7 +26,6 @@ class Layer:
         return self._position
 
     def move(self, dx, dy):
-        print('moving by', dx, dy)
         self._position = (self._position[0] + dx, self._position[1] + dy)
 
     @abstractmethod

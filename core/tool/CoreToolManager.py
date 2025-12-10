@@ -16,7 +16,7 @@ class CoreToolManager:
         self._tools = [brush, EraserTool(), BlurTool(), MoveTool()]
         self._curr_tool = brush
 
-        self._layers = {}
+        self._curr_layer = None
         self._curr_idx = None
         self._temp_layer = None # as numpy
 
@@ -26,7 +26,7 @@ class CoreToolManager:
     def on_press(self, x, y):
         self._curr_tool.on_press(
             x, y,
-            layer=self._layers[self._curr_idx],
+            layer=self._curr_layer,
             temp_layer=self._temp_layer,
             brush=self._curr_brush,
             color=self._curr_color
@@ -36,7 +36,7 @@ class CoreToolManager:
         self._curr_tool.on_move(
             start_x, start_y,
             end_x, end_y,
-            layer=self._layers[self._curr_idx],
+            layer=self._curr_layer,
             temp_layer=self._temp_layer,
             brush=self._curr_brush,
             color=self._curr_color
@@ -44,16 +44,14 @@ class CoreToolManager:
 
     def on_release(self):
         self._curr_tool.on_release(
-            layer=self._layers[self._curr_idx],
+            layer=self._curr_layer,
             temp_layer=self._temp_layer,
             brush=self._curr_brush,
             color=self._curr_color
         )
 
     def refresh_data(self):
-        layers = layer_manager.get_layers()
-        for layer in layers:
-            self._layers[layer.get_id()] = layer
+        self._curr_layer = layer_manager.get_current_layer()
         self._temp_layer = layer_manager.get_temp_layer()
         self.refresh_idx()
 

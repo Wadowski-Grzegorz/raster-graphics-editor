@@ -79,6 +79,9 @@ class LayerManager:
     def get_temp_layer(self):
         return self._temp_layer
 
+    def get_current_layer(self):
+        return self._layers[self._current_idx]
+
 
 
 layer_manager = LayerManager()

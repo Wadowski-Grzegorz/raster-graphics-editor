@@ -61,26 +61,27 @@ class BrushTool(CoreTool):
 
     def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
         # blend temp layer with real layer
-        opacity = brush.get_opacity()
+        layer.adjust_size()
 
+        # cut to temp_layer size
+        dst = layer.get_cut_as(temp_layer).astype(np.float32)
+        dst_rgb = dst[..., :3]
+        dst_a = dst[..., 3] / 255.0
+        dst_where_is_not_painted = (dst_a == 0)
+
+        opacity = brush.get_opacity()
         src = temp_layer.astype(np.float32)
         src_rgb = src[..., :3]
         src_a = src[..., 3] * (opacity / 255.0)
-
-        dst = layer.get_layer().astype(np.float32)
-        dst_rgb = dst[..., :3]
-        dst_a = dst[..., 3] / 255.0
-
-        dst_where_is_not_painted = (dst_a == 0)
 
         # blend
         out_rgb = dst_rgb * (1 - src_a[:, :, None]) + src_rgb * src_a[:, :, None]
         out_rgb[dst_where_is_not_painted] = src_rgb[dst_where_is_not_painted]
 
         out_a = dst_a + src_a
-        out_a = np.clip(out_a, 0.0, 1.0)
+        out_a = np.clip(out_a, 0.0, 1.0) * 255.0
 
-        layer.get_layer()[..., :3] = out_rgb.astype(np.uint8)
-        layer.get_layer()[..., 3] = (out_a * 255).astype(np.uint8)
+        layer.replace(out_rgb.astype(np.uint8))
+        layer.replace(out_a.astype(np.uint8))
 
         temp_layer.fill(0)
