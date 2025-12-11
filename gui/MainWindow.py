@@ -3,7 +3,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from gui.Canvas import Canvas
-from gui.ImageCaretaker import ImageCaretaker
+from gui.FileManager import FileManager
+from gui.Menu import Menu
 from gui.tool.ToolsPanelsController import ToolsPanelsController
 from gui.layer.LayersPanel import LayersPanel
 from controlleres.Controller import Controller
@@ -17,7 +18,8 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle('app-TION')
 
-        self.image_caretaker = ImageCaretaker()
+        self.file_manager = FileManager()
+        self.setMenuBar(Menu(self, self.file_manager))
 
         layout = QVBoxLayout()
 
@@ -37,7 +39,7 @@ class MainWindow(QMainWindow):
         starting_window = Starting_window()
 
         self.controller = Controller(
-            canvas=canvas, palette=palette, tools_panels_controller=self.tools_panels_controller, image_caretaker=self.image_caretaker,
+            canvas=canvas, palette=palette, tools_panels_controller=self.tools_panels_controller, image_caretaker=self.file_manager,
             layers_panel=layers_panel,
             starting_window=starting_window
         )
@@ -58,7 +60,7 @@ class MainWindow(QMainWindow):
         if e.mimeData().hasImage:
             e.setDropAction(Qt.DropAction.CopyAction)
             file_path = e.mimeData().urls()[0].toLocalFile()
-            self.image_caretaker.read_image(file_path)
+            self.file_manager.read_image_order(file_path)
 
             e.accept()
         else:

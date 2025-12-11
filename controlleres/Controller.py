@@ -6,14 +6,14 @@ from gui.palette.Palette import Palette
 from gui.layer.LayersPanel import LayersPanel
 from gui.tool.ToolsPanelsController import ToolsPanelsController
 from gui.starting_window import Starting_window
-from gui.ImageCaretaker import ImageCaretaker
+from gui.FileManager import FileManager
 
 from core.layer.LayerManager import layer_manager
 from core.brush.BrushManager import brush_manager
 
 class Controller(QWidget):
 
-    def __init__(self, canvas: Canvas, palette: Palette, tools_panels_controller: ToolsPanelsController, image_caretaker: ImageCaretaker,
+    def __init__(self, canvas: Canvas, palette: Palette, tools_panels_controller: ToolsPanelsController, image_caretaker: FileManager,
                  layers_panel: LayersPanel,
                  starting_window: Starting_window):
         super().__init__()
