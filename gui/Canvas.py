@@ -2,7 +2,7 @@ import random
 
 import numpy as np
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, QRect, QPoint
+from PyQt6.QtCore import Qt, QRect, QPoint, QTime, QTimer
 from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
 from adapters.LayerAdapter import layer_adapter
@@ -15,6 +15,9 @@ class Canvas(QWidget):
     signal_cursor_pressed = QtCore.pyqtSignal(int, int)
     signal_cursor_moved = QtCore.pyqtSignal(int, int, int, int)
     signal_cursor_released = QtCore.pyqtSignal()
+
+    MAX_FPS = 30
+    MIN_INTERVAL = 1000 // MAX_FPS
 
     def __init__(self):
         super().__init__()
@@ -31,6 +34,34 @@ class Canvas(QWidget):
 
         self._old_x = None
         self._old_y = None
+
+        self.timer = QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self._do_update)
+
+        self.from_last_request = 0
+        self.will_update = False
+
+    def request_update(self):
+        time = int(QTime.currentTime().msecsSinceStartOfDay())
+        elapsed = time - self.from_last_request
+
+        if elapsed >= self.MIN_INTERVAL:
+            self._do_update()
+            return
+
+        if self.will_update:
+            return
+
+        delay = self.MIN_INTERVAL - elapsed
+        self.will_update = True
+        self.timer.start(delay)
+
+    def _do_update(self):
+        self.will_update = False
+        self.from_last_request = int(QTime.currentTime().msecsSinceStartOfDay())
+        self.update()
+
 
     def paint(self, painter, paint_me, x, y, scaled_x, scaled_y):
         pixmap = (
@@ -87,7 +118,7 @@ class Canvas(QWidget):
 
                 self.signal_cursor_pressed.emit(x, y)
 
-                self.update()
+                self.request_update()
 
             self._old_x = x
             self._old_y = y
@@ -105,14 +136,14 @@ class Canvas(QWidget):
                 x, y
             )
 
-            self.update()
+            self.request_update()
 
         self._old_x = x
         self._old_y = y
 
     def mouseReleaseEvent(self, e):
         self.signal_cursor_released.emit()
-        self.update()
+        self.request_update()
 
     def wheelEvent(self, e):
         angle = e.angleDelta().y()
@@ -125,13 +156,13 @@ class Canvas(QWidget):
 
         self.resize_values()
 
-        self.update()
+        self.request_update()
 
     def resizeEvent(self, e):
         if settings.layer_width is not None and settings.layer_height is not None:
             self.resize_values()
 
-        self.update()
+        self.request_update()
 
     def resize_values(self):
         self._offset_x = int((self.width() - settings.layer_width * self._scale) // 2)
@@ -181,7 +212,7 @@ class Canvas(QWidget):
     @QtCore.pyqtSlot()
     def refresh(self):
         self._layers_dto = layer_adapter.get_layers_gui()
-        self.update()
+        self.request_update()
 
     @QtCore.pyqtSlot(np.ndarray)
     def added_temp_layer(self, layer: np.ndarray):
@@ -190,11 +221,11 @@ class Canvas(QWidget):
 
     @QtCore.pyqtSlot()
     def changed_image(self):
-        self.update()
+        self.request_update()
 
     @QtCore.pyqtSlot()
     def layers_order_changed(self):
-        self.update()
+        self.request_update()
 
     def move_offset(self, offset_x, offset_y):
         self._offset_x += offset_x
