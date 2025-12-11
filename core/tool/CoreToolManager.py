@@ -67,7 +67,7 @@ class CoreToolManager:
         tool_flag = tools_reversible[name]
         return tool_flag
 
-    def refresh_data(self):
+    def refresh(self):
         self._curr_layer = layer_manager.get_current_layer()
         self._temp_layer = layer_manager.get_temp_layer()
         self.refresh_idx()

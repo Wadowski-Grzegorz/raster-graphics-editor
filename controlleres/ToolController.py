@@ -33,8 +33,8 @@ class ToolController:
     def changed_color(self, color: list[int, int, int]):
         core_tool_manager.changed_color(color)
 
-    def refresh_data(self):
-        core_tool_manager.refresh_data()
+    def refresh(self):
+        core_tool_manager.refresh()
 
     def changed_brush(self):
         core_tool_manager.changed_brush()

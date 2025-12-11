@@ -82,6 +82,13 @@ class LayerManager:
     def get_current_layer(self):
         return self._layers[self._current_idx]
 
+    def get_layer(self, idx: int):
+        return self._layers[idx]
+
+    def switch_visibility(self, idx: int):
+        self._layers[idx].switch_visible()
+
+
 
 
 layer_manager = LayerManager()

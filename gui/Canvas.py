@@ -5,7 +5,6 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QRect, QPoint
 from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
-from core.layer.LayerManager import layer_manager
 from adapters.LayerAdapter import layer_adapter
 
 import utils
@@ -47,23 +46,24 @@ class Canvas(QWidget):
 
     def paintEvent(self, e):
         painter = QPainter(self)
-        self._layers_dto = layer_adapter.layers_to_dto(layer_manager.get_layers())
+        self._layers_dto = layer_adapter.get_layers_gui()
 
         if self._background is None:
             self.create_background()
         painter.drawPixmap(0, 0, self._background)
 
-        for idx in layer_manager.get_order():
+        for idx in layer_adapter.get_order():
             layer_dto = self._layers_dto[idx]
-            # layer_dto.layer.save(f'aaaa.png')
-            self.paint(
-                painter,
-                layer_dto.layer,
-                self._offset_x + layer_dto.position[0],
-                self._offset_y + layer_dto.position[1],
-                int(layer_dto.layer.width() * self._scale),
-                int(layer_dto.layer.height() * self._scale)
-            )
+
+            if layer_dto.visible:
+                self.paint(
+                    painter,
+                    layer_dto.layer,
+                    self._offset_x + layer_dto.position[0],
+                    self._offset_y + layer_dto.position[1],
+                    int(layer_dto.layer.width() * self._scale),
+                    int(layer_dto.layer.height() * self._scale)
+                )
 
         if self._temp_layer is not None:
             self.paint(
@@ -179,8 +179,8 @@ class Canvas(QWidget):
         return x, y
 
     @QtCore.pyqtSlot()
-    def refresh_data(self):
-        self._layers_dto = layer_adapter.layers_to_dto(layer_manager.get_layers())
+    def refresh(self):
+        self._layers_dto = layer_adapter.get_layers_gui()
         self.update()
 
     @QtCore.pyqtSlot(np.ndarray)

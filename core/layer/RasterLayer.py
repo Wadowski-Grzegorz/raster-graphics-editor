@@ -10,10 +10,11 @@ class RasterLayer(Layer):
             self,
             layer: np.ndarray = None,
             visible: bool = True,
-            position: tuple = (0, 0)
+            position: tuple = (0, 0),
+            name: str = 'Canvas',
         ):
 
-        super().__init__(visible, position)
+        super().__init__(visible, position, name)
 
         if layer is None:
             self._layer = utils.default_arr()

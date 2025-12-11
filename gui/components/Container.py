@@ -1,10 +1,12 @@
+from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
 
 class Container(QWidget):
-    def __init__(self, name: str):
+    def __init__(self, name: str='', idx: int=0):
         super().__init__()
 
+        self._idx = idx
         self._name = name
         self._widgets = {}
 
@@ -20,3 +22,12 @@ class Container(QWidget):
 
     def get_name(self):
         return self._name
+
+    def get_id(self):
+        return self._idx
+
+    def get_widgets(self):
+        return self._widgets.values()
+
+    # def sizeHint(self):
+    #     return

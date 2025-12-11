@@ -1,16 +1,22 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem
-import numpy as np
 
+from gui.components.Container import Container
 from gui.components.Tile import Tile
-from core.layer.LayerManager import layer_manager
+from adapters.LayerAdapter import layer_adapter
+
+import resources.settings as settings
 
 
 class LayersPanel(QDockWidget):
     signal_layer_create_order = pyqtSignal()
     signal_layer_choose = pyqtSignal(int)
     signal_layer_reorder_order = pyqtSignal(list)
+    signal_layer_visibility_switch = pyqtSignal(int)
+
+    layer_icons_catalog = settings.program_catalog + "\\resources\\icons\\"
 
     def __init__(self):
         super().__init__()
@@ -20,6 +26,9 @@ class LayersPanel(QDockWidget):
         self.setTitleBarWidget(QWidget())
 
         layout_main = QVBoxLayout(dummy)
+
+        self._icon_visible = QPixmap(LayersPanel.layer_icons_catalog + "\\layer_visible.png")
+        self._icon_hidden = QPixmap(LayersPanel.layer_icons_catalog + "\\layer_hidden.png")
 
         # button for adding new layer
         self.layout_options = QHBoxLayout()
@@ -35,17 +44,25 @@ class LayersPanel(QDockWidget):
         self.list_widget.model().rowsMoved.connect(self.layers_moved)
         layout_main.addWidget(self.list_widget)
 
-    def add_button_layer(self, idx: int, layer_tile=None):
+    def add_button_layer(self, idx: int, visible=True, name="Layer"):
         item = QListWidgetItem()
-        tile = Tile(idx, name=f'Layer {idx}', show_name=True) if layer_tile is None else layer_tile
-        item.setSizeHint(tile.sizeHint())
+        container = Container(idx=idx)
+        tile = Tile(idx, name=name, show_name=True)
+
+        icon = QIcon(self._icon_visible) if visible else QIcon(self._icon_hidden)
+        container.add_widget(tile, 'name')
+        icon_box = Tile(idx=idx, name='icon', icon=icon, on_click=lambda i=idx: self.switch_visibility(i))
+        container.add_widget(icon_box, 'icon')
+
+        item.setSizeHint(container.sizeHint())
 
         self.list_widget.addItem(item)
-        self.list_widget.setItemWidget(item, tile)
+        self.list_widget.setItemWidget(item, container)
 
-    @QtCore.pyqtSlot(np.ndarray, int)
+    @QtCore.pyqtSlot(int)
     def added_new_layer(self, idx: int):
-        self.add_button_layer(idx)
+        layer = layer_adapter.get_layer_gui(idx)
+        self.add_button_layer(idx=layer.idx, visible=layer.visible, name=layer.name)
 
     def layers_moved(self, parent, start, end, destination, row):
         new_order = []
@@ -63,22 +80,20 @@ class LayersPanel(QDockWidget):
         widget = self.list_widget.itemWidget(item)
         self.signal_layer_choose.emit(widget.get_id())
 
-
-    def set_layers_order(self, new_order: list):
-        tiles = {}
-        for i in range(self.list_widget.count()):
-            item = self.list_widget.item(i)
-            tile = self.list_widget.itemWidget(item)
-            tiles[tile.get_id()] = tile.get_name()
-
+    def refresh(self):
         self.list_widget.clear()
 
-        for idx in new_order:
-            tile = Tile(idx, tiles[idx], show_name=True)
-            self.add_button_layer(idx, layer_tile=tile)
+        layers = layer_adapter.get_layers_gui()
+        for idx in layer_adapter.get_order():
+            self.add_button_layer(
+                idx=layers[idx].idx,
+                name=layers[idx].name,
+                visible=layers[idx].visible
+            )
 
     @QtCore.pyqtSlot()
     def layers_order_changed(self):
-        new_order = layer_manager.get_order()
-        self.set_layers_order(new_order)
+        self.refresh()
 
+    def switch_visibility(self, idx: int):
+        self.signal_layer_visibility_switch.emit(idx)

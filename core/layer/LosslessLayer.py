@@ -12,10 +12,11 @@ class LosslessLayer(Layer):
             self,
             img: np.ndarray = None,
             visible: bool = True,
-            position: tuple = (0, 0)
+            position: tuple = (0, 0),
+            name: str = 'Image'
         ):
 
-        super().__init__(visible, position)
+        super().__init__(visible, position, name)
 
         self._orig_img = img # numpy rgba of original image
         self._transformed_img = self._init_transformed_img()

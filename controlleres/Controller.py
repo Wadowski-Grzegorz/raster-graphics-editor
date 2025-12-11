@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QWidget
 from controlleres.ToolController import ToolController
 from gui.Canvas import Canvas
 from gui.palette.Palette import Palette
-from gui.layersPanel.LayersPanel import LayersPanel
+from gui.layer.LayersPanel import LayersPanel
 from gui.tool.ToolsPanelsController import ToolsPanelsController
 from gui.starting_window import Starting_window
 from gui.ImageCaretaker import ImageCaretaker
@@ -30,6 +30,7 @@ class Controller(QWidget):
         self.layers_panel.signal_layer_create_order.connect(self.layer_create)
         self.layers_panel.signal_layer_choose.connect(self.idx_chosen)
         self.layers_panel.signal_layer_reorder_order.connect(self.layer_reorder_order)
+        self.layers_panel.signal_layer_visibility_switch.connect(self.layer_visibility_switch)
 
         self.starting_window.signal_layer_temp_create_order.connect(self.layer_temp_create)
 
@@ -56,9 +57,9 @@ class Controller(QWidget):
             self.layer_create()
 
     def _announce_new_layer(self, idx: int):
-        self.canvas.refresh_data()
+        self.canvas.refresh()
         self.layers_panel.added_new_layer(idx)
-        self.tool_controller.refresh_data()
+        self.tool_controller.refresh()
 
     def layer_reorder_order(self, new_order: list):
         layer_manager.reorder(new_order)
@@ -68,7 +69,13 @@ class Controller(QWidget):
     def idx_chosen(self, idx: int):
         layer_manager.set_current_idx(idx)
         self.canvas.changed_image()
-        self.tool_controller.refresh_data()
+        self.tool_controller.refresh()
+
+    def layer_visibility_switch(self, idx: int):
+        layer_manager.switch_visibility(idx)
+        print('controller visibility: ', idx)
+        self.canvas.refresh()
+        self.layers_panel.refresh()
 
     def brush_selected(self, idx):
         brush_manager.set_curr_brush(idx)
