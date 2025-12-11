@@ -45,3 +45,4 @@ class Tile(QWidget):
     def mousePressEvent(self, event):
         if self._on_click:
             self._on_click()
+        super().mousePressEvent(event)
