@@ -7,7 +7,7 @@ class LayerAdapter:
 
     @staticmethod
     def layer_to_dto(l: Layer):
-        return LayerGui(l.get_id(), l.get_layer_q(), l.get_visible(), l.get_position(), l.get_name())
+        return LayerGui(l.get_id(), l.get_layer_q(), l.get_visible(), l.get_position(), l.get_name(), l.is_editable())
 
     @staticmethod
     def layers_to_dto(layers: list[Layer]):

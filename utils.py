@@ -32,3 +32,6 @@ def np_to_q(arr: np.ndarray):
 
 def default_arr():
     return np.zeros((settings.layer_height, settings.layer_width, 4), dtype=np.uint8)
+
+def arr_as(arr: np.ndarray):
+    return np.zeros((arr.shape[0], arr.shape[1], arr.shape[2]), dtype=np.uint8)

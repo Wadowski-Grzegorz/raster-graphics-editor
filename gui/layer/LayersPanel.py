@@ -1,10 +1,11 @@
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QSize
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem
+from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, \
+    QToolButton, QLineEdit
 
 from gui.components.Container import Container
-from gui.components.Tile import Tile
+from gui.components.EditableName import EditableName
 from adapters.LayerAdapter import layer_adapter
 
 import resources.settings as settings
@@ -15,6 +16,8 @@ class LayersPanel(QDockWidget):
     signal_layer_choose = pyqtSignal(int)
     signal_layer_reorder_order = pyqtSignal(list)
     signal_layer_visibility_switch = pyqtSignal(int)
+    signal_layer_convert = pyqtSignal(int)
+    signal_layer_name_change = pyqtSignal(int, str)
 
     layer_icons_catalog = settings.program_catalog + "\\resources\\icons\\"
 
@@ -29,6 +32,7 @@ class LayersPanel(QDockWidget):
 
         self._icon_visible = QPixmap(LayersPanel.layer_icons_catalog + "\\layer_visible.png")
         self._icon_hidden = QPixmap(LayersPanel.layer_icons_catalog + "\\layer_hidden.png")
+        self._icon_convert = QPixmap(LayersPanel.layer_icons_catalog + "\\layer_convert.png")
 
         # button for adding new layer
         self.layout_options = QHBoxLayout()
@@ -44,15 +48,23 @@ class LayersPanel(QDockWidget):
         self.list_widget.model().rowsMoved.connect(self.layers_moved)
         layout_main.addWidget(self.list_widget)
 
-    def add_button_layer(self, idx: int, visible=True, name="Layer"):
+    def add_button_layer(self, idx: int, visible=True, name="Layer", convert=True):
         item = QListWidgetItem()
         container = Container(idx=idx)
-        tile = Tile(idx, name=name, show_name=True)
 
-        icon = QIcon(self._icon_visible) if visible else QIcon(self._icon_hidden)
-        container.add_widget(tile, 'name')
-        icon_box = Tile(idx=idx, name='icon', icon=icon, on_click=lambda i=idx: self.switch_visibility(i))
-        container.add_widget(icon_box, 'icon')
+        # tile = Tile(idx, name=name, show_name=True)
+        # container.add_widget(tile, 'name')
+        editable_name = EditableName(name=name, idx=idx, fun=self.name_change)
+        container.add_widget(editable_name, 'name')
+
+        icon_visible = QIcon(self._icon_visible) if visible else QIcon(self._icon_hidden)
+        button = self.create_icon_button(icon_visible, fun=self.switch_visibility, data=idx)
+        container.add_widget(button, 'visible')
+
+        if convert:
+            icon_convert = QIcon(self._icon_convert)
+            button = self.create_icon_button(icon_convert, fun=self.convert_layer, data=idx)
+            container.add_widget(button, 'convert')
 
         item.setSizeHint(container.sizeHint())
 
@@ -62,7 +74,7 @@ class LayersPanel(QDockWidget):
     @QtCore.pyqtSlot(int)
     def added_new_layer(self, idx: int):
         layer = layer_adapter.get_layer_gui(idx)
-        self.add_button_layer(idx=layer.idx, visible=layer.visible, name=layer.name)
+        self.add_button_layer(idx=layer.idx, visible=layer.visible, name=layer.name, convert=not layer.editable)
 
     def layers_moved(self, parent, start, end, destination, row):
         new_order = []
@@ -88,7 +100,8 @@ class LayersPanel(QDockWidget):
             self.add_button_layer(
                 idx=layers[idx].idx,
                 name=layers[idx].name,
-                visible=layers[idx].visible
+                visible=layers[idx].visible,
+                convert=not layers[idx].editable
             )
 
     @QtCore.pyqtSlot()
@@ -97,3 +110,21 @@ class LayersPanel(QDockWidget):
 
     def switch_visibility(self, idx: int):
         self.signal_layer_visibility_switch.emit(idx)
+
+    def convert_layer(self, idx: int):
+        self.signal_layer_convert.emit(idx)
+    
+    def create_icon_button(self, icon: QIcon, fun, data):
+        button = QToolButton()
+        button.setIcon(icon)
+        button.setIconSize(QSize(30, 30))
+        button.clicked.connect(lambda _, d=data: fun(d))
+        button.setStyleSheet("""
+            background: transparent;
+            border: none;
+            padding: 0px;
+        """)
+        return button
+
+    def name_change(self, idx: int, name: str):
+        self.signal_layer_name_change.emit(idx, name)

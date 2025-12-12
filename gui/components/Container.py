@@ -30,4 +30,9 @@ class Container(QWidget):
         return self._widgets.values()
 
     # def sizeHint(self):
-    #     return
+    #     w, h = 0, 0
+    #     for widget in self._widgets.values():
+    #         w += widget.sizeHint().width()
+    #         h = max(h, widget.sizeHint().height())
+    #
+    #     return QSize(w, h)

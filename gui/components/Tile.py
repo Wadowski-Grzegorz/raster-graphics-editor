@@ -18,7 +18,7 @@ class Tile(QWidget):
         layout = QHBoxLayout()
         self.setLayout(layout)
 
-        # self.setStyleSheet("border: 1px solid black; padding: 0px; margin: 0px; ")
+        self.setStyleSheet("border: 1px solid black; padding: 0px; margin: 0px; ")
         w, h = 0, 0
         if self._icon:
             label = QLabel()

@@ -31,6 +31,8 @@ class Controller(QWidget):
         self.layers_panel.signal_layer_choose.connect(self.idx_chosen)
         self.layers_panel.signal_layer_reorder_order.connect(self.layer_reorder_order)
         self.layers_panel.signal_layer_visibility_switch.connect(self.layer_visibility_switch)
+        self.layers_panel.signal_layer_convert.connect(self.layer_convert)
+        self.layers_panel.signal_layer_name_change.connect(self.layer_name_change)
 
         self.starting_window.signal_layer_temp_create_order.connect(self.layer_temp_create)
 
@@ -73,7 +75,16 @@ class Controller(QWidget):
 
     def layer_visibility_switch(self, idx: int):
         layer_manager.switch_visibility(idx)
-        print('controller visibility: ', idx)
+        self.canvas.refresh()
+        self.layers_panel.refresh()
+
+    def layer_convert(self, idx: int):
+        layer_manager.convert_to_editable(idx)
+        self.canvas.refresh()
+        self.layers_panel.refresh()
+
+    def layer_name_change(self, idx: int, new_name: str):
+        layer_manager.set_name(idx, new_name)
         self.canvas.refresh()
         self.layers_panel.refresh()
 

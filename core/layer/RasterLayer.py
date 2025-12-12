@@ -12,9 +12,10 @@ class RasterLayer(Layer):
             visible: bool = True,
             position: tuple = (0, 0),
             name: str = 'Canvas',
+            idx: int = None,
         ):
 
-        super().__init__(visible, position, name)
+        super().__init__(visible, position, name, idx)
 
         if layer is None:
             self._layer = utils.default_arr()
@@ -70,5 +71,5 @@ class RasterLayer(Layer):
         if matrix.ndim == 3:
             self._layer[h[0]: h[1], w[0]: w[1], :3] = matrix
 
-    def can_change(self) -> bool:
+    def is_editable(self) -> bool:
         return True

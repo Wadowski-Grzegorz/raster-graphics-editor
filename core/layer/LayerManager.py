@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 
+import utils
 from core.layer.Layer import Layer
 from core.layer.RasterLayer import RasterLayer
 from core.layer.LosslessLayer import LosslessLayer
@@ -45,7 +46,7 @@ class LayerManager:
         self.set_current_idx(idx)
 
     def create_temp(self):
-        layer = np.zeros((settings.layer_height, settings.layer_width, 4), dtype=np.uint8)
+        layer = utils.default_arr()
         self._temp_layer = layer
         return self._temp_layer
 
@@ -87,6 +88,23 @@ class LayerManager:
 
     def switch_visibility(self, idx: int):
         self._layers[idx].switch_visible()
+
+    def convert_to_editable(self, idx: int):
+        l = self._layers[idx]
+        if l and not l.is_editable():
+            new_layer = RasterLayer(
+                idx = l.get_id(),
+                layer = l.get_layer(),
+                position = l.get_position(),
+                name = l.get_name(),
+                visible= l.get_visible(),
+            )
+            self._layers[idx] = new_layer
+
+    def set_name(self, idx: int, name: str):
+        if self._layers[idx]:
+            self._layers[idx].set_name(name)
+
 
 
 
