@@ -1,11 +1,10 @@
 from gui.tool.tools.GuiTool import GuiTool
-from gui.Canvas import Canvas
 
 class HandTool(GuiTool):
-    def __init__(self):
+    def __init__(self, canvas):
         super().__init__()
         self._name = 'Hand'
-        self._canvas = None
+        self._canvas = canvas
 
     def on_press(self, x, y, layer=None):
         pass
@@ -19,6 +18,3 @@ class HandTool(GuiTool):
 
     def on_release(self, layer=None):
         pass
-
-    def active(self, canvas: Canvas):
-        self._canvas = canvas

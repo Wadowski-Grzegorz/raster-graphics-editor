@@ -23,7 +23,7 @@ class Layer:
         self._position = position # x, y
         self._name = name
 
-    def get_id(self) -> int:
+    def get_idx(self) -> int:
         return self._idx
 
     def get_visible(self):

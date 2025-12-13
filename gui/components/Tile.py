@@ -1,5 +1,4 @@
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QWidget, QLabel, QHBoxLayout
 
 
@@ -18,7 +17,7 @@ class Tile(QWidget):
         layout = QHBoxLayout()
         self.setLayout(layout)
 
-        self.setStyleSheet("border: 1px solid black; padding: 0px; margin: 0px; ")
+        # self.setStyleSheet("border: 1px solid black; padding: 0px; margin: 0px; ")
         w, h = 0, 0
         if self._icon:
             label = QLabel()
@@ -36,7 +35,7 @@ class Tile(QWidget):
 
         self.setFixedSize(QSize(w, h))
 
-    def get_id(self):
+    def get_idx(self):
         return self._idx
 
     def get_name(self):

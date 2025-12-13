@@ -25,7 +25,7 @@ class SelectionMenu(QListWidget):
     def selected(self, current: QListWidgetItem, previous: QListWidgetItem):
         widget = self.itemWidget(current)
         if self._identify == 'id':
-            self._select_fun(widget.get_id())
+            self._select_fun(widget.get_idx())
 
         elif self._identify == 'name':
             self._select_fun(widget.get_name())

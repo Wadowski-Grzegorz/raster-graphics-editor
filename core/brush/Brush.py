@@ -41,7 +41,7 @@ class Brush:
     def get_radius(self):
         return self._brush_tip.radius
 
-    def get_id(self):
+    def get_idx(self):
         return self._idx
 
     def get_name(self):

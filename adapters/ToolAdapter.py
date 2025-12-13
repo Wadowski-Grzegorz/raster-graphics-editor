@@ -4,8 +4,6 @@ from PyQt6.QtGui import QIcon
 
 from core.tool.Tool import Tool
 from dto.SelectableItem import SelectableItem
-from core.tool.CoreToolManager import core_tool_manager
-from gui.tool.tools.GuiToolManager import gui_tool_manager
 
 import resources.settings as settings
 
@@ -20,17 +18,14 @@ class ToolAdapter:
 
         icon_path = ToolAdapter.tools_icons_catalog + data[t.get_name().lower()]
 
-        return SelectableItem(t.get_id(), t.get_name(), QIcon(icon_path))
+        return SelectableItem(t.get_idx(), t.get_name(), QIcon(icon_path))
 
     @staticmethod
     def tools_to_selectable(tools: list[Tool]) -> list[SelectableItem]:
         return [ToolAdapter.tool_to_selectable(tool) for tool in tools]
 
-    @staticmethod
-    def get_tools_selectable() -> list[SelectableItem]:
-        core_tools = core_tool_manager.get_tools()
-        gui_tools = gui_tool_manager.get_tools()
-        return ToolAdapter.tools_to_selectable(core_tools) + ToolAdapter.tools_to_selectable(gui_tools)
-
-
-tool_adapter = ToolAdapter()
+    # @staticmethod
+    # def get_tools_selectable() -> list[SelectableItem]:
+    #     core_tools = core_tool_manager.get_tools()
+    #     gui_tools = gui_tool_manager.get_tools()
+    #     return ToolAdapter.tools_to_selectable(core_tools) + ToolAdapter.tools_to_selectable(gui_tools)

@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QSize
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
+from PyQt6.QtWidgets import QWidget, QHBoxLayout
 
 
 class Container(QWidget):
@@ -23,7 +23,7 @@ class Container(QWidget):
     def get_name(self):
         return self._name
 
-    def get_id(self):
+    def get_idx(self):
         return self._idx
 
     def get_widgets(self):

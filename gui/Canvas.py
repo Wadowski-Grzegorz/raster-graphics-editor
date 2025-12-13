@@ -1,15 +1,9 @@
-import random
-
-import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QRect, QPoint, QTime, QTimer
 from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
-from adapters.LayerAdapter import layer_adapter
 
-import utils
 from resources import settings
-
 
 class Canvas(QWidget):
     signal_cursor_pressed = QtCore.pyqtSignal(int, int)
@@ -19,10 +13,13 @@ class Canvas(QWidget):
     MAX_FPS = 30
     MIN_INTERVAL = 1000 // MAX_FPS
 
-    def __init__(self):
+    def __init__(self, event):
         super().__init__()
+        self._event = event
+        self._controller = None
 
-        self._layers_dto = None
+        self._layers_dto = {} # { idx: qImage }
+        self._layers_order = []
         self._temp_layer = None # QImage
         self._background = None
         self._foreground = None
@@ -41,6 +38,15 @@ class Canvas(QWidget):
 
         self.from_last_request = 0
         self.will_update = False
+
+        self._event.subscribe("layer_created", self.layer_created)
+        self._event.subscribe("layer_order_changed", self.layers_order_changed)
+        self._event.subscribe("layer_visibility_switched", self.layer_visibility_switched)
+        self._event.subscribe("layer_changed_type", self.layer_refresh)
+        self._event.subscribe("layer_temp_created", self.layer_temp_created)
+        self._event.subscribe("paint_painted", self.layer_refresh)
+        self._event.subscribe("paint_ended", self.layer_refresh)
+
 
     def request_update(self):
         time = int(QTime.currentTime().msecsSinceStartOfDay())
@@ -62,38 +68,35 @@ class Canvas(QWidget):
         self.from_last_request = int(QTime.currentTime().msecsSinceStartOfDay())
         self.update()
 
-
     def paint(self, painter, paint_me, x, y, scaled_x, scaled_y):
         pixmap = (
             QPixmap
-                .fromImage(paint_me)
-                .scaled(
-                        scaled_x, scaled_y,
-                        Qt.AspectRatioMode.IgnoreAspectRatio,
-                        Qt.TransformationMode.SmoothTransformation
-                )
+            .fromImage(paint_me)
+            .scaled(
+                scaled_x, scaled_y,
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
         )
         painter.drawPixmap(x, y, pixmap)
 
     def paintEvent(self, e):
         painter = QPainter(self)
-        self._layers_dto = layer_adapter.get_layers_gui()
 
         if self._background is None:
             self.create_background()
         painter.drawPixmap(0, 0, self._background)
 
-        for idx in layer_adapter.get_order():
-            layer_dto = self._layers_dto[idx]
-
-            if layer_dto.visible:
+        layers = (self._layers_dto[i] for i in self._layers_order)
+        for l in layers:
+            if l.visible:
                 self.paint(
                     painter,
-                    layer_dto.layer,
-                    self._offset_x + layer_dto.position[0],
-                    self._offset_y + layer_dto.position[1],
-                    int(layer_dto.layer.width() * self._scale),
-                    int(layer_dto.layer.height() * self._scale)
+                    l.layer,
+                    self._offset_x + l.position[0],
+                    self._offset_y + l.position[1],
+                    int(l.layer.width() * self._scale),
+                    int(l.layer.height() * self._scale)
                 )
 
         if self._temp_layer is not None:
@@ -112,19 +115,17 @@ class Canvas(QWidget):
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
-            x, y = (int(v) for v in self.convert_to_layer(e.position()))
+            x, y = (int(v) for v in self.convert_position_to_layer(e.position()))
 
             if 0 <= x < settings.layer_width and 0 <= y < settings.layer_height:
 
                 self.signal_cursor_pressed.emit(x, y)
 
-                self.request_update()
-
             self._old_x = x
             self._old_y = y
 
     def mouseMoveEvent(self, e):
-        x, y = (int(v) for v in self.convert_to_layer(e.position()))
+        x, y = (int(v) for v in self.convert_position_to_layer(e.position()))
         if (
                 0 <= x < settings.layer_width and 0 <= y < settings.layer_height and
                 0 <= self._old_x < settings.layer_width and 0 <= self._old_y < settings.layer_height and
@@ -136,14 +137,11 @@ class Canvas(QWidget):
                 x, y
             )
 
-            self.request_update()
-
         self._old_x = x
         self._old_y = y
 
     def mouseReleaseEvent(self, e):
         self.signal_cursor_released.emit()
-        self.request_update()
 
     def wheelEvent(self, e):
         angle = e.angleDelta().y()
@@ -153,7 +151,6 @@ class Canvas(QWidget):
             self._scale /= 1.1
 
         self._scale = max(0.1, min(10.0, self._scale))
-
         self.resize_values()
 
         self.request_update()
@@ -187,12 +184,12 @@ class Canvas(QWidget):
             color
         )
         painter.fillRect(QRect(
-     QPoint(self._offset_x + settings.layer_width * self._scale, 0),
+            QPoint(self._offset_x + settings.layer_width * self._scale, 0),
             QPoint(self.width(), self.height())),
             color
         )
         painter.fillRect(QRect(
-     QPoint(self._offset_x, 0),
+            QPoint(self._offset_x, 0),
             QPoint(self._offset_x + settings.layer_width * self._scale, self._offset_y)),
             color
         )
@@ -204,29 +201,46 @@ class Canvas(QWidget):
 
         painter.end()
 
-    def convert_to_layer(self, position):
+    def convert_position_to_layer(self, position):
         x = (position.x() - self._offset_x) / self._scale
         y = (position.y() - self._offset_y) / self._scale
         return x, y
 
-    @QtCore.pyqtSlot()
-    def refresh(self):
-        self._layers_dto = layer_adapter.get_layers_gui()
-        self.request_update()
-
-    @QtCore.pyqtSlot(np.ndarray)
-    def added_temp_layer(self, layer: np.ndarray):
-        self._temp_layer = utils.np_to_q_ptr(layer)
-        self.resize_values()
-
-    @QtCore.pyqtSlot()
-    def changed_image(self):
-        self.request_update()
-
-    @QtCore.pyqtSlot()
-    def layers_order_changed(self):
-        self.request_update()
-
     def move_offset(self, offset_x, offset_y):
         self._offset_x += offset_x
         self._offset_y += offset_y
+        self.request_update()
+
+    def set_controller(self, controller):
+        self._controller = controller
+
+    def layers_order_changed(self, data):
+        self._layers_order = data['order']
+        self.request_update()
+
+    def layer_created(self, data):
+        if self._controller is None:
+            return
+        layer = self._controller.convert_layer_gui(data['layer'])
+        self._layers_dto[layer.idx] = layer
+        self._layers_order.append(layer.idx)
+        self.request_update()
+
+    def layer_temp_created(self, data):
+        if self._controller is None:
+            return
+        layer = self._controller.convert_layer_gui(data['layer'])
+        self._temp_layer = layer.layer
+        self.request_update()
+
+    def layer_visibility_switched(self, data):
+        idx = data['idx']
+        self._layers_dto[idx].visible = not self._layers_dto[idx].visible
+        self.request_update()
+
+    def layer_refresh(self, data):
+        if self._controller is None:
+            return
+        layer = self._controller.convert_layer_gui(data['layer'])
+        self._layers_dto[layer.idx] = layer
+        self.request_update()

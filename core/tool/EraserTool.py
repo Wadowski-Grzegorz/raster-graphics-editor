@@ -67,8 +67,6 @@ class EraserTool(CoreTool):
         dst = layer.get_cut_as(temp_layer).astype(np.float32)
         dst_a = dst[..., 3] / 255.0
 
-        # dst_where_is_not_painted = (dst_a == 0)
-
         # blend
 
         out_a = dst_a - src_a

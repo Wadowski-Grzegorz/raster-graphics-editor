@@ -1,54 +1,46 @@
-
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from gui.Canvas import Canvas
 from gui.FileManager import FileManager
 from gui.Menu import Menu
-from gui.tool.ToolsPanelsController import ToolsPanelsController
-from gui.layer.LayersPanel import LayersPanel
-from controlleres.Controller import Controller
+from gui.tool.ToolPanelsManager import ToolPanelsManager
+from gui.layer.LayerPanel import LayerPanel
 from gui.palette.Palette import Palette
-from gui.starting_window import Starting_window
+from gui.StartingWindow import StartingWindow
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, event):
         super().__init__()
+        self.event = event
+        self._controller = None
 
         self.setWindowTitle('app-TION')
+        self.layout = QVBoxLayout()
 
         self.file_manager = FileManager()
         self.setMenuBar(Menu(self, self.file_manager))
 
-        layout = QVBoxLayout()
 
-        canvas = Canvas()
-        layout.addWidget(canvas)
+        self.canvas = Canvas(event)
+        self.layout.addWidget(self.canvas)
 
-        palette = Palette()
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, palette)
+        self.palette = Palette()
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.palette)
 
-        layers_panel = LayersPanel()
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layers_panel)
+        self.layer_panel = LayerPanel(event)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.layer_panel)
 
-        self.tools_panels_controller = ToolsPanelsController()
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.tools_panels_controller.get_tools_panel())
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tools_panels_controller.get_tools_settings_panel())
+        self.tool = ToolPanelsManager(event, self.canvas)
+        # self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.tool_panels_manager.get_tool_panel())
+        # self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tool_panels_manager.get_tool_settings_panel())
 
-        starting_window = Starting_window()
+        self.starting_window = StartingWindow()
 
-        self.controller = Controller(
-            canvas=canvas, palette=palette, tools_panels_controller=self.tools_panels_controller, image_caretaker=self.file_manager,
-            layers_panel=layers_panel,
-            starting_window=starting_window
-        )
-
-        starting_window.do()
-
-        dummy = QWidget()
-        dummy.setLayout(layout)
-        self.setCentralWidget(dummy)
+        self.dummy = QWidget()
+        self.dummy.setLayout(self.layout)
+        self.setCentralWidget(self.dummy)
 
     def dragEnterEvent(self, e):
         if e.mimeData().hasImage:
@@ -65,3 +57,14 @@ class MainWindow(QMainWindow):
             e.accept()
         else:
             e.ignore()
+
+    def set_controller(self, controller):
+        self._controller = controller
+        self.file_manager.set_controller(controller)
+        self.canvas.set_controller(controller)
+        self.tool.set_controller(controller)
+        self.layer_panel.set_controller(controller)
+
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.tool.get_tool_panel())
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tool.get_tool_settings_panel())
+        self.starting_window.do()

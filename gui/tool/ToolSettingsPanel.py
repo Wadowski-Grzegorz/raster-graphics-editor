@@ -1,16 +1,18 @@
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QDockWidget, QWidget, QStackedWidget
 
-from adapters.BrushAdapter import brush_adapter
 from gui.components.Container import Container
 from gui.components.SelectionList import SelectionList
 from gui.components.ValueField import ValueField
 from dto.SelectableItem import SelectableItem
 
-class ToolsSettingsPanel(QDockWidget):
+class ToolSettingsPanel(QDockWidget):
 
-    def __init__(self, tools: list[SelectableItem], fun_brush_change_parameter=None, fun_brush_selected=None):
+    def __init__(self, event, fun_brush_change_parameter=None, fun_brush_selected=None):
         super().__init__()
+
+        self._event = event
+        self._controller = None
 
         self.fun_brush_change_parameter = fun_brush_change_parameter
         self.fun_brush_selected = fun_brush_selected
@@ -19,20 +21,9 @@ class ToolsSettingsPanel(QDockWidget):
 
         self._stacked_widgets = QStackedWidget()
         self._brush_affects_tool = []
-        for t in tools:
-            if t.name.lower() == 'brush':
-                self._init_brush()
-            if t.name.lower() == 'eraser':
-                self._init_eraser()
-            if t.name.lower() == 'blur':
-                self._init_blur()
-            if t.name.lower() == 'hand':
-                self._init_hand()
-            if t.name.lower() == 'move':
-                self._init_move()
 
         self.setWidget(self._stacked_widgets)
-        self.changed_brush()
+        self._event.subscribe('brush_current_changed', self.changed_brush)
 
     def _init_brush(self):
         container = Container('brush')
@@ -64,7 +55,7 @@ class ToolsSettingsPanel(QDockWidget):
 
     def _tool_uses_brush(self, container):
         self._brush_affects_tool.append(container.get_name())
-        brush_list = SelectionList(brush_adapter.get_brushes_selectable(), self.selected_brush)
+        brush_list = SelectionList(self._controller.get_brushes_selectable(), self.select_brush)
         container.add_widget(brush_list, 'brush_list')
 
         size_field = ValueField('size', min_v=1, max_v=1000)
@@ -91,11 +82,13 @@ class ToolsSettingsPanel(QDockWidget):
             lambda v: self.fun_brush_change_parameter.emit('hardness', v / 100)
         )
 
-    def selected_brush(self, idx: int):
+    def select_brush(self, idx: int):
         self.fun_brush_selected.emit(idx)
 
-    def changed_brush(self):
-        brush = brush_adapter.get_current_brush()
+    def changed_brush(self, data):
+        if self._controller is None:
+            return
+        brush = self._controller.convert_brush_to_gui(data['brush'])
         for name in self._brush_affects_tool:
             i, container = self.get_tool_nr_widget(name)
             container.set_widget_value('size', brush.size)
@@ -117,3 +110,17 @@ class ToolsSettingsPanel(QDockWidget):
             element = self._stacked_widgets.widget(i)
             if element.get_name() == name_low:
                 return i, element
+
+    def init(self, controller, tools: list[SelectableItem]):
+        self._controller = controller
+        for t in tools:
+            if t.name.lower() == 'brush':
+                self._init_brush()
+            if t.name.lower() == 'eraser':
+                self._init_eraser()
+            if t.name.lower() == 'blur':
+                self._init_blur()
+            if t.name.lower() == 'hand':
+                self._init_hand()
+            if t.name.lower() == 'move':
+                self._init_move()

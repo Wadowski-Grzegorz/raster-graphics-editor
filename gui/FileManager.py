@@ -1,21 +1,21 @@
 from PyQt6 import QtCore
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtGui import QImage, QPainter
 from PyQt6.QtWidgets import QFileDialog
-
-from adapters.LayerAdapter import layer_adapter
 
 import resources.settings as settings
 
 class FileManager(QObject):
-    signal_image_read_order = QtCore.pyqtSignal(str)
+    signal_image_read = QtCore.pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
+        self._controller = None
 
     def read_image_order(self, path):
-        self.signal_image_read_order.emit(path)
+        self.signal_image_read.emit(path)
 
+    @pyqtSlot()
     def save_file(self):
         filename, _ = QFileDialog.getSaveFileName(
             None,
@@ -31,8 +31,11 @@ class FileManager(QObject):
         result.fill(0)
 
         painter = QPainter(result)
-        layers = layer_adapter.get_layers_gui()
-        for idx in layer_adapter.get_order():
+
+        if self._controller is None:
+            return
+        layers = self._controller.get_layers_gui()
+        for idx in self._controller.get_layers_order():
             painter.drawImage(layers[idx].position[0], layers[idx].position[1], layers[idx].layer)
         painter.end()
 
@@ -43,7 +46,7 @@ class FileManager(QObject):
         else:
             result.save(filename, "PNG")
 
-
+    @pyqtSlot()
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(
             None,
@@ -53,3 +56,6 @@ class FileManager(QObject):
         )
         if filename:
             self.read_image_order(filename)
+
+    def set_controller(self, controller):
+        self._controller = controller

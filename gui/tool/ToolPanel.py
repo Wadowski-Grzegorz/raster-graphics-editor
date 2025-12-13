@@ -4,7 +4,7 @@ from dto.SelectableItem import SelectableItem
 from gui.components.SelectionMenu import SelectionMenu
 
 
-class ToolsPanel(QDockWidget):
+class ToolPanel(QDockWidget):
     signal_tool_selected = pyqtSignal(str)
 
     def __init__(self, tools_selectable: list[SelectableItem]):

@@ -7,3 +7,9 @@ Make data.Image parent class SmartObject or something like that.
 Zrób poprawne zczytywanie img a nie tylko png.
 
 Przy zmianie ustawień pędzla na panelu górnym wartości nie zaczynają zmieniać się od poprawnej
+
+Controller.get_tools_selectable() zmień żeby pobierało tylko core
+
+LayersPanel.layers_moved and reorder: it doesn't have to suck layers from core, cause information doesn't change.
+
+After using HandTool layer doesn't resize when drawing out of the bounds.

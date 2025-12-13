@@ -14,5 +14,5 @@ class Tool(ABC):
     def get_name(self) -> str:
         return self._name
 
-    def get_id(self) -> int:
+    def get_idx(self) -> int:
         return self._idx

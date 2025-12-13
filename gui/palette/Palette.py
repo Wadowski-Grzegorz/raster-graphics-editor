@@ -1,6 +1,6 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QColor
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QDockWidget
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QDockWidget
 
 from gui.palette.ColorMap import ColorMap
 from gui.palette.HueBar import HueBar
@@ -13,13 +13,12 @@ class Palette(QDockWidget):
         super().__init__()
         self._color = QColor(0, 0, 0)
 
-        dummy = QWidget()
+        dummy = QWidget(self)
+        layout = QHBoxLayout()
+        dummy.setLayout(layout)
         self.setWidget(dummy)
+
         self.setTitleBarWidget(QWidget())
-
-
-        layout = QHBoxLayout(dummy)
-        self.setLayout(layout)
 
         self.color_map = ColorMap()
         layout.addWidget(self.color_map)
