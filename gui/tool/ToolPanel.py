@@ -22,6 +22,7 @@ class ToolPanel(QDockWidget):
 
         self.menu = SelectionMenu(self.tools_selectable, self.tool_choose, identify='name')
         layout_main.addWidget(self.menu)
+        self.menu.set_current_row('brush')
 
     def tool_choose(self, name: str):
         self.signal_tool_selected.emit(name)

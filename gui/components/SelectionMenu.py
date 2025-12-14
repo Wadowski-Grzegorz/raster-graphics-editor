@@ -29,3 +29,11 @@ class SelectionMenu(QListWidget):
 
         elif self._identify == 'name':
             self._select_fun(widget.get_name())
+
+    def set_current_row(self, name):
+        for row in range(self.count()):
+            it = self.item(row)
+            widget = self.itemWidget(it)
+            if widget.get_name().lower() == name.lower():
+                self.setCurrentRow(row)
+                break
