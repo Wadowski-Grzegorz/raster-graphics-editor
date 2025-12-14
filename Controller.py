@@ -13,8 +13,8 @@ class Controller(QWidget):
         super().__init__()
         self.gui = gui
         self.core = core
-        
-        self.gui.starting_window.signal_layer_init.connect(self.init_layer)
+
+        self.gui.starting_window.signal_initial_pulse.connect(self.initial)
         self.gui.palette.signal_color_changed.connect(self.core.tool.change_color)
 
         self.gui.layer_panel.signal_layer_create_order.connect(self.core.layer.create_empty)
@@ -38,6 +38,10 @@ class Controller(QWidget):
         self.gui.canvas.signal_cursor_moved.connect(self.on_move)
         self.gui.canvas.signal_cursor_released.connect(self.on_release)
 
+    def initial(self):
+        self.core.brush.init()
+        self.core.layer.layer_init()
+        self.core.tool.init()
 
     def tool_select(self, name:str):
         if self.core.tool.tool_select(name):
@@ -53,9 +57,6 @@ class Controller(QWidget):
 
     def on_release(self):
         self._current_manager.on_release()
-
-    def init_layer(self):
-        self.core.layer.layer_init()
 
 
     def convert_layer_gui(self, layer: Layer):

@@ -35,3 +35,6 @@ def default_arr():
 
 def arr_as(arr: np.ndarray):
     return np.zeros((arr.shape[0], arr.shape[1], arr.shape[2]), dtype=np.uint8)
+
+def arr(height, width):
+    return np.zeros((height, width, 4), dtype=np.uint8)

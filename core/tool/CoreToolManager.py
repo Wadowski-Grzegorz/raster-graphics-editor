@@ -20,7 +20,7 @@ class CoreToolManager:
         self._curr_layer = None
         self._temp_layer = None # as numpy
 
-        self._curr_brush = self.context.brush.get_current_brush()
+        self._curr_brush = None
         self._curr_color = np.array([0, 0, 0, 255], dtype="uint8")
 
         self.context.event.subscribe('layer_created', self.set_current_layer)
@@ -28,6 +28,15 @@ class CoreToolManager:
         self.context.event.subscribe("layer_changed_type", self.set_current_layer)
         self.context.event.subscribe('layer_current_idx_changed', self.set_current_layer)
         self.context.event.subscribe('brush_current_changed', self.changed_brush)
+
+    def init(self):
+        self.context.event.notify(
+            'tool_current_changed',
+            {
+                "id": self._curr_tool.get_idx(),
+                "tool": self._curr_tool
+            }
+        )
 
     def on_press(self, x, y):
         if self._check_usage() is False:
@@ -92,7 +101,13 @@ class CoreToolManager:
         for tool in self._tools:
             if tool.get_name().lower() == name.lower():
                 self._curr_tool = tool
-                self.context.event.notify('tool_current_changed', {"id": self._curr_tool.get_idx(), "tool": self._curr_tool})
+                self.context.event.notify(
+                    'tool_current_changed',
+                    {
+                        "id": self._curr_tool.get_idx(),
+                        "tool": self._curr_tool
+                    }
+                )
                 return True
         return False
 

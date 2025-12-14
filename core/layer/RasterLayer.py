@@ -2,6 +2,7 @@ import numpy as np
 
 from core.layer.Layer import Layer
 import utils
+import resources.settings as settings
 
 
 class RasterLayer(Layer):
@@ -17,12 +18,21 @@ class RasterLayer(Layer):
 
         super().__init__(visible, position, name, idx)
 
-        if layer is None:
-            self._layer = utils.default_arr()
-        else:
-            self._layer = layer
+        self._layer = self._init_layer(layer)
 
         self._qLayer = utils.np_to_q_ptr(self._layer) if self._layer is not None else None
+
+    def _init_layer(self, layer):
+        if layer is None:
+            return utils.default_arr()
+        else:
+            def_h, def_w = settings.layer_height, settings.layer_width
+            src_h, src_w = layer.shape[:2]
+            h = max(src_h, def_h)
+            w = max(src_w, def_w)
+            new_layer = utils.arr(h, w)
+            new_layer[:src_h, :src_w] = layer[:src_h, :src_w]
+            return new_layer
 
     def get_layer(self):
         return self._layer

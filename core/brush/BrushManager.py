@@ -13,15 +13,11 @@ class BrushManager:
         self._brushes = []
         self._curr_brush = None
 
-        self.fetch_brushes()
-
-    def fetch_brushes(self):
         with open(BrushManager.brush_specs_path, 'r', encoding="utf-8") as f:
             data = json.load(f)
 
-        brushes = []
         for d in data:
-            brushes.append(
+            self._brushes.append(
                 Brush(
                     name=d['name'],
                     size=d['size'],
@@ -32,8 +28,17 @@ class BrushManager:
                     hardness=d['hardness'],
                 )
             )
-        self._brushes = brushes
         self._curr_brush = self._brushes[0]
+
+
+    def init(self):
+        self._context.event.notify(
+            'brush_current_changed',
+            {
+                "idx": self._curr_brush.get_idx(),
+                "brush": self._curr_brush
+            }
+        )
 
     def get_brushes(self):
         return self._brushes.copy()
