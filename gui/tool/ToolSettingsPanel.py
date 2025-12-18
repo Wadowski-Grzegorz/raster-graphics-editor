@@ -53,6 +53,10 @@ class ToolSettingsPanel(QDockWidget):
         container = Container('hand')
         self._stacked_widgets.addWidget(container)
 
+    def _init_resize(self):
+        container = Container('resize')
+        self._stacked_widgets.addWidget(container)
+
     def _tool_uses_brush(self, container):
         self._brush_affects_tool.append(container.get_name())
         brush_list = SelectionList(self._controller.get_brushes_selectable(), self.select_brush)
@@ -124,3 +128,5 @@ class ToolSettingsPanel(QDockWidget):
                 self._init_hand()
             if t.name.lower() == 'move':
                 self._init_move()
+            if t.name.lower() == 'resize':
+                self._init_resize()

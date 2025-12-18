@@ -1,11 +1,19 @@
 from core.layer.Layer import Layer
 from dto.LayerGui import LayerGui
+import utils
 
 class LayerAdapter:
 
     @staticmethod
     def layer_to_dto(l: Layer):
-        return LayerGui(l.get_idx(), l.get_layer_q(), l.get_visible(), l.get_position(), l.get_name(), l.is_editable())
+        return LayerGui(
+            l.get_idx(),
+            utils.np_to_q_ptr(l.get_layer()),
+            l.get_visible(),
+            l.get_position(),
+            l.get_name(),
+            l.is_editable()
+        )
 
     @staticmethod
     def layers_to_dto(layers: list[Layer]):

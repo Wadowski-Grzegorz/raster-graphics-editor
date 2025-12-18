@@ -22,15 +22,11 @@ class LosslessLayer(Layer):
 
         self._orig_img = img # numpy rgba of original image
         self._transformed_img = None
-        self._transformed_img_q = None
 
         self._init_transformed_img()
 
     def get_layer(self):
         return self._transformed_img
-
-    def get_layer_q(self):
-        return self._transformed_img_q
 
     def _init_transformed_img(self):
         if self._orig_img is None:
@@ -41,7 +37,6 @@ class LosslessLayer(Layer):
 
         self.set_position(half_global_w - half_dst_w, half_global_h - half_dst_h)
         self._transformed_img = dst
-        self._transformed_img_q = utils.np_to_q_ptr(self._transformed_img)
 
     def is_editable(self) -> bool:
         return False

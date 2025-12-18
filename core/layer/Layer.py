@@ -53,9 +53,5 @@ class Layer:
         pass
 
     @abstractmethod
-    def get_layer_q(self):
-        pass
-
-    @abstractmethod
     def is_editable(self) -> bool:
         pass

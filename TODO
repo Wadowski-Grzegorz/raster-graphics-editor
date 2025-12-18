@@ -13,3 +13,5 @@ Controller.get_tools_selectable() zmień żeby pobierało tylko core
 LayersPanel.layers_moved and reorder: it doesn't have to suck layers from core, cause information doesn't change.
 
 After using HandTool layer doesn't resize when drawing out of the bounds.
+
+Something is buggy with resize when resizing to very small image.

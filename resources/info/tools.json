@@ -3,5 +3,6 @@
     "hand": "tool_hand.png",
     "eraser": "tool_eraser.png",
     "blur": "tool_blur.png",
-    "move": "tool_move.png"
+    "move": "tool_move.png",
+    "resize": "tool_resize.png"
 }

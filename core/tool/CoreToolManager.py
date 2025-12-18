@@ -4,6 +4,7 @@ from core.tool.BlurTool import BlurTool
 from core.tool.BrushTool import BrushTool
 from core.tool.EraserTool import EraserTool
 from core.tool.MoveTool import MoveTool
+from core.tool.ResizeTool import ResizeTool
 
 from resources.tools_reversible import tools_reversible
 
@@ -14,7 +15,7 @@ class CoreToolManager:
         self.context = context
 
         brush = BrushTool()
-        self._tools = [brush, EraserTool(), BlurTool(), MoveTool()]
+        self._tools = [brush, EraserTool(), BlurTool(), MoveTool(), ResizeTool()]
         self._curr_tool = brush
 
         self._curr_layer = None

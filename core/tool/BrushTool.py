@@ -2,6 +2,7 @@ import numpy as np
 
 from core.tool.CoreTool import CoreTool
 
+import core.tool.tool_common as common
 import resources.settings as settings
 
 class BrushTool(CoreTool):
@@ -64,13 +65,16 @@ class BrushTool(CoreTool):
         layer.adjust_size()
 
         # cut to temp_layer size
-        dst = layer.get_cut_as(temp_layer).astype(np.float32)
+        (l_range_h, l_range_w), (t_range_h, t_range_w) = common.get_intersection(layer.get_layer(), layer.get_position())
+        dst = layer.get_layer()[l_range_h[0]: l_range_h[1], l_range_w[0]: l_range_w[1]].astype(np.float32)
+        # dst = layer.get_cut_as(temp_layer).astype(np.float32)
         dst_rgb = dst[..., :3]
         dst_a = dst[..., 3] / 255.0
         dst_where_is_not_painted = (dst_a == 0)
 
         opacity = brush.get_opacity()
-        src = temp_layer.astype(np.float32)
+        src = temp_layer[t_range_h[0]: t_range_h[1], t_range_w[0]: t_range_w[1]].astype(np.float32)
+        # src = temp_layer.astype(np.float32)
         src_rgb = src[..., :3]
         src_a = src[..., 3] * (opacity / 255.0)
 
@@ -81,7 +85,9 @@ class BrushTool(CoreTool):
         out_a = dst_a + src_a
         out_a = np.clip(out_a, 0.0, 1.0) * 255.0
 
-        layer.replace(out_rgb.astype(np.uint8))
-        layer.replace(out_a.astype(np.uint8))
+        # layer.replace(out_rgb.astype(np.uint8))
+        # layer.replace(out_a.astype(np.uint8))
+        layer.get_layer()[l_range_h[0]: l_range_h[1], l_range_w[0]: l_range_w[1], :3] = out_rgb.astype(np.uint8)
+        layer.get_layer()[l_range_h[0]: l_range_h[1], l_range_w[0]: l_range_w[1], 3] = out_a.astype(np.uint8)
 
         temp_layer.fill(0)

@@ -20,8 +20,6 @@ class RasterLayer(Layer):
 
         self._layer = self._init_layer(layer)
 
-        self._qLayer = utils.np_to_q_ptr(self._layer) if self._layer is not None else None
-
     def _init_layer(self, layer):
         if layer is None:
             return utils.default_arr()
@@ -36,12 +34,6 @@ class RasterLayer(Layer):
 
     def get_layer(self):
         return self._layer
-
-    def get_layer_q(self):
-        return self._qLayer
-
-    def refresh(self):
-        self._qLayer = utils.np_to_q_ptr(self._layer)
 
     def adjust_size(self):
         h, w = self._layer.shape[:2]
@@ -61,7 +53,6 @@ class RasterLayer(Layer):
 
             self._layer = new_layer
             self._position = min(pos_x, 0), min(pos_y, 0)
-            self.refresh()
 
     def get_cut_as(self, example):
         h, w = self.get_borders_as(example)
@@ -83,3 +74,6 @@ class RasterLayer(Layer):
 
     def is_editable(self) -> bool:
         return True
+
+    def set_layer(self, resized):
+        self._layer = resized
