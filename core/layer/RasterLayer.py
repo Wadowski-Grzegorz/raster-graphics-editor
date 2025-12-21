@@ -54,24 +54,6 @@ class RasterLayer(Layer):
             self._layer = new_layer
             self._position = min(pos_x, 0), min(pos_y, 0)
 
-    def get_cut_as(self, example):
-        h, w = self.get_borders_as(example)
-        return self._layer[h[0]: h[1], w[0]: w[1]]
-
-    def get_borders_as(self, example):
-        pos_x, pos_y = self._position
-        ex_h, ex_w = example.shape[:2]
-
-        start_h, start_w = abs(pos_y), abs(pos_x)
-        return (start_h, start_h + ex_h), (start_w, start_w + ex_w)
-
-    def replace(self, matrix):
-        h, w = self.get_borders_as(matrix)
-        if matrix.ndim == 2:
-            self._layer[h[0]: h[1], w[0]: w[1], 3] = matrix
-        if matrix.ndim == 3:
-            self._layer[h[0]: h[1], w[0]: w[1], :3] = matrix
-
     def is_editable(self) -> bool:
         return True
 

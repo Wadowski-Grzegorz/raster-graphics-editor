@@ -3,6 +3,7 @@ import cv2 as cv
 
 from core.tool.CoreTool import CoreTool
 
+import core.tool.tool_common as common
 import resources.settings as settings
 
 class BlurTool(CoreTool):
@@ -11,57 +12,33 @@ class BlurTool(CoreTool):
         self._name = 'Blur'
 
     def on_press(self, x, y, layer=None, temp_layer=None, brush=None, color=None):
-        brush_radius = brush.get_radius()
+        brush_x, brush_y = common.get_brush_cut(brush, x, y)
+        mask = common.cut_mask(brush, brush_x, brush_y, x, y)
 
-        img_y_s = max(y - brush_radius, 0)
-        img_y_e = min(y + brush_radius, settings.layer_height)
-        img_x_s = max(x - brush_radius, 0)
-        img_x_e = min(x + brush_radius, settings.layer_width)
-
-        paint_image = temp_layer[img_y_s:img_y_e, img_x_s:img_x_e, 3]
-
-        mask = brush.get_tip()
-
-        mask_y_s = max(brush_radius - y, 0)
-        mask_y_e = mask_y_s + (img_y_e - img_y_s)
-        mask_x_s = max(brush_radius - x, 0)
-        mask_x_e = mask_x_s + (img_x_e - img_x_s)
-
-        mask = mask[mask_y_s:mask_y_e, mask_x_s:mask_x_e]
+        paint_image = temp_layer[brush_y[0]:brush_y[1], brush_x[0]:brush_x[1], 3]
 
         paint_image = paint_image + mask
         paint_image[paint_image > 0] = 160
-        temp_layer[img_y_s:img_y_e, img_x_s:img_x_e][..., 3] = paint_image
+        temp_layer[brush_y[0]:brush_y[1], brush_x[0]:brush_x[1], 3] = paint_image
 
     def on_move(self, start_x, start_y, end_x, end_y, layer=None, temp_layer=None, brush=None, color=None):
-        # check which value has more to grow
-        dx = abs(end_x - start_x)
-        dy = abs(end_y - start_y)
-
-        # steps - how many pixel to color
-        steps = dx if dx >= dy else dy
-        step_x = dx / steps if end_x >= start_x else -dx / steps
-        step_y = dy / steps if end_y >= start_y else -dy / steps
-
-        brush_radius = brush.get_radius()
-        spacing = brush.get_spacing()
-
-        space = (brush_radius * spacing)
-        points = np.arange(0, steps, space)
-        for i in points:
-            a = start_x + step_x * i
-            b = start_y + step_y * i
-            self.on_press(int(a), int(b), layer, temp_layer, brush, color)
+        common.base_move(self.on_press, start_x, start_y, end_x, end_y, layer, temp_layer, brush, color)
 
     def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
         # blend temp layer with real layer
         layer.adjust_size()
 
-        dst = layer.get_cut_as(temp_layer)
+        (l_range_h, l_range_w), (t_range_h, t_range_w) = common.get_intersection(
+                                                                 layer.get_layer(),
+                                                                 layer.get_position()
+        )
+        dst = layer.get_layer()[l_range_h[0]: l_range_h[1], l_range_w[0]: l_range_w[1]].astype(np.float32)
+
         dst_rgb = dst[..., :3]
-        where_blur = temp_layer[..., 3] > 0
+        where_blur = temp_layer[t_range_h[0]: t_range_h[1], t_range_w[0]: t_range_w[1], 3] > 0
         blurred_rgb = cv.GaussianBlur(dst_rgb, (11, 11), 0)
         dst_rgb[where_blur] = blurred_rgb[where_blur]
-        layer.replace(dst_rgb)
+
+        layer.get_layer()[l_range_h[0]: l_range_h[1], l_range_w[0]: l_range_w[1], :3] = dst_rgb.astype(np.uint8)
 
         temp_layer.fill(0)
