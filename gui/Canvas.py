@@ -21,6 +21,8 @@ class Canvas(QWidget):
         self._layers_dto = {} # { idx: qImage }
         self._layers_order = []
         self._temp_layer = None # QImage
+        self._current_idx = 0
+
         self._background = None
         self._foreground = None
 
@@ -44,6 +46,7 @@ class Canvas(QWidget):
         self._event.subscribe("layer_visibility_switched", self.layer_visibility_switched)
         self._event.subscribe("layer_changed_type", self.layer_refresh)
         self._event.subscribe("layer_temp_created", self.layer_temp_created)
+        self._event.subscribe("layer_current_idx_changed", self.layer_current_idx_changed)
         self._event.subscribe("paint_painted", self.layer_refresh)
         self._event.subscribe("paint_ended", self.layer_refresh)
 
@@ -98,16 +101,16 @@ class Canvas(QWidget):
                     int(l.layer.width() * self._scale),
                     int(l.layer.height() * self._scale)
                 )
-
-        if self._temp_layer is not None:
-            self.paint(
-                painter,
-                self._temp_layer,
-                self._offset_x,
-                self._offset_y,
-                int(self._temp_layer.width() * self._scale),
-                int(self._temp_layer.height() * self._scale)
-            )
+            if self._current_idx == l.idx:
+                if self._temp_layer is not None:
+                    self.paint(
+                        painter,
+                        self._temp_layer,
+                        self._offset_x,
+                        self._offset_y,
+                        int(self._temp_layer.width() * self._scale),
+                        int(self._temp_layer.height() * self._scale)
+                    )
 
         if self._foreground is None:
             self.create_foreground()
@@ -243,4 +246,8 @@ class Canvas(QWidget):
             return
         layer = self._controller.convert_layer_gui(data['layer'])
         self._layers_dto[layer.idx] = layer
+        self.request_update()
+
+    def layer_current_idx_changed(self, data):
+        self._current_idx = data['idx']
         self.request_update()
