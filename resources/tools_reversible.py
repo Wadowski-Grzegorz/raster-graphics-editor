@@ -5,4 +5,5 @@ tools_reversible = {
     "blur": False,
     "move": True,
     "hand": True,
+    "resize": True,
 }

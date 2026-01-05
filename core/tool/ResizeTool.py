@@ -1,3 +1,4 @@
+from core.layer.LosslessLayer import LosslessLayer
 from core.tool.CoreTool import CoreTool
 import cv2 as cv
 import core.tool.tool_common as common
@@ -39,7 +40,6 @@ class ResizeTool(CoreTool):
         )
 
         (r_range_h, r_range_w), (t_range_h, t_range_w) = common.get_intersection(resized, layer.get_position())
-        print(r_range_h, r_range_w, t_range_h, t_range_w)
         temp_layer.fill(0)
         temp_layer[t_range_h[0]: t_range_h[1], t_range_w[0]: t_range_w[1]] = \
             resized[r_range_h[0]: r_range_h[1], r_range_w[0]: r_range_w[1]]
@@ -48,7 +48,13 @@ class ResizeTool(CoreTool):
         scale_x = 1 + self._sensitivity * self._dx
         scale_y = 1 + self._sensitivity * self._dy
 
-        orig_arr = layer.get_layer()
+
+        if isinstance(layer, LosslessLayer):
+            scale_x, scale_y = layer.transform_by(scale_x, scale_y)
+            orig_arr = layer.get_orig()
+        else:
+            orig_arr = layer.get_layer()
+
         w = int(orig_arr.shape[1] * scale_x)
         h = int(orig_arr.shape[0] * scale_y)
 

@@ -1,14 +1,4 @@
-Make so temp_layer will drawn where current layer is.
-
-Currently Canvas.add_layer assumes that temp_layer exists. Temp_layer also creates background.
-
-Make data.Image parent class SmartObject or something like that.
-
-Zrób poprawne zczytywanie img a nie tylko png.
-
 Przy zmianie ustawień pędzla na panelu górnym wartości nie zaczynają zmieniać się od poprawnej
-
-Controller.get_tools_selectable() zmień żeby pobierało tylko core
 
 LayersPanel.layers_moved and reorder: it doesn't have to suck layers from core, cause information doesn't change.
 

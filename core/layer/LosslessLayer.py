@@ -22,11 +22,22 @@ class LosslessLayer(Layer):
 
         self._orig_img = img # numpy rgba of original image
         self._transformed_img = None
+        self._scale = (1.0, 1.0)
 
         self._init_transformed_img()
 
     def get_layer(self):
         return self._transformed_img
+
+    def get_orig(self):
+        return self._orig_img
+
+    def transform_by(self, scale_x, scale_y):
+        self._scale = (self._scale[0] * scale_x, self._scale[1] * scale_y)
+        return self._scale
+
+    def set_layer(self, resized):
+        self._transformed_img = resized
 
     def _init_transformed_img(self):
         if self._orig_img is None:
