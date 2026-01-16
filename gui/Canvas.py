@@ -187,18 +187,18 @@ class Canvas(QWidget):
             color
         )
         painter.fillRect(QRect(
-            QPoint(self._offset_x + settings.layer_width * self._scale, 0),
+            QPoint(self._offset_x + int(settings.layer_width * self._scale), 0),
             QPoint(self.width(), self.height())),
             color
         )
         painter.fillRect(QRect(
             QPoint(self._offset_x, 0),
-            QPoint(self._offset_x + settings.layer_width * self._scale, self._offset_y)),
+            QPoint(self._offset_x + int(settings.layer_width * self._scale), self._offset_y)),
             color
         )
         painter.fillRect(QRect(
-            QPoint(self._offset_x, self._offset_y + settings.layer_height * self._scale),
-            QPoint(self._offset_x + settings.layer_width * self._scale, self.height())),
+            QPoint(self._offset_x, self._offset_y + int(settings.layer_height * self._scale)),
+            QPoint(self._offset_x + int(settings.layer_width * self._scale), self.height())),
             color
         )
 

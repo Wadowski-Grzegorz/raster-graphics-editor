@@ -30,7 +30,7 @@ class Brush:
         self._brush_tip = brush_tip
 
     def set_size(self, size):
-        self._brush_tip.resize(int(size))
+        self._brush_tip.resize(max(int(size), 3))
 
     def set_opacity(self, opacity):
         self._opacity = opacity
