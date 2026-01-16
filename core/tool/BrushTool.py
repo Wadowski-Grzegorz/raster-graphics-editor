@@ -27,9 +27,6 @@ class BrushTool(CoreTool):
 
         temp_layer[brush_y[0]:brush_y[1], brush_x[0]:brush_x[1]] = paint_image.astype(np.uint8)
 
-    def on_move(self, start_x, start_y, end_x, end_y, layer=None, temp_layer=None, brush=None, color=None):
-        common.base_move(self.on_press, start_x, start_y, end_x, end_y, layer, temp_layer, brush, color)
-
     def on_release(self, layer=None, temp_layer=None, brush=None, color=None):
         # blend temp layer with real layer
         layer.adjust_size()

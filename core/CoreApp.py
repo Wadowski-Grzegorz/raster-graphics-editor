@@ -6,7 +6,7 @@ from core.tool.CoreToolManager import CoreToolManager
 class CoreApp:
     def __init__(self, event):
         self.event = event
-        self.brush = BrushManager(self)
-        self.layer = LayerManager(self)
-        self.tool = CoreToolManager(self)
+        self.brush = BrushManager(event)
+        self.layer = LayerManager(event)
+        self.tool = CoreToolManager(event)
 

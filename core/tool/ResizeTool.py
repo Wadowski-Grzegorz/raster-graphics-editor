@@ -48,7 +48,6 @@ class ResizeTool(CoreTool):
         scale_x = 1 + self._sensitivity * self._dx
         scale_y = 1 + self._sensitivity * self._dy
 
-
         if isinstance(layer, LosslessLayer):
             scale_x, scale_y = layer.transform_by(scale_x, scale_y)
             orig_arr = layer.get_orig()

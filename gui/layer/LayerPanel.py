@@ -55,8 +55,6 @@ class LayerPanel(QDockWidget):
         item = QListWidgetItem()
         container = Container(idx=idx)
 
-        # tile = Tile(idx, name=name, show_name=True)
-        # container.add_widget(tile, 'name')
         editable_name = EditableName(name=name, idx=idx, fun=self.name_change)
         container.add_widget(editable_name, 'name')
 

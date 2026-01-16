@@ -33,9 +33,6 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.layer_panel)
 
         self.tool = ToolPanelsManager(event, self.canvas)
-        # self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.tool_panels_manager.get_tool_panel())
-        # self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tool_panels_manager.get_tool_settings_panel())
-
         self.starting_window = StartingWindow()
 
         self.dummy = QWidget()
