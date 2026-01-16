@@ -35,17 +35,34 @@ class RasterLayer(Layer):
     def get_layer(self):
         return self._layer
 
+    # def adjust_size(self, th, tw):
+    #     h, w = self._layer.shape[:2]
+    #     pos_x, pos_y = self._position
+    #
+    #     needed_h = h + abs(pos_y)
+    #     needed_w = w + abs(pos_x)
+    #
+    #     if needed_h > h or needed_w > w:
+    #         bigger_h = max(needed_h, h)
+    #         bigger_w = max(needed_w, w)
+    #         new_layer = np.zeros((bigger_h, bigger_w, 4), dtype=np.uint8)
+    #
+    #         start_h, start_w = max(pos_y, 0), max(pos_x, 0)
+    #         end_h, end_w = start_h + h, start_w + w
+    #         new_layer[start_h:end_h, start_w:end_w, :] = self._layer
+    #
+    #         self._layer = new_layer
+    #         self._position = min(pos_x, 0), min(pos_y, 0)
+
     def adjust_size(self):
         h, w = self._layer.shape[:2]
         pos_x, pos_y = self._position
 
-        needed_h = h + abs(pos_y)
-        needed_w = w + abs(pos_x)
+        needed_h = max(h, settings.layer_height - min(pos_y, 0))
+        needed_w = max(w, settings.layer_width - min(pos_x, 0))
 
         if needed_h > h or needed_w > w:
-            bigger_h = max(needed_h, h)
-            bigger_w = max(needed_w, w)
-            new_layer = np.zeros((bigger_h, bigger_w, 4), dtype=np.uint8)
+            new_layer = utils.arr(needed_h, needed_w)
 
             start_h, start_w = max(pos_y, 0), max(pos_x, 0)
             end_h, end_w = start_h + h, start_w + w
