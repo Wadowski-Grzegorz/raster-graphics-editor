@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         self.event = event
         self._controller = None
 
-        self.setWindowTitle('app-TION')
+        self.setWindowTitle('raster graphics editor')
         self.layout = QVBoxLayout()
 
         self.file_manager = FileManager()
