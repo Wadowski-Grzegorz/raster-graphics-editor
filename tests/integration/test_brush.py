@@ -20,7 +20,6 @@ def test_brush_parameter_change(qtbot):
     value_field = container._widgets['size']
     assert value_field is not None
 
-
     value_field.spinbox.setFocus()
     value_field.spinbox.clear()
     qtbot.keyClicks(value_field.spinbox, "14")
