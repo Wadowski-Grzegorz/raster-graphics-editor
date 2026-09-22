@@ -3,6 +3,7 @@ import cv2 as cv
 from core.layer.Layer import Layer
 from core.layer.RasterLayer import RasterLayer
 from core.layer.LosslessLayer import LosslessLayer
+from time import sleep
 
 class LayerManager:
 
@@ -15,6 +16,9 @@ class LayerManager:
         self._temp_layer = None
 
     def create_empty(self):
+        # print("LayerManager create_empty start waiting")
+        # sleep(3)
+        # print("LayerManager create_empty ended waiting")
         layer = RasterLayer()
         self._append_layer(layer)
         self._event.notify('layer_created', {"type":"layer_created", "idx": layer.get_idx(), "layer": layer})

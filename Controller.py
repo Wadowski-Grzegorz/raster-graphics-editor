@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from PyQt6.QtWidgets import QWidget
 
 from adapters.BrushAdapter import BrushAdapter
@@ -13,11 +15,14 @@ class Controller(QWidget):
         super().__init__()
         self.gui = gui
         self.core = core
+        self._executor = ThreadPoolExecutor(max_workers=1)
 
         self.gui.starting_window.signal_initial_pulse.connect(self.initial)
         self.gui.palette.signal_color_changed.connect(self.core.tool.change_color)
 
-        self.gui.layer_panel.signal_layer_create_order.connect(self.core.layer.create_empty)
+        # self.gui.layer_panel.signal_layer_create_order.connect(self.core.layer.create_empty)
+        self.gui.layer_panel.signal_layer_create_order.connect(self.create_layer)
+
         self.gui.layer_panel.signal_layer_choose.connect(self.core.layer.set_current_idx)
         self.gui.layer_panel.signal_layer_reorder_order.connect(self.core.layer.reorder)
         self.gui.layer_panel.signal_layer_visibility_switch.connect(self.core.layer.switch_visibility)
@@ -37,6 +42,10 @@ class Controller(QWidget):
         self.gui.canvas.signal_cursor_pressed.connect(self.on_press)
         self.gui.canvas.signal_cursor_moved.connect(self.on_move)
         self.gui.canvas.signal_cursor_released.connect(self.on_release)
+
+    def create_layer(self):
+        # print("Controller create_layer")
+        self._executor.submit(self.core.layer.create_empty)
 
     def initial(self):
         self.core.brush.init()
