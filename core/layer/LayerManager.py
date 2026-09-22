@@ -17,7 +17,7 @@ class LayerManager:
     def create_empty(self):
         layer = RasterLayer()
         self._append_layer(layer)
-        self._event.notify('layer_created', {"idx": layer.get_idx(), "layer": layer})
+        self._event.notify('layer_created', {"type":"layer_created", "idx": layer.get_idx(), "layer": layer})
 
     def create_from_image(self, file_path: str):
         img_file = cv.imread(file_path, cv.IMREAD_UNCHANGED)

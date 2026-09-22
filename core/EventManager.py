@@ -11,7 +11,7 @@ class EventManager:
         if event_name in self._listeners:
             self._listeners[event_name].remove(listener)
 
-    def notify(self, event_name, *args, **kwargs):
+    def notify(self, event_name, data):
         if event_name in self._listeners:
             for listener in self._listeners[event_name]:
-                listener(*args, **kwargs)
+                listener(data)
