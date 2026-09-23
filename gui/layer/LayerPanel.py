@@ -17,14 +17,9 @@ class LayerPanel(QDockWidget, EventListener):
     signal_layer_visibility_switch = pyqtSignal(int)
     signal_layer_convert = pyqtSignal(int)
     signal_layer_name_change = pyqtSignal(int, str)
-
-    signal_event_occurred = pyqtSignal(object)
+    signal_event_occurred = pyqtSignal(dict)
 
     layer_icons_catalog = settings.program_catalog + "\\resources\\icons\\"
-
-    event_types = [
-        'layer_created',
-    ]
 
     def __init__(self, event_provider):
         super().__init__()
@@ -57,21 +52,10 @@ class LayerPanel(QDockWidget, EventListener):
         layout_main.addWidget(self.list_widget)
 
         # self._event_provider.subscribe('layer_created', self.added_new_layer)
-        self.signal_event_occurred.connect(self.handle_event)
-        self.subscribe_to_events(self._event_provider)
-
-    def emit_event_occurred(self, data):
-        print("LayerPanel: in emit_event_occurred")
-        self.signal_event_occurred.emit(data)
-
-    def handle_event(self, data):
-        # print("LayerPanel: in handle_event")
-        # for a, b in data.items():
-        #     print(a, b)
-        if data.get('type') == 'layer_created':
-            # print("LayerPanel: event_type is layer_created")
-            self.added_new_layer(data)
-        # print("LayerPanel: out handle_event")
+        self.event_types.update({
+            'layer_created': self.added_new_layer,
+        })
+        self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
     def add_button_layer(self, idx: int, visible=True, name="Layer", convert=True):
         item = QListWidgetItem()
@@ -100,7 +84,6 @@ class LayerPanel(QDockWidget, EventListener):
         return item
 
     def added_new_layer(self, data):
-        print("added_new_layer")
         layer = self._controller.convert_layer_gui(data['layer'])
         item = self.add_button_layer(idx=layer.idx, visible=layer.visible, name=layer.name, convert=not layer.editable)
         self.list_widget.setCurrentItem(item)
