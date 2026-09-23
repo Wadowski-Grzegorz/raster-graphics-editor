@@ -13,9 +13,9 @@ class Canvas(QWidget):
     MAX_FPS = 30
     MIN_INTERVAL = 1000 // MAX_FPS
 
-    def __init__(self, event):
+    def __init__(self, event_provider):
         super().__init__()
-        self._event = event
+        self._event_provider = event_provider
         self._controller = None
 
         self._layers_dto = {} # { idx: qImage }
@@ -41,14 +41,14 @@ class Canvas(QWidget):
         self.from_last_request = 0
         self.will_update = False
 
-        self._event.subscribe("layer_created", self.layer_created)
-        self._event.subscribe("layer_order_changed", self.layers_order_changed)
-        self._event.subscribe("layer_visibility_switched", self.layer_visibility_switched)
-        self._event.subscribe("layer_changed_type", self.layer_refresh)
-        self._event.subscribe("layer_temp_created", self.layer_temp_created)
-        self._event.subscribe("layer_current_idx_changed", self.layer_current_idx_changed)
-        self._event.subscribe("paint_painted", self.layer_refresh)
-        self._event.subscribe("paint_ended", self.layer_refresh)
+        self._event_provider.subscribe("layer_created", self.layer_created)
+        self._event_provider.subscribe("layer_order_changed", self.layers_order_changed)
+        self._event_provider.subscribe("layer_visibility_switched", self.layer_visibility_switched)
+        self._event_provider.subscribe("layer_changed_type", self.layer_refresh)
+        self._event_provider.subscribe("layer_temp_created", self.layer_temp_created)
+        self._event_provider.subscribe("layer_current_idx_changed", self.layer_current_idx_changed)
+        self._event_provider.subscribe("paint_painted", self.layer_refresh)
+        self._event_provider.subscribe("paint_ended", self.layer_refresh)
 
 
     def request_update(self):

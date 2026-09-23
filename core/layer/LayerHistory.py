@@ -18,4 +18,4 @@ class LayerHistory:
             return False
 
         operation, layer = self._history.pop()
-        self._context.event.notify({"type": "layer_history_pop", "idx": layer.idx, "layer": layer, "operation": operation})
+        self._context.event_provider.notify({"type": "layer_history_pop", "idx": layer.idx, "layer": layer, "operation": operation})

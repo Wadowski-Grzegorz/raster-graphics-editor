@@ -11,9 +11,9 @@ from gui.StartingWindow import StartingWindow
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, event):
+    def __init__(self, event_provider):
         super().__init__()
-        self.event = event
+        self.event_provider = event_provider
         self._controller = None
 
         self.setWindowTitle('raster graphics editor')
@@ -23,16 +23,16 @@ class MainWindow(QMainWindow):
         self.setMenuBar(Menu(self, self.file_manager))
 
 
-        self.canvas = Canvas(event)
+        self.canvas = Canvas(event_provider)
         self.layout.addWidget(self.canvas)
 
         self.palette = Palette()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.palette)
 
-        self.layer_panel = LayerPanel(event)
+        self.layer_panel = LayerPanel(event_provider)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.layer_panel)
 
-        self.tool = ToolPanelsManager(event, self.canvas)
+        self.tool = ToolPanelsManager(event_provider, self.canvas)
         self.starting_window = StartingWindow()
 
         self.dummy = QWidget()

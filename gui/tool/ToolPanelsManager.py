@@ -10,9 +10,9 @@ class ToolPanelsManager(QObject):
     signal_brush_select = pyqtSignal(int)
     signal_brush_change_parameter = pyqtSignal((str, float), (str, int))
 
-    def __init__(self, event, canvas):
+    def __init__(self, event_provider, canvas):
         super().__init__()
-        self._event = event
+        self._event_provider = event_provider
         self._controller = None
         # consistent order of tools and their id's
 
@@ -40,7 +40,7 @@ class ToolPanelsManager(QObject):
         tools = core_tools + gui_tools
         self.tool_panel = ToolPanel(tools)
         self.tool_settings_panel = ToolSettingsPanel(
-            self._event,
+            self._event_provider,
             self.signal_brush_change_parameter,
             self.signal_brush_select
         )

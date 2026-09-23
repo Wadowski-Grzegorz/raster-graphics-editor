@@ -8,10 +8,10 @@ from dto.SelectableItem import SelectableItem
 
 class ToolSettingsPanel(QDockWidget):
 
-    def __init__(self, event, fun_brush_change_parameter=None, fun_brush_selected=None):
+    def __init__(self, event_provider, fun_brush_change_parameter=None, fun_brush_selected=None):
         super().__init__()
 
-        self._event = event
+        self._event_provider = event_provider
         self._controller = None
 
         self.fun_brush_change_parameter = fun_brush_change_parameter
@@ -23,7 +23,7 @@ class ToolSettingsPanel(QDockWidget):
         self._brush_affects_tool = []
 
         self.setWidget(self._stacked_widgets)
-        self._event.subscribe('brush_current_changed', self.changed_brush)
+        self._event_provider.subscribe('brush_current_changed', self.changed_brush)
 
     def _init_brush(self):
         container = Container('brush')

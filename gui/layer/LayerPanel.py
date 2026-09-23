@@ -26,10 +26,10 @@ class LayerPanel(QDockWidget, EventListener):
         'layer_created',
     ]
 
-    def __init__(self, event):
+    def __init__(self, event_provider):
         super().__init__()
 
-        self._event = event
+        self._event_provider = event_provider
         self._controller = None
 
         dummy = QWidget()
@@ -56,9 +56,9 @@ class LayerPanel(QDockWidget, EventListener):
         self.list_widget.model().rowsMoved.connect(self.layers_moved)
         layout_main.addWidget(self.list_widget)
 
-        # self._event.subscribe('layer_created', self.added_new_layer)
+        # self._event_provider.subscribe('layer_created', self.added_new_layer)
         self.signal_event_occurred.connect(self.handle_event)
-        self.subscribe_to_events(self._event)
+        self.subscribe_to_events(self._event_provider)
 
     def emit_event_occurred(self, data):
         print("LayerPanel: in emit_event_occurred")
