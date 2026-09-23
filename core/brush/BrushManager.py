@@ -33,8 +33,8 @@ class BrushManager:
 
     def init(self):
         self._event.notify(
-            'brush_current_changed',
             {
+                "type": "brush_current_changed",
                 "idx": self._curr_brush.get_idx(),
                 "brush": self._curr_brush
             }
@@ -50,8 +50,8 @@ class BrushManager:
         brush = next((b for b in self._brushes if b.get_idx() == idx), None)
         if brush is not None:
             self._curr_brush = brush
-            self._event.notify('brush_current_changed', {"idx": brush.get_idx(), "brush": brush})
+            self._event.notify({"type": "brush_current_changed", "idx": brush.get_idx(), "brush": brush})
 
     def set_brush_parameter(self, par_name: str, value: float | int):
         self._curr_brush.set_parameter(par_name, value)
-        self._event.notify('brush_changed_parameter', {"idx": self._curr_brush.get_idx()})
+        self._event.notify({"type": "brush_changed_parameter", "idx": self._curr_brush.get_idx()})

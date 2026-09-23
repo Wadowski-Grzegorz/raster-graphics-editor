@@ -32,8 +32,8 @@ class CoreToolManager:
 
     def init(self):
         self._event.notify(
-            'tool_current_changed',
             {
+                "type": "tool_current_changed",
                 "id": self._curr_tool.get_idx(),
                 "tool": self._curr_tool
             }
@@ -49,7 +49,7 @@ class CoreToolManager:
             brush=self._curr_brush,
             color=self._curr_color
         )
-        self._event.notify('paint_painted', {"layer": self._curr_layer})
+        self._event.notify({"type": "paint_painted", "layer": self._curr_layer})
 
     def on_move(self, start_x, start_y, end_x, end_y):
         if self._check_usage() is False:
@@ -62,7 +62,7 @@ class CoreToolManager:
             brush=self._curr_brush,
             color=self._curr_color
         )
-        self._event.notify('paint_painted', {"layer": self._curr_layer})
+        self._event.notify({"type": "paint_painted", "layer": self._curr_layer})
 
     def on_release(self):
         if self._check_usage() is False:
@@ -73,7 +73,7 @@ class CoreToolManager:
             brush=self._curr_brush,
             color=self._curr_color
         )
-        self._event.notify('paint_ended', {"layer": self._curr_layer})
+        self._event.notify({"type": "paint_ended", "layer": self._curr_layer})
 
     def _check_usage(self):
         # check if tool can be used on this layer
@@ -90,7 +90,7 @@ class CoreToolManager:
 
     def change_color(self, color: list[int, int, int]):
         self._curr_color[:3] = color
-        self._event.notify('color_changed', {"color": self._curr_color})
+        self._event.notify({"type": "color_changed", "color": self._curr_color})
 
     def get_current_color(self):
         return self._curr_color.copy()
@@ -103,8 +103,8 @@ class CoreToolManager:
             if tool.get_name().lower() == name.lower():
                 self._curr_tool = tool
                 self._event.notify(
-                    'tool_current_changed',
                     {
+                        "type": "tool_current_changed",
                         "id": self._curr_tool.get_idx(),
                         "tool": self._curr_tool
                     }

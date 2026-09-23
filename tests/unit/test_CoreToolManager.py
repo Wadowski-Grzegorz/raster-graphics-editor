@@ -31,6 +31,5 @@ def test_tool_used():
     )
 
     mock_event.notify.assert_called_once_with(
-        'paint_painted',
-        { "layer": layer }
+        { "type": "paint_painted", "layer": layer }
     )

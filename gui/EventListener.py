@@ -1,6 +1,6 @@
 
 class EventListener:
-    event_types = []
+    event_types = {}
 
     def subscribe_to_events(self, e):
         for type in self.event_types:
