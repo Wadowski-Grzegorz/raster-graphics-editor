@@ -132,9 +132,8 @@ class Canvas(QWidget):
         if (
                 0 <= x < settings.layer_width and 0 <= y < settings.layer_height and
                 0 <= self._old_x < settings.layer_width and 0 <= self._old_y < settings.layer_height and
-                abs(x - self._old_x) >= 1 and abs(y - self._old_y) >= 1
+                ( abs(x - self._old_x) >= 1 or abs(y - self._old_y) >= 1 )
         ):
-
             self.signal_cursor_moved.emit(
                 self._old_x, self._old_y,
                 x, y
