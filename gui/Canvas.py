@@ -1,14 +1,16 @@
-from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, QRect, QPoint, QTime, QTimer
+from PyQt6.QtCore import pyqtSignal, Qt, QRect, QPoint, QTime, QTimer
 from PyQt6.QtGui import QPainter, QColor, QPixmap
 from PyQt6.QtWidgets import QWidget
 
+from gui.EventListener import EventListener
+
 from resources import settings
 
-class Canvas(QWidget):
-    signal_cursor_pressed = QtCore.pyqtSignal(int, int)
-    signal_cursor_moved = QtCore.pyqtSignal(int, int, int, int)
-    signal_cursor_released = QtCore.pyqtSignal()
+class Canvas(QWidget, EventListener):
+    signal_cursor_pressed = pyqtSignal(int, int)
+    signal_cursor_moved = pyqtSignal(int, int, int, int)
+    signal_cursor_released = pyqtSignal()
+    signal_event_occurred = pyqtSignal(dict)
 
     MAX_FPS = 30
     MIN_INTERVAL = 1000 // MAX_FPS
@@ -41,15 +43,17 @@ class Canvas(QWidget):
         self.from_last_request = 0
         self.will_update = False
 
-        self._event_provider.subscribe("layer_created", self.layer_created)
-        self._event_provider.subscribe("layer_order_changed", self.layers_order_changed)
-        self._event_provider.subscribe("layer_visibility_switched", self.layer_visibility_switched)
-        self._event_provider.subscribe("layer_changed_type", self.layer_refresh)
-        self._event_provider.subscribe("layer_temp_created", self.layer_temp_created)
-        self._event_provider.subscribe("layer_current_idx_changed", self.layer_current_idx_changed)
-        self._event_provider.subscribe("paint_painted", self.layer_refresh)
-        self._event_provider.subscribe("paint_ended", self.layer_refresh)
-
+        self.event_types.update({
+            'layer_created': self.layer_created,
+            "layer_order_changed": self.layers_order_changed,
+            "layer_visibility_switched": self.layer_visibility_switched,
+            "layer_changed_type": self.layer_refresh,
+            "layer_temp_created": self.layer_temp_created,
+            "layer_current_idx_changed": self.layer_current_idx_changed,
+            "paint_painted": self.layer_refresh,
+            "paint_ended": self.layer_refresh
+        })
+        self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
     def request_update(self):
         time = int(QTime.currentTime().msecsSinceStartOfDay())

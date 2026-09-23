@@ -1,12 +1,14 @@
-from PyQt6.QtCore import pyqtSlot
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QDockWidget, QWidget, QStackedWidget
 
+from gui.EventListener import EventListener
 from gui.components.Container import Container
 from gui.components.SelectionList import SelectionList
 from gui.components.ValueField import ValueField
 from dto.SelectableItem import SelectableItem
 
-class ToolSettingsPanel(QDockWidget):
+class ToolSettingsPanel(QDockWidget, EventListener):
+    signal_event_occurred = pyqtSignal(dict)
 
     def __init__(self, event_provider, fun_brush_change_parameter=None, fun_brush_selected=None):
         super().__init__()
@@ -23,7 +25,10 @@ class ToolSettingsPanel(QDockWidget):
         self._brush_affects_tool = []
 
         self.setWidget(self._stacked_widgets)
-        self._event_provider.subscribe('brush_current_changed', self.changed_brush)
+        self.event_types.update({
+            'brush_current_changed': self.changed_brush,
+        })
+        self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
     def _init_brush(self):
         container = Container('brush')
