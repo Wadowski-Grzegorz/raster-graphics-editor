@@ -18,34 +18,31 @@ class Controller(QWidget):
         self._executor = ThreadPoolExecutor(max_workers=1)
 
         self.gui.starting_window.signal_initial_pulse.connect(self.initial)
-        self.gui.palette.signal_color_changed.connect(self.core.tool.change_color)
+        self.gui.palette.signal_color_changed.connect(self._wrap(self.core.tool.change_color))
 
-        # self.gui.layer_panel.signal_layer_create_order.connect(self.core.layer.create_empty)
-        self.gui.layer_panel.signal_layer_create_order.connect(self.create_layer)
+        self.gui.layer_panel.signal_layer_create_order.connect(self._wrap(self.core.layer.create_empty))
 
-        self.gui.layer_panel.signal_layer_choose.connect(self.core.layer.set_current_idx)
-        self.gui.layer_panel.signal_layer_reorder_order.connect(self.core.layer.reorder)
-        self.gui.layer_panel.signal_layer_visibility_switch.connect(self.core.layer.switch_visibility)
-        self.gui.layer_panel.signal_layer_convert.connect(self.core.layer.convert_to_editable)
-        self.gui.layer_panel.signal_layer_name_change.connect(self.core.layer.set_name)
+        self.gui.layer_panel.signal_layer_choose.connect(self._wrap(self.core.layer.set_current_idx))
+        self.gui.layer_panel.signal_layer_reorder_order.connect(self._wrap(self.core.layer.reorder))
+        self.gui.layer_panel.signal_layer_visibility_switch.connect(self._wrap(self.core.layer.switch_visibility))
+        self.gui.layer_panel.signal_layer_convert.connect(self._wrap(self.core.layer.convert_to_editable))
+        self.gui.layer_panel.signal_layer_name_change.connect(self._wrap(self.core.layer.set_name))
 
 
-        self.gui.tool.signal_brush_change_parameter.connect(self.core.brush.set_brush_parameter)
-        self.gui.tool.signal_brush_select.connect(self.core.brush.set_curr_brush)
+        self.gui.tool.signal_brush_change_parameter.connect(self._wrap(self.core.brush.set_brush_parameter))
+        self.gui.tool.signal_brush_select.connect(self._wrap(self.core.brush.set_curr_brush))
         self.gui.tool.signal_tool_select.connect(self.tool_select)
 
-        self.gui.file_manager.signal_image_read.connect(self.core.layer.create_from_image)
+        self.gui.file_manager.signal_image_read.connect(self._wrap(self.core.layer.create_from_image))
 
-
-        self._current_manager = core.tool
+        self._current_manager = self.core.tool
 
         self.gui.canvas.signal_cursor_pressed.connect(self.on_press)
         self.gui.canvas.signal_cursor_moved.connect(self.on_move)
         self.gui.canvas.signal_cursor_released.connect(self.on_release)
 
-    def create_layer(self):
-        # print("Controller create_layer")
-        self._executor.submit(self.core.layer.create_empty)
+    def _wrap(self, func):
+        return lambda *args, **kwargs: self._executor.submit(func, *args, **kwargs)
 
     def initial(self):
         self.core.brush.init()
@@ -53,21 +50,30 @@ class Controller(QWidget):
         self.core.tool.init()
 
     def tool_select(self, name:str):
-        if self.core.tool.tool_select(name):
+        if self._executor.submit(self.core.tool.tool_select, name).result():
             self._current_manager = self.core.tool
         elif self.gui.tool.tool_select(name):
             self._current_manager = self.gui.tool
 
-    def on_press(self, x, y):
-        self._current_manager.on_press(x, y)
+    def on_press(self, *args):
+        if self._current_manager is self.core.tool:
+            self._executor.submit(self.core.tool.on_press, *args)
+        else:
+            self.gui.tool.on_press(x, y)
 
-    def on_move(self, start_x, start_y, end_x, end_y):
-        self._current_manager.on_move(start_x, start_y, end_x, end_y)
+    def on_move(self, *args):
+        if self._current_manager is self.core.tool:
+            self._executor.submit(self.core.tool.on_move, *args)
+        else:
+            self.gui.tool.on_move(*args)
 
-    def on_release(self):
-        self._current_manager.on_release()
+    def on_release(self, *args):
+        if self._current_manager is self.core.tool:
+            self._executor.submit(self.core.tool.on_release(*args))
+        else:
+            self.gui.tool.on_release(*args)
 
-
+    # Adapters
     def convert_layer_gui(self, layer: Layer):
         return LayerAdapter.layer_to_dto(layer)
 
