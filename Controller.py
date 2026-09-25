@@ -59,7 +59,7 @@ class Controller(QWidget):
         if self._current_manager is self.core.tool:
             self._executor.submit(self.core.tool.on_press, *args)
         else:
-            self.gui.tool.on_press(x, y)
+            self.gui.tool.on_press(*args)
 
     def on_move(self, *args):
         if self._current_manager is self.core.tool:
@@ -69,7 +69,7 @@ class Controller(QWidget):
 
     def on_release(self, *args):
         if self._current_manager is self.core.tool:
-            self._executor.submit(self.core.tool.on_release(*args))
+            self._executor.submit(self.core.tool.on_release, *args)
         else:
             self.gui.tool.on_release(*args)
 
