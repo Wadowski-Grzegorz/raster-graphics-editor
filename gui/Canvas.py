@@ -1,5 +1,5 @@
-from PyQt6.QtCore import pyqtSignal, Qt, QRect, QPoint, QTime, QTimer, QRectF
-from PyQt6.QtGui import QPainter, QColor, QPixmap, QBrush, QPaintEvent, QRegion, QPainterPath, QPolygonF
+from PyQt6.QtCore import pyqtSignal, Qt, QRect, QPoint, QTime, QTimer, QRectF, QPointF
+from PyQt6.QtGui import QPainter, QColor, QPixmap, QBrush, QPaintEvent, QRegion, QPainterPath, QPolygonF, QTransform
 from PyQt6.QtWidgets import QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 
 from gui.EventListener import EventListener
@@ -24,28 +24,13 @@ class Canvas(QGraphicsView, EventListener):
         self._scene.setBackgroundBrush(QBrush(QColor(170, 170, 170)))
         self.setScene(self._scene)
 
-        pixmap = QPixmap(settings.program_catalog + "\\resources\\icons\\tool_move.png")
-        item = QGraphicsPixmapItem(pixmap)
-        self._scene.addItem(item)
-
-        pixmap = QPixmap(settings.program_catalog + "\\resources\\icons\\tool_hand.png")
-        item = QGraphicsPixmapItem(pixmap)
-        self._scene.addItem(item)
-
-        # self._layers_dto = {} # { idx: qImage }
         self._layers = {} # {idx: QGraphicsPixmapItem}
         self._layers_order = []
         self._temp_layer = None # QImage
         self._temp_layer_item = None # QGraphicsPixmapItem
         self._current_idx = 0
 
-        self._background = None
-        self._foreground = None
-
-        self._scale = 1
-
-        self._offset_x = 0
-        self._offset_y = 0
+        self._offset = QPointF(0, 0)
 
         self._old_x = None
         self._old_y = None
@@ -87,52 +72,8 @@ class Canvas(QGraphicsView, EventListener):
     def _do_update(self):
         self.will_update = False
         self.from_last_request = int(QTime.currentTime().msecsSinceStartOfDay())
+        self._scene.update()
         self.update()
-
-    # def paint(self, painter, paint_me, x, y, scaled_x, scaled_y):
-    #     pixmap = (
-    #         QPixmap
-    #         .fromImage(paint_me)
-    #         .scaled(
-    #             scaled_x, scaled_y,
-    #             Qt.AspectRatioMode.IgnoreAspectRatio,
-    #             Qt.TransformationMode.SmoothTransformation
-    #         )
-    #     )
-    #     painter.drawPixmap(x, y, pixmap)
-    #
-    # def paintEvent(self, e):
-    #     painter = QPainter(self)
-    #
-    #     if self._background is None:
-    #         self.create_background()
-    #     painter.drawPixmap(0, 0, self._background)
-    #
-    #     layers = (self._layers_dto[i] for i in self._layers_order)
-    #     for l in layers:
-    #         if l.visible:
-    #             self.paint(
-    #                 painter,
-    #                 l.layer,
-    #                 self._offset_x + int(l.position[0] * self._scale),
-    #                 self._offset_y + int(l.position[1] * self._scale),
-    #                 int(l.layer.width() * self._scale),
-    #                 int(l.layer.height() * self._scale)
-    #             )
-    #         if self._current_idx == l.idx:
-    #             if self._temp_layer is not None:
-    #                 self.paint(
-    #                     painter,
-    #                     self._temp_layer,
-    #                     self._offset_x,
-    #                     self._offset_y,
-    #                     int(self._temp_layer.width() * self._scale),
-    #                     int(self._temp_layer.height() * self._scale)
-    #                 )
-    #
-    #     if self._foreground is None:
-    #         self.create_foreground()
-    #     painter.drawPixmap(0, 0, self._foreground)
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
@@ -165,120 +106,57 @@ class Canvas(QGraphicsView, EventListener):
     def wheelEvent(self, e):
         angle = e.angleDelta().y()
         if angle > 0:
-            # self._scale *= 1.1
-            self.scale(1.1, 1.1)
+            self.scale(1.02, 1.02)
         else:
-            # self._scale /= 1.1
-            self.scale(0.9, 0.9)
-
-        # self._scale = max(0.1, min(10.0, self._scale))
-        # self.resize_values()
-        #
-        # self.request_update()
-
-    # def resizeEvent(self, e):
-    #     if settings.layer_width is not None and settings.layer_height is not None:
-    #         self.resize_values()
-    #
-    #     self.request_update()
-    #
-    # def resize_values(self):
-    #     self._offset_x = int((self.width() - settings.layer_width * self._scale) // 2)
-    #     self._offset_y = int((self.height() - settings.layer_height * self._scale) // 2)
-    #     self.create_foreground()
-    #
-    # def create_background(self):
-    #     self._background = QPixmap(self.width(), self.height())
-    #     self._background.fill(QColor(170, 170, 170))
-    #
+            self.scale(0.98, 0.98)
 
     def drawForeground(self, painter, rect):
         scene_rect = self._scene.sceneRect()
+        scene_rect.translate(self._offset)
 
-        color = QColor(50, 50, 50, 255)
         painter.save()
-        painter.fillRect(QRectF(rect.topLeft(), scene_rect.bottomLeft()), color)
-        painter.fillRect(QRectF(rect.bottomLeft(), scene_rect.bottomRight()), color)
-        painter.fillRect(QRectF(scene_rect.topRight(), rect.bottomRight()), color)
-        painter.fillRect(QRectF(scene_rect.topLeft(), rect.topRight()), color)
+        path = QPainterPath()
+        path.setFillRule(Qt.FillRule.OddEvenFill)
+        path.addRect(rect)
+        path.addRect(scene_rect)
+        painter.fillPath(path, QColor(150, 50, 50, 255))
         painter.restore()
 
-    # def create_foreground(self):
-    #     self._foreground = QPixmap(self.width(), self.height())
-    #     self._foreground.fill(QColor(0, 0, 0, 0))
-    #
-    #     painter = QPainter(self._foreground)
-    #     color = QColor(50, 50, 50, 255)
-    #
-    #     # left, right, top, bottom
-    #     painter.fillRect(QRect(
-    #         QPoint(0, 0),
-    #         QPoint(self._offset_x, self.height())),
-    #         color
-    #     )
-    #     painter.fillRect(QRect(
-    #         QPoint(self._offset_x + int(settings.layer_width * self._scale), 0),
-    #         QPoint(self.width(), self.height())),
-    #         color
-    #     )
-    #     painter.fillRect(QRect(
-    #         QPoint(self._offset_x, 0),
-    #         QPoint(self._offset_x + int(settings.layer_width * self._scale), self._offset_y)),
-    #         color
-    #     )
-    #     painter.fillRect(QRect(
-    #         QPoint(self._offset_x, self._offset_y + int(settings.layer_height * self._scale)),
-    #         QPoint(self._offset_x + int(settings.layer_width * self._scale), self.height())),
-    #         color
-    #     )
-    #
-    #     painter.end()
-
     def convert_position_to_layer(self, position):
-        # x = (position.x() - self._offset_x) / self._scale
-        # y = (position.y() - self._offset_y) / self._scale
-        # return x, y
         scene_pos = self.mapToScene(position.toPoint())
         return scene_pos.x(), scene_pos.y()
 
-
-    # def move_offset(self, offset_x, offset_y):
-    #     self._offset_x += offset_x
-    #     self._offset_y += offset_y
-    #     self.request_update()
+    def move_offset(self, offset_x, offset_y):
+        self._offset += QPointF(offset_x, offset_y)
+        for i in self._scene.items():
+            i.moveBy(offset_x, offset_y)
+        self.request_update()
 
     def set_controller(self, controller):
         self._controller = controller
 
     def layers_order_changed(self, data):
         self._layers_order = data['order']
-        self.request_update()
+        for i, idx in enumerate(self._layers_order):
+            self._layers[idx].setZValue(i)
 
     def layer_created(self, data):
         if self._controller is None:
             return
+
         layer = self._controller.convert_layer_gui(data['layer'])
-        # self._layers_dto[layer.idx] = layer
         self._layers_order.append(layer.idx)
 
-        pixmap = (
-                    QPixmap
-                    .fromImage(layer.layer)
-                    # .scaled(
-                    #     scaled_x, scaled_y,
-                    #     Qt.AspectRatioMode.IgnoreAspectRatio,
-                    #     Qt.TransformationMode.SmoothTransformation
-                    # )
-                )
+        pixmap = QPixmap.fromImage(layer.layer)
         item = QGraphicsPixmapItem(pixmap)
         item.setZValue(self._layers_order.index(layer.idx))
         self._layers[layer.idx] = item
         self._scene.addItem(item)
 
-        # self.request_update()
-
     def resize_scene(self):
-        self._scene.setSceneRect(0, 0, settings.layer_width, settings.layer_height)
+        self._scene.setSceneRect(
+            0, 0,
+            settings.layer_width, settings.layer_height)
 
     def layer_temp_created(self, data):
         if self._controller is None:
@@ -293,18 +171,15 @@ class Canvas(QGraphicsView, EventListener):
         self._scene.addItem(item)
 
         self.resize_scene()
-        # self.request_update()
 
     def layer_visibility_switched(self, data):
         idx = data['idx']
-        # self._layers_dto[idx].visible = not self._layers_dto[idx].visible
-        self.request_update()
+        self._layers[idx].setVisible(not self._layers[idx].isVisible())
 
     def layer_refresh(self, data):
         if self._controller is None:
             return
         layer = self._controller.convert_layer_gui(data['layer'])
-        # self._layers_dto[layer.idx] = layer
 
         pixmap = QPixmap.fromImage(layer.layer)
         item = QGraphicsPixmapItem(pixmap)
@@ -312,27 +187,24 @@ class Canvas(QGraphicsView, EventListener):
         item.setZValue(self._layers_order.index(layer.idx))
 
         self._scene.removeItem(self._layers[layer.idx])
-        # add zValue
         self._layers[layer.idx] = item
         self._scene.addItem(item)
-        # self.request_update()
         self.layer_temp_refresh()
 
     def layer_temp_refresh(self):
         if self._controller is None:
             return
-        # layer = self._controller.convert_layer_gui(data['layer'])
-        # self._layers_dto[layer.idx] = layer
 
         pixmap = QPixmap.fromImage(self._temp_layer)
         item = QGraphicsPixmapItem(pixmap)
-        item.setZValue(1000)
+        item.setZValue(self._layers[self._current_idx].zValue() + 0.5)
 
         self._scene.removeItem(self._temp_layer_item)
         self._temp_layer_item = item
         self._scene.addItem(item)
-        # self.request_update()
 
     def layer_current_idx_changed(self, data):
         self._current_idx = data['idx']
-        self.request_update()
+        if self._current_idx in self._layers:
+            zValue = self._layers[self._current_idx].zValue()
+            self._temp_layer_item.setZValue(zValue+0.5)

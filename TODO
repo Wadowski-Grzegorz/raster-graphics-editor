@@ -8,3 +8,13 @@ Something is buggy with resize when resizing to very small image.
 
 If layer is created while painting is in process, result of painting will end up in new layer rather than in which
 operation started. That's why reconsider if operations should be executed based on current choose layer index.
+
+Canvas create white rectangle (canvas) on created temp_layer from core. Reconsider if it should be carried out by
+initial pulse / setting window size instead.
+
+Change in LayerPanel so layers are displayed in a reverse order.
+
+When layer is invisible, it's still possible to draw; layer visibility is changed unintentionally.
+
+When creating a layer, LayerPanel sends that layer is created and index is changed. So core sends two times
+curr_idx changed.

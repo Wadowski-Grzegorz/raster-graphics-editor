@@ -22,6 +22,7 @@ class LayerManager:
         layer = RasterLayer()
         self._append_layer(layer)
         self._event_provider.notify({"type": "layer_created", "idx": layer.get_idx(), "layer": layer})
+        self.set_current_idx(layer.get_idx())
 
     def create_from_image(self, file_path: str):
         img_file = cv.imread(file_path, cv.IMREAD_UNCHANGED)
@@ -36,12 +37,12 @@ class LayerManager:
         img = LosslessLayer(img_file)
         self._append_layer(img)
         self._event_provider.notify({"type": "layer_created", "idx": img.get_idx(), "layer": img})
+        self.set_current_idx(layer.get_idx())
 
     def _append_layer(self, layer: Layer):
         idx = layer.get_idx()
         self._layers[idx] = layer
         self._layers_order.append(idx)
-        self.set_current_idx(idx)
 
     def create_temp(self):
         layer = RasterLayer()
