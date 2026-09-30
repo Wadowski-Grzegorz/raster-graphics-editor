@@ -3,7 +3,6 @@ import numpy as np
 from core.tool.CoreTool import CoreTool
 
 import core.tool.tool_common as common
-import resources.settings as settings
 
 class BrushTool(CoreTool):
     def __init__(self):

@@ -4,7 +4,6 @@ import cv2 as cv
 from core.tool.CoreTool import CoreTool
 
 import core.tool.tool_common as common
-import resources.settings as settings
 
 class BlurTool(CoreTool):
     def __init__(self):

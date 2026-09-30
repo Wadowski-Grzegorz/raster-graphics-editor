@@ -21,14 +21,3 @@ def test_tool_panel_emits_selected(qtbot, tools):
         tool_panel.menu.set_current_row(item_name)
 
     assert blocker.args[0] == item_name
-
-# def test_tool_panel_select(qtbot, tools):
-#     tool_panel = ToolPanel(tools)
-#     qtbot.addWidget(tool_panel)
-#
-#     item_name = 'blur'
-#
-#     current_row = tool_panel.menu.currentRow()
-#     current_widget = tool_panel.menu.itemWidget(tool_panel.menu.item(current_row))
-#
-#     assert current_widget.get_name() == item_name

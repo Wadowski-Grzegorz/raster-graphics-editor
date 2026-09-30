@@ -1,5 +1,5 @@
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import QWidget, QPushButton
+from PyQt6.QtWidgets import QPushButton
 
 from core.EventManager import EventManager
 from core.CoreApp import CoreApp

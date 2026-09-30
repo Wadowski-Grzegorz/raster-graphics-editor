@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from gui.tool.ToolSettingsPanel import ToolSettingsPanel
 from gui.tool.ToolPanel import ToolPanel

@@ -1,5 +1,4 @@
 import numpy as np
-import cv2 as cv
 from PyQt6.QtGui import QImage
 import resources.settings as settings
 

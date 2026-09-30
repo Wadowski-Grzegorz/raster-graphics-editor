@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QComboBox
 
 from dto.SelectableItem import SelectableItem

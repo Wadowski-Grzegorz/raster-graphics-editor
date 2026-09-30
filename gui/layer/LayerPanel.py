@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal, QSize, QTimer
+from PyQt6.QtCore import pyqtSignal, QSize
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, \
     QToolButton
@@ -51,7 +51,6 @@ class LayerPanel(QDockWidget, EventListener):
         self.list_widget.model().rowsMoved.connect(self.layers_moved)
         layout_main.addWidget(self.list_widget)
 
-        # self._event_provider.subscribe('layer_created', self.added_new_layer)
         self.event_types.update({
             'layer_created': self.added_new_layer,
         })

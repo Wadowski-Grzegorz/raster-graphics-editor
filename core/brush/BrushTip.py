@@ -1,5 +1,4 @@
 import numpy as np
-import cv2 as cv
 
 class BrushTip:
     def __init__(self, size=1, hardness=1, shape='circle'):

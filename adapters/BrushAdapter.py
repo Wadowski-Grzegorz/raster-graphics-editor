@@ -18,11 +18,6 @@ class BrushAdapter:
     def brushes_to_selectable(brushes: list[Brush]) -> list[SelectableItem]:
         return [BrushAdapter.brush_to_selectable(brush) for brush in brushes]
 
-    # @staticmethod
-    # def get_brushes_selectable() -> list[SelectableItem]:
-    #     brushes = brush_manager.get_brushes()
-    #     return BrushAdapter.brushes_to_selectable(brushes)
-
     @staticmethod
     def brush_to_gui(b: Brush) -> BrushGui:
         return BrushGui(
@@ -33,13 +28,3 @@ class BrushAdapter:
             flow=b.get_flow(),
             hardness=b.get_hardness()
         )
-
-    # @staticmethod
-    # def get_brushes_gui() -> list[BrushGui]:
-    #     brushes = brush_manager.get_brushes()
-    #     return [BrushAdapter.brush_to_gui(b) for b in brushes]
-    #
-    # @staticmethod
-    # def get_current_brush() -> BrushGui:
-    #     brush = brush_manager.get_current_brush()
-    #     return BrushAdapter.brush_to_gui(brush)

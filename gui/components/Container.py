@@ -1,4 +1,3 @@
-from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import QWidget, QHBoxLayout
 
 
@@ -28,11 +27,3 @@ class Container(QWidget):
 
     def get_widgets(self):
         return self._widgets.values()
-
-    # def sizeHint(self):
-    #     w, h = 0, 0
-    #     for widget in self._widgets.values():
-    #         w += widget.sizeHint().width()
-    #         h = max(h, widget.sizeHint().height())
-    #
-    #     return QSize(w, h)

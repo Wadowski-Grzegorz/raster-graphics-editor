@@ -1,6 +1,6 @@
-from PyQt6.QtCore import pyqtSignal, Qt, QRect, QPoint, QTime, QTimer, QRectF, QPointF
-from PyQt6.QtGui import QPainter, QColor, QPixmap, QBrush, QPaintEvent, QRegion, QPainterPath, QPolygonF, QTransform
-from PyQt6.QtWidgets import QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
+from PyQt6.QtCore import pyqtSignal, Qt, QTime, QTimer, QPointF
+from PyQt6.QtGui import QColor, QPixmap, QBrush, QPainterPath
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 
 from gui.EventListener import EventListener
 
@@ -119,7 +119,7 @@ class Canvas(QGraphicsView, EventListener):
         path.setFillRule(Qt.FillRule.OddEvenFill)
         path.addRect(rect)
         path.addRect(scene_rect)
-        painter.fillPath(path, QColor(150, 50, 50, 255))
+        painter.fillPath(path, QColor(50, 50, 50, 255))
         painter.restore()
 
     def convert_position_to_layer(self, position):

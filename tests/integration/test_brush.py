@@ -1,12 +1,10 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QPushButton
 
 from core.EventManager import EventManager
 from core.CoreApp import CoreApp
 from gui.MainWindow import MainWindow
 from Controller import Controller
 
-from gui.components.Container import Container
 
 def test_brush_parameter_change(qtbot):
     event = EventManager()

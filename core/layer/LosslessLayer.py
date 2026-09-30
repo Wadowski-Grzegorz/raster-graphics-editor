@@ -3,7 +3,6 @@ import numpy as np
 
 from core.layer.Layer import Layer
 
-import utils
 import resources.settings as settings
 
 
