@@ -36,11 +36,12 @@ class RasterLayer(Layer):
         return self._layer
 
     def adjust_size(self):
+        # adjust layer size to have intersection with a default layer
         h, w = self._layer.shape[:2]
         pos_x, pos_y = self._position
 
-        needed_h = max(h, settings.layer_height - min(pos_y, 0))
-        needed_w = max(w, settings.layer_width - min(pos_x, 0))
+        needed_h = max(h + max(pos_y, 0), settings.layer_height - min(pos_y, 0))
+        needed_w = max(w + max(pos_x, 0), settings.layer_width - min(pos_x, 0))
 
         if needed_h > h or needed_w > w:
             new_layer = utils.arr(needed_h, needed_w)
