@@ -2,8 +2,6 @@ Przy zmianie ustawień pędzla na panelu górnym wartości nie zaczynają zmieni
 
 LayersPanel.layers_moved and reorder: it doesn't have to suck layers from core, cause information doesn't change.
 
-After using HandTool layer doesn't resize when drawing out of the bounds.
-
 Something is buggy with resize when resizing to very small image.
 
 If layer is created while painting is in process, result of painting will end up in new layer rather than in which
@@ -13,8 +11,6 @@ Canvas create white rectangle (canvas) on created temp_layer from core. Reconsid
 initial pulse / setting window size instead.
 
 Change in LayerPanel so layers are displayed in a reverse order.
-
-When layer is invisible, it's still possible to draw; layer visibility is changed unintentionally.
 
 When creating a layer, LayerPanel sends that layer is created and index is changed. So core sends two times
 curr_idx changed.

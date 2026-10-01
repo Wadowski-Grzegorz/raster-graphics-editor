@@ -185,6 +185,7 @@ class Canvas(QGraphicsView, EventListener):
         item = QGraphicsPixmapItem(pixmap)
         item.setOffset(*layer.position)
         item.setZValue(self._layers_order.index(layer.idx))
+        item.setVisible(layer.visible)
 
         self._scene.removeItem(self._layers[layer.idx])
         self._layers[layer.idx] = item
