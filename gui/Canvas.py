@@ -124,6 +124,7 @@ class Canvas(QGraphicsView, EventListener):
 
     def convert_position_to_layer(self, position):
         scene_pos = self.mapToScene(position.toPoint())
+        scene_pos -= self._offset
         return scene_pos.x(), scene_pos.y()
 
     def move_offset(self, offset_x, offset_y):
@@ -183,7 +184,7 @@ class Canvas(QGraphicsView, EventListener):
 
         pixmap = QPixmap.fromImage(layer.layer)
         item = QGraphicsPixmapItem(pixmap)
-        item.setOffset(*layer.position)
+        item.setOffset(layer.position[0] + self._offset.x(), layer.position[1] + self._offset.y())
         item.setZValue(self._layers_order.index(layer.idx))
         item.setVisible(layer.visible)
 
@@ -198,6 +199,7 @@ class Canvas(QGraphicsView, EventListener):
 
         pixmap = QPixmap.fromImage(self._temp_layer)
         item = QGraphicsPixmapItem(pixmap)
+        item.setOffset(self._offset.x(), self._offset.y())
         item.setZValue(self._layers[self._current_idx].zValue() + 0.5)
 
         self._scene.removeItem(self._temp_layer_item)
