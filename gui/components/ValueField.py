@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QDoubleSpinBox
 class ValueField(QWidget):
     signal_value_changed = pyqtSignal(float)
 
-    def __init__(self, text, value=1, min_v=0, max_v=100, suffix='', step=0.5):
+    def __init__(self, text, value=1, min_v=0, max_v=100, suffix='', step=0.5, decimals=1):
         super().__init__()
 
         self._value = value
@@ -23,12 +23,12 @@ class ValueField(QWidget):
         self.layout.addWidget(QLabel(self._text))
 
         self.spinbox = QDoubleSpinBox()
-        self.spinbox.setValue(self._value)
+        self.spinbox.setDecimals(decimals)
         self.spinbox.setMinimum(self.min_v)
         self.spinbox.setMaximum(self.max_v)
+        self.spinbox.setValue(self._value)
         self.spinbox.setSuffix(suffix)
         self.spinbox.setSingleStep(self.step)
-        self.spinbox.setDecimals(1)
         self.layout.addWidget(self.spinbox)
 
         self.spinbox.valueChanged.connect(self.value_changed)
@@ -59,6 +59,9 @@ class ValueField(QWidget):
         self.spinbox.setValue(value)
         self._value = value
         self.spinbox.blockSignals(False)
+
+    def set_value(self, value):
+        self.spinbox.setValue(value)
 
     def get_name(self):
         return self._text

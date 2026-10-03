@@ -65,4 +65,4 @@ class MainWindow(QMainWindow):
 
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.tool.get_tool_panel())
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.tool.get_tool_settings_panel())
-        self.starting_window.do()
+        self.starting_window.exec()
