@@ -57,6 +57,7 @@ class ValueField(QWidget):
     def set_value_quiet(self, value):
         self.spinbox.blockSignals(True)
         self.spinbox.setValue(value)
+        self._value = value
         self.spinbox.blockSignals(False)
 
     def get_name(self):

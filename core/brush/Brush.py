@@ -48,7 +48,7 @@ class Brush:
         return self._name
 
     def set_hardness(self, hardness):
-        self._brush_tip.hardness = hardness
+        self._brush_tip.set_hardness(hardness)
 
     def get_hardness(self):
         return self._brush_tip.hardness

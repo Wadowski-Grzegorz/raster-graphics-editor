@@ -35,6 +35,6 @@ class BrushTip:
 
         self.mask = self.make_mask()
 
-    def set_hardness(self):
-        self.hardness = self.hardness
+    def set_hardness(self, hardness):
+        self.hardness = hardness
         self.mask = self.make_mask()
