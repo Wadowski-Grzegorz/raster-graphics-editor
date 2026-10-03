@@ -78,7 +78,7 @@ class LayerPanel(QDockWidget, EventListener):
 
         item.setSizeHint(container.sizeHint())
 
-        self.list_widget.addItem(item)
+        self.list_widget.insertItem(0, item)
         self.list_widget.setItemWidget(item, container)
         return item
 
@@ -98,8 +98,9 @@ class LayerPanel(QDockWidget, EventListener):
             if item.isSelected():
                 selected = widget.get_idx()
 
-        self.signal_layer_reorder_order.emit(new_order)
-        self.reorder(new_order, selected=selected)
+        layer_order = list(reversed(new_order))
+        self.signal_layer_reorder_order.emit(layer_order)
+        self.reorder(layer_order, selected=selected)
 
     def layer_choose(self, element_num: int):
         if element_num < 0:

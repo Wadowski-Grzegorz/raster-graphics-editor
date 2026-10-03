@@ -1,5 +1,3 @@
-Przy zmianie ustawień pędzla na panelu górnym wartości nie zaczynają zmieniać się od poprawnej
-
 LayersPanel.layers_moved and reorder: it doesn't have to suck layers from core, cause information doesn't change.
 
 Something is buggy with resize when resizing to very small image.
