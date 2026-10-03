@@ -40,16 +40,17 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.dummy)
 
     def dragEnterEvent(self, e):
-        if e.mimeData().hasImage:
+        if e.mimeData().hasUrls():
             e.accept()
         else:
             e.ignore()
 
     def dropEvent(self, e):
-        if e.mimeData().hasImage:
+        if e.mimeData().hasUrls():
             e.setDropAction(Qt.DropAction.CopyAction)
-            file_path = e.mimeData().urls()[0].toLocalFile()
-            self.file_manager.read_image_order(file_path)
+            for url in e.mimeData().urls():
+                file_path = url.toLocalFile()
+                self.file_manager.read_image_order(file_path)
 
             e.accept()
         else:

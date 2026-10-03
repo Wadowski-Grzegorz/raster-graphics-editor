@@ -23,6 +23,7 @@ class Canvas(QGraphicsView, EventListener):
         self._scene = QGraphicsScene(self)
         self._scene.setBackgroundBrush(QBrush(QColor(170, 170, 170)))
         self.setScene(self._scene)
+        self.setAcceptDrops(False)
 
         self._layers = {} # {idx: QGraphicsPixmapItem}
         self._layers_order = []
@@ -151,6 +152,7 @@ class Canvas(QGraphicsView, EventListener):
         pixmap = QPixmap.fromImage(layer.layer)
         item = QGraphicsPixmapItem(pixmap)
         item.setZValue(self._layers_order.index(layer.idx))
+        item.setOffset(layer.position[0] + self._offset.x(), layer.position[1] + self._offset.y())
         self._layers[layer.idx] = item
         self._scene.addItem(item)
 

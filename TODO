@@ -8,7 +8,5 @@ operation started. That's why reconsider if operations should be executed based 
 Canvas create white rectangle (canvas) on created temp_layer from core. Reconsider if it should be carried out by
 initial pulse / setting window size instead.
 
-Change in LayerPanel so layers are displayed in a reverse order.
-
 When creating a layer, LayerPanel sends that layer is created and index is changed. So core sends two times
 curr_idx changed.
