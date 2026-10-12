@@ -45,6 +45,7 @@ class Canvas(QGraphicsView, EventListener):
 
         self.event_types.update({
             'layer_created': self.layer_created,
+            'layer_deleted': self.layer_deleted,
             "layer_order_changed": self.layers_order_changed,
             "layer_visibility_switched": self.layer_visibility_switched,
             "layer_changed_type": self.layer_refresh,
@@ -144,13 +145,15 @@ class Canvas(QGraphicsView, EventListener):
 
     def layers_order_changed(self, data):
         self._layers_order = data['order']
+        self._update_zValues()
+
+    def _update_zValues(self):
         for i, idx in enumerate(self._layers_order):
             self._layers[idx].setZValue(i)
 
     def layer_created(self, data):
         if self._controller is None:
             return
-
         layer = self._controller.convert_layer_gui(data['layer'])
         self._layers_order.append(layer.idx)
 
@@ -160,6 +163,14 @@ class Canvas(QGraphicsView, EventListener):
         item.setOffset(layer.position[0] + self._offset.x(), layer.position[1] + self._offset.y())
         self._layers[layer.idx] = item
         self._scene.addItem(item)
+
+    def layer_deleted(self, data):
+        idx = data['idx']
+
+        item = self._layers.pop(idx)
+        self._scene.removeItem(item)
+        self._layers_order.remove(idx)
+        self._update_zValues()
 
     def layer_temp_created(self, data):
         if self._controller is None:

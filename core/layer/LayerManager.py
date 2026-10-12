@@ -51,14 +51,14 @@ class LayerManager:
 
     def set_current_idx(self, idx):
         self._current_idx = idx
-        self._event_provider.notify({"type": "layer_current_idx_changed", "idx": idx, "layer": self._layers[idx]})
+        self._event_provider.notify({"type": "layer_current_idx_changed", "idx": idx, "layer": self._layers.get(idx)})
 
     def reorder(self, new_order: list):
         if len(new_order) != self.get_layers_len():
             return
 
         self._layers_order = new_order.copy()
-        self._event_provider.notify({"type": "layer_order_changed", "order": self._layers_order})
+        self._event_provider.notify({"type": "layer_order_changed", "order": self._layers_order.copy()})
 
     def switch_visibility(self, idx: int):
         self._layers[idx].switch_visible()
@@ -76,6 +76,20 @@ class LayerManager:
             )
             self._layers[idx] = new_layer
             self._event_provider.notify({"type": "layer_changed_type", "idx": idx, "layer": new_layer})
+
+    def delete(self, idx: int):
+        if idx not in self._layers:
+            return
+
+        del self._layers[idx]
+        idx_pos = self._layers_order.index(idx)
+        self._layers_order.remove(idx)
+        if self._current_idx == idx:
+            new_idx = self._layers_order[min(idx_pos, len(self._layers_order) - 1)] if self._layers_order else 0
+            self.set_current_idx(new_idx)
+
+        self._event_provider.notify({"type": "layer_deleted", "idx": idx})
+
 
     def set_name(self, idx: int, name: str):
         if self._layers[idx]:

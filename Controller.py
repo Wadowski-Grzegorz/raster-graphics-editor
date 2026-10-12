@@ -27,6 +27,7 @@ class Controller(QWidget):
         self.gui.layer_panel.signal_layer_visibility_switch.connect(self._wrap(self.core.layer.switch_visibility))
         self.gui.layer_panel.signal_layer_convert.connect(self._wrap(self.core.layer.convert_to_editable))
         self.gui.layer_panel.signal_layer_name_change.connect(self._wrap(self.core.layer.set_name))
+        self.gui.layer_panel.signal_layer_delete.connect(self._wrap(self.core.layer.delete))
 
 
         self.gui.tool.signal_brush_change_parameter.connect(self._wrap(self.core.brush.set_brush_parameter))

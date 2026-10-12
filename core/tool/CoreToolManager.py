@@ -77,6 +77,9 @@ class CoreToolManager:
 
     def _check_usage(self):
         # check if tool can be used on this layer
+        if self._curr_tool is None:
+            return False
+
         layer_flag = self._curr_layer.is_editable()
         if layer_flag:
             return True

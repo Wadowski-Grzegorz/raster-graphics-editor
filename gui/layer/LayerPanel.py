@@ -1,7 +1,7 @@
-from PyQt6.QtCore import pyqtSignal, QSize
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtCore import pyqtSignal, QSize, QPoint, Qt, QSignalBlocker
+from PyQt6.QtGui import QIcon, QPixmap, QCursor
 from PyQt6.QtWidgets import QPushButton, QDockWidget, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, \
-    QToolButton
+    QToolButton, QMenu
 
 from gui.EventListener import EventListener
 from gui.components.Container import Container
@@ -17,6 +17,7 @@ class LayerPanel(QDockWidget, EventListener):
     signal_layer_visibility_switch = pyqtSignal(int)
     signal_layer_convert = pyqtSignal(int)
     signal_layer_name_change = pyqtSignal(int, str)
+    signal_layer_delete = pyqtSignal(int)
     signal_event_occurred = pyqtSignal(dict)
 
     layer_icons_catalog = settings.program_catalog + "\\resources\\icons\\"
@@ -49,10 +50,14 @@ class LayerPanel(QDockWidget, EventListener):
         self.list_widget.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.list_widget.currentRowChanged.connect(self.layer_choose)
         self.list_widget.model().rowsMoved.connect(self.layers_moved)
+        self.list_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.list_widget.customContextMenuRequested.connect(self.show_context_menu)
         layout_main.addWidget(self.list_widget)
 
         self.event_types.update({
             'layer_created': self.added_new_layer,
+            'layer_deleted': self.layer_deleted,
+            'layer_current_idx_changed': self.layer_current_idx_changed
         })
         self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
@@ -88,6 +93,33 @@ class LayerPanel(QDockWidget, EventListener):
         self.list_widget.setCurrentItem(item)
         item.setSelected(True)
 
+    def layer_deleted(self, data):
+        idx = data['idx']
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            container = self.list_widget.itemWidget(item)
+
+            if container.get_idx() == idx:
+                self.list_widget.removeItemWidget(item)
+                self.list_widget.takeItem(i)
+                container.deleteLater()
+                return
+
+    def layer_current_idx_changed(self, data):
+        idx = data['idx']
+        blocker = QSignalBlocker(self.list_widget)
+
+        try:
+            for i in range(self.list_widget.count()):
+                item = self.list_widget.item(i)
+                container = self.list_widget.itemWidget(item)
+
+                if container.get_idx() == idx:
+                    self.list_widget.setCurrentItem(item)
+                    return
+        finally:
+            del blocker
+
     def layers_moved(self, parent, start, end, destination, row):
         new_order = []
         for i in range(self.list_widget.count()):
@@ -110,6 +142,19 @@ class LayerPanel(QDockWidget, EventListener):
 
     def convert_layer(self, idx: int):
         self.signal_layer_convert.emit(idx)
+
+    def show_context_menu(self, pos):
+        item = self.list_widget.itemAt(pos)
+        if item is None:
+            return
+
+        menu = QMenu()
+        delete_action = menu.addAction('Delete')
+        selected = menu.exec(self.list_widget.viewport().mapToGlobal(pos))
+        if selected == delete_action:
+            container = self.list_widget.itemWidget(item)
+            self.signal_layer_delete.emit(container.get_idx())
+
     
     def _create_destructive_icon_button(self, icon: QIcon, fun, data):
         button = QToolButton()
