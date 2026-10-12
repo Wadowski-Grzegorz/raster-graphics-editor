@@ -90,17 +90,13 @@ class LayerPanel(QDockWidget, EventListener):
 
     def layers_moved(self, parent, start, end, destination, row):
         new_order = []
-        selected = None
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
             widget = self.list_widget.itemWidget(item)
             new_order.append(widget.get_idx())
-            if item.isSelected():
-                selected = widget.get_idx()
 
         layer_order = list(reversed(new_order))
         self.signal_layer_reorder_order.emit(layer_order)
-        self.reorder(layer_order, selected=selected)
 
     def layer_choose(self, element_num: int):
         if element_num < 0:
@@ -108,21 +104,6 @@ class LayerPanel(QDockWidget, EventListener):
         item = self.list_widget.item(element_num)
         widget = self.list_widget.itemWidget(item)
         self.signal_layer_choose.emit(widget.get_idx())
-
-    def reorder(self, new_order, selected=None):
-        self.list_widget.clear()
-
-        layers = self._controller.get_layers_gui()
-        for idx in new_order:
-            item = self.add_button_layer(
-                idx=layers[idx].idx,
-                name=layers[idx].name,
-                visible=layers[idx].visible,
-                convert=not layers[idx].editable
-            )
-            if selected and idx == selected:
-                self.list_widget.setCurrentItem(item)
-                item.setSelected(True)
 
     def switch_visibility(self, data):
         self.signal_layer_visibility_switch.emit(data)
