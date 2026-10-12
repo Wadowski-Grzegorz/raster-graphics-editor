@@ -55,6 +55,11 @@ class Canvas(QGraphicsView, EventListener):
         })
         self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
+    def init(self):
+        self._scene.setSceneRect(
+            0, 0,
+            settings.layer_width, settings.layer_height)
+
     def request_update(self):
         time = int(QTime.currentTime().msecsSinceStartOfDay())
         elapsed = time - self.from_last_request
@@ -156,11 +161,6 @@ class Canvas(QGraphicsView, EventListener):
         self._layers[layer.idx] = item
         self._scene.addItem(item)
 
-    def resize_scene(self):
-        self._scene.setSceneRect(
-            0, 0,
-            settings.layer_width, settings.layer_height)
-
     def layer_temp_created(self, data):
         if self._controller is None:
             return
@@ -172,8 +172,6 @@ class Canvas(QGraphicsView, EventListener):
         item.setZValue(100000)
         self._temp_layer_item = item
         self._scene.addItem(item)
-
-        self.resize_scene()
 
     def layer_visibility_switched(self, data):
         idx = data['idx']

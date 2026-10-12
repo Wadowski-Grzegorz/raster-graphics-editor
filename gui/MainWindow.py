@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
 
         self.tool = ToolPanelsManager(event_provider, self.canvas)
         self.starting_window = StartingWindow()
+        self.starting_window.signal_initial_pulse.connect(self.canvas.init)
 
         self.dummy = QWidget()
         self.dummy.setLayout(self.layout)
