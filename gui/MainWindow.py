@@ -20,7 +20,8 @@ class MainWindow(QMainWindow):
         self.layout = QVBoxLayout()
 
         self.file_manager = FileManager()
-        self.setMenuBar(Menu(self, self.file_manager))
+        self.menu = Menu(self, self.file_manager)
+        self.setMenuBar(self.menu)
 
 
         self.canvas = Canvas(event_provider)

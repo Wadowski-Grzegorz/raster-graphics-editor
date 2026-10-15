@@ -3,6 +3,7 @@ import cv2 as cv
 from core.layer.Layer import Layer
 from core.layer.RasterLayer import RasterLayer
 from core.layer.LosslessLayer import LosslessLayer
+from core.layer.LayerHistory import LayerHistory
 
 class LayerManager:
 
@@ -11,14 +12,20 @@ class LayerManager:
         self._layers = {} # id : layer
         self._layers_order = [] # first in order - first to draw, saved as IDs
         self._current_idx = None
-
         self._temp_layer = None
+
+        self._history = LayerHistory()
+        self._event_provider.subscribe(
+            'paint_started', lambda data: self.register_action(data['layer'], 'layer_changed')
+        )
 
     def create_empty(self):
         layer = RasterLayer()
         self._append_layer(layer)
         self._event_provider.notify({"type": "layer_created", "idx": layer.get_idx(), "layer": layer})
         self.set_current_idx(layer.get_idx())
+
+        self.register_action(layer, 'layer_created')
 
     def create_from_image(self, file_path: str):
         img_file = cv.imread(file_path, cv.IMREAD_UNCHANGED)
@@ -34,6 +41,7 @@ class LayerManager:
         self._append_layer(img)
         self._event_provider.notify({"type": "layer_created", "idx": img.get_idx(), "layer": img})
         self.set_current_idx(img.get_idx())
+        self.register_action(img, 'layer_created')
 
     def _append_layer(self, layer: Layer):
         idx = layer.get_idx()
@@ -53,12 +61,19 @@ class LayerManager:
         self._current_idx = idx
         self._event_provider.notify({"type": "layer_current_idx_changed", "idx": idx, "layer": self._layers.get(idx)})
 
-    def reorder(self, new_order: list):
+    def reorder(self, new_order: list, internal_call=False):
         if len(new_order) != self.get_layers_len():
             return
 
+        old_order = self._layers_order
         self._layers_order = new_order.copy()
-        self._event_provider.notify({"type": "layer_order_changed", "order": self._layers_order.copy()})
+
+        if internal_call:
+            self._event_provider.notify({"type": "layer_order_restored", "order": self._layers_order.copy()})
+        else:
+            self.register_action(old_order, 'order')
+            self._event_provider.notify({"type": "layer_order_changed", "order": self._layers_order.copy()})
+
 
     def switch_visibility(self, idx: int):
         self._layers[idx].switch_visible()
@@ -90,6 +105,22 @@ class LayerManager:
 
         self._event_provider.notify({"type": "layer_deleted", "idx": idx})
 
+    def register_action(self, data, action):
+        self._history.push(data, action)
+
+    def pop_action(self):
+        data, action = self._history.pop()
+        match action:
+            case 'order':
+                self.reorder(data, internal_call=True)
+            case 'layer_created':
+                self.delete(data.get_idx())
+            case 'layer_changed':
+                self.restore_layer(data)
+
+    def restore_layer(self, layer: Layer):
+        self._layers[layer.get_idx()] = layer
+        self._event_provider.notify({"type": "layer_restored", "layer": layer})
 
     def set_name(self, idx: int, name: str):
         if self._layers[idx]:
@@ -116,25 +147,3 @@ class LayerManager:
 
     def get_order(self):
         return self._layers_order.copy()
-
-    def return_state(self, data):
-        d_layer = data["layer"]
-        d_idx = data["idx"]
-        d_op = data["operation"]
-
-        if d_op == "create":
-            for idx, l in self._layers:
-                if d_idx == idx:
-                    del self._layers[idx]
-                    self._layers_order.remove(idx)
-
-        if d_op == "edit":
-            for idx, l in self._layers:
-                if d_idx == idx:
-                    self._layers[idx] = d_layer
-
-        if d_op == "delete":
-            for idx, l in self._layers:
-                if d_idx == idx:
-                    self._layers[idx] = d_layer
-                    self._layers_order.append(idx)

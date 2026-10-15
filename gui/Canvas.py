@@ -51,8 +51,11 @@ class Canvas(QGraphicsView, EventListener):
             "layer_changed_type": self.layer_refresh,
             "layer_temp_created": self.layer_temp_created,
             "layer_current_idx_changed": self.layer_current_idx_changed,
+            "paint_started": self.layer_refresh,
             "paint_painted": self.layer_refresh,
-            "paint_ended": self.layer_refresh
+            "paint_ended": self.layer_refresh,
+            "layer_restored": self.layer_refresh,
+            "layer_order_restored": self.layers_order_changed
         })
         self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 

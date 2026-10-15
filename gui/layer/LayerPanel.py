@@ -57,7 +57,8 @@ class LayerPanel(QDockWidget, EventListener):
         self.event_types.update({
             'layer_created': self.added_new_layer,
             'layer_deleted': self.layer_deleted,
-            'layer_current_idx_changed': self.layer_current_idx_changed
+            'layer_current_idx_changed': self.layer_current_idx_changed,
+            'layer_order_restored': self.layer_order_restored,
         })
         self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
@@ -195,3 +196,24 @@ class LayerPanel(QDockWidget, EventListener):
 
     def set_controller(self, controller):
         self._controller = controller
+
+    def layer_order_restored(self, data):
+        self.set_layer_order(data['order'])
+
+    def set_layer_order(self, order):
+        blocker = QSignalBlocker(self.list_widget)
+
+        row_order = list(reversed(order))
+        rank = {idx: dest_pos for dest_pos, idx in enumerate(row_order)}
+
+        for row in range(self.list_widget.count()):
+            item = self.list_widget.item(row)
+            widget = self.list_widget.itemWidget(item)
+            item.setText(f"{rank[widget.get_idx()]:08d}")
+
+        self.list_widget.sortItems(Qt.SortOrder.AscendingOrder)
+
+        for row in range(self.list_widget.count()):
+            self.list_widget.item(row).setText("")
+
+        del blocker

@@ -35,6 +35,7 @@ class Controller(QWidget):
         self.gui.tool.signal_tool_select.connect(self.tool_select)
 
         self.gui.file_manager.signal_image_read.connect(self._wrap(self.core.layer.create_from_image))
+        self.gui.menu.signal_undo.connect(self._wrap(self.core.layer.pop_action))
 
         self._current_manager = self.core.tool
 

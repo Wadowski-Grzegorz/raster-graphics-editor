@@ -29,6 +29,7 @@ class CoreToolManager:
         self._event_provider.subscribe("layer_changed_type", self.set_current_layer)
         self._event_provider.subscribe('layer_current_idx_changed', self.set_current_layer)
         self._event_provider.subscribe('brush_current_changed', self.changed_brush)
+        self._event_provider.subscribe('layer_restored', self.set_current_layer)
 
     def init(self):
         self._event_provider.notify(
@@ -49,7 +50,7 @@ class CoreToolManager:
             brush=self._curr_brush,
             color=self._curr_color
         )
-        self._event_provider.notify({"type": "paint_painted", "layer": self._curr_layer})
+        self._event_provider.notify({"type": "paint_started", "layer": self._curr_layer})
 
     def on_move(self, start_x, start_y, end_x, end_y):
         if self._check_usage() is False:
