@@ -19,13 +19,14 @@ class LayerManager:
             'paint_started', lambda data: self.register_action(data['layer'], 'layer_changed')
         )
 
-    def create_empty(self):
+    def create_empty(self, internal_call=False):
         layer = RasterLayer()
         self._append_layer(layer)
         self._event_provider.notify({"type": "layer_created", "idx": layer.get_idx(), "layer": layer})
         self.set_current_idx(layer.get_idx())
 
-        self.register_action(layer, 'layer_created')
+        if not internal_call:
+            self.register_action(layer, 'layer_created')
 
     def create_from_image(self, file_path: str):
         img_file = cv.imread(file_path, cv.IMREAD_UNCHANGED)
@@ -55,7 +56,7 @@ class LayerManager:
 
     def layer_init(self):
         self.create_temp()
-        self.create_empty()
+        self.create_empty(internal_call=True)
 
     def set_current_idx(self, idx):
         self._current_idx = idx

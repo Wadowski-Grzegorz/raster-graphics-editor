@@ -24,4 +24,4 @@ class Menu(QMenuBar):
 
         action_undo = QAction("&Undo", self)
         action_undo.triggered.connect(self.signal_undo.emit)
-        self._file_menu.addAction(action_undo)
+        self.addAction(action_undo)
