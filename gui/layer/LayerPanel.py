@@ -58,7 +58,8 @@ class LayerPanel(QDockWidget, EventListener):
             'layer_created': self.added_new_layer,
             'layer_deleted': self.layer_deleted,
             'layer_current_idx_changed': self.layer_current_idx_changed,
-            'layer_order_restored': self.layer_order_restored,
+            'layer_order_restored': self.update_order,
+            'layer_recreated': self.recreate_layer,
         })
         self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
@@ -197,10 +198,15 @@ class LayerPanel(QDockWidget, EventListener):
     def set_controller(self, controller):
         self._controller = controller
 
-    def layer_order_restored(self, data):
-        self.set_layer_order(data['order'])
+    def update_order(self, data):
+        self.set_order(data['order'])
 
-    def set_layer_order(self, order):
+    def recreate_layer(self, data):
+        layer = self._controller.convert_layer_gui(data['layer'])
+        self.add_button_layer(idx=layer.idx, visible=layer.visible, name=layer.name, convert=not layer.editable)
+        self.set_order(data['order'])
+
+    def set_order(self, order):
         blocker = QSignalBlocker(self.list_widget)
 
         row_order = list(reversed(order))

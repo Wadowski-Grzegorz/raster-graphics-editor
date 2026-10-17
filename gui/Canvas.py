@@ -3,6 +3,7 @@ from PyQt6.QtGui import QColor, QPixmap, QBrush, QPainterPath
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 
 from gui.EventListener import EventListener
+from dto.LayerGui import LayerGui
 
 from resources import settings
 
@@ -55,7 +56,8 @@ class Canvas(QGraphicsView, EventListener):
             "paint_painted": self.layer_refresh,
             "paint_ended": self.layer_refresh,
             "layer_restored": self.layer_refresh,
-            "layer_order_restored": self.layers_order_changed
+            "layer_order_restored": self.layers_order_changed,
+            "layer_recreated": self.recreate_layer,
         })
         self.subscribe_to_events(self._event_provider, self.signal_event_occurred)
 
@@ -150,6 +152,21 @@ class Canvas(QGraphicsView, EventListener):
         self._layers_order = data['order']
         self._update_zValues()
 
+    def recreate_layer(self, data):
+        self._layers_order = data['order']
+        layerGui = self._controller.convert_layer_gui(data['layer'])
+        item = self.create_item(layerGui)
+        self._scene.addItem(item)
+        self._layers[layerGui.idx] = item
+        self._update_zValues()
+
+    def create_item(self, layer: LayerGui, useZValue=True):
+        pixmap = QPixmap.fromImage(layer.layer)
+        item = QGraphicsPixmapItem(pixmap)
+        item.setZValue(self._layers_order.index(layer.idx) if useZValue else 100000)
+        item.setOffset(layer.position[0] + self._offset.x(), layer.position[1] + self._offset.y())
+        return item
+
     def _update_zValues(self):
         for i, idx in enumerate(self._layers_order):
             self._layers[idx].setZValue(i)
@@ -157,14 +174,11 @@ class Canvas(QGraphicsView, EventListener):
     def layer_created(self, data):
         if self._controller is None:
             return
-        layer = self._controller.convert_layer_gui(data['layer'])
-        self._layers_order.append(layer.idx)
+        layerGui = self._controller.convert_layer_gui(data['layer'])
+        self._layers_order.append(layerGui.idx)
 
-        pixmap = QPixmap.fromImage(layer.layer)
-        item = QGraphicsPixmapItem(pixmap)
-        item.setZValue(self._layers_order.index(layer.idx))
-        item.setOffset(layer.position[0] + self._offset.x(), layer.position[1] + self._offset.y())
-        self._layers[layer.idx] = item
+        item = self.create_item(layerGui)
+        self._layers[layerGui.idx] = item
         self._scene.addItem(item)
 
     def layer_deleted(self, data):
@@ -178,12 +192,10 @@ class Canvas(QGraphicsView, EventListener):
     def layer_temp_created(self, data):
         if self._controller is None:
             return
-        layer = self._controller.convert_layer_gui(data['layer'])
-        self._temp_layer = layer.layer
+        layerGui = self._controller.convert_layer_gui(data['layer'])
+        item = self.create_item(layerGui, False)
 
-        pixmap = QPixmap.fromImage(self._temp_layer)
-        item = QGraphicsPixmapItem(pixmap)
-        item.setZValue(100000)
+        self._temp_layer = layerGui.layer
         self._temp_layer_item = item
         self._scene.addItem(item)
 
@@ -194,16 +206,13 @@ class Canvas(QGraphicsView, EventListener):
     def layer_refresh(self, data):
         if self._controller is None:
             return
-        layer = self._controller.convert_layer_gui(data['layer'])
+        layerGui = self._controller.convert_layer_gui(data['layer'])
 
-        pixmap = QPixmap.fromImage(layer.layer)
-        item = QGraphicsPixmapItem(pixmap)
-        item.setOffset(layer.position[0] + self._offset.x(), layer.position[1] + self._offset.y())
-        item.setZValue(self._layers_order.index(layer.idx))
-        item.setVisible(layer.visible)
+        item = self.create_item(layerGui)
+        item.setVisible(layerGui.visible)
 
-        self._scene.removeItem(self._layers[layer.idx])
-        self._layers[layer.idx] = item
+        self._scene.removeItem(self._layers[layerGui.idx])
+        self._layers[layerGui.idx] = item
         self._scene.addItem(item)
         self.layer_temp_refresh()
 

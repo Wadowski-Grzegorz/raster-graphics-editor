@@ -92,9 +92,15 @@ class LayerManager:
             self._layers[idx] = new_layer
             self._event_provider.notify({"type": "layer_changed_type", "idx": idx, "layer": new_layer})
 
-    def delete(self, idx: int):
+    def delete(self, idx: int, internal_call=False):
         if idx not in self._layers:
             return
+
+        if not internal_call:
+            self.register_action({
+                'layer': self._layers[idx],
+                'order': self._layers_order
+            }, 'layer_deleted')
 
         del self._layers[idx]
         idx_pos = self._layers_order.index(idx)
@@ -114,13 +120,20 @@ class LayerManager:
             case 'order':
                 self.reorder(data, internal_call=True)
             case 'layer_created':
-                self.delete(data.get_idx())
+                self.delete(data.get_idx(), internal_call=True)
             case 'layer_changed':
                 self.restore_layer(data)
+            case 'layer_deleted':
+                self.recreate_layer(data['layer'], data['order'])
 
     def restore_layer(self, layer: Layer):
         self._layers[layer.get_idx()] = layer
         self._event_provider.notify({"type": "layer_restored", "layer": layer})
+
+    def recreate_layer(self, layer: Layer, order: list[int]):
+        self._layers[layer.get_idx()] = layer
+        self._layers_order = order
+        self._event_provider.notify({"type": "layer_recreated", "layer": layer, "order": order})
 
     def set_name(self, idx: int, name: str):
         if self._layers[idx]:
