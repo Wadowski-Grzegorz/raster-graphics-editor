@@ -153,7 +153,7 @@ class Canvas(QGraphicsView, EventListener):
         self._update_zValues()
 
     def recreate_layer(self, data):
-        self._layers_order = data['order']
+        self._layers_order = data['order'].copy()
         layerGui = self._controller.convert_layer_gui(data['layer'])
         item = self.create_item(layerGui)
         self._scene.addItem(item)

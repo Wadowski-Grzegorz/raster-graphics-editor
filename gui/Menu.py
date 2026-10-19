@@ -7,6 +7,7 @@ from gui.FileManager import FileManager
 
 class Menu(QMenuBar):
     signal_undo = QtCore.pyqtSignal()
+    signal_redo = QtCore.pyqtSignal()
 
     def __init__(self, parent, file_manager: FileManager):
         super().__init__(parent)
@@ -25,3 +26,7 @@ class Menu(QMenuBar):
         action_undo = QAction("&Undo", self)
         action_undo.triggered.connect(self.signal_undo.emit)
         self.addAction(action_undo)
+
+        action_redo = QAction("&Redo", self)
+        action_redo.triggered.connect(self.signal_redo.emit)
+        self.addAction(action_redo)

@@ -16,7 +16,7 @@ class LayerManager:
 
         self._history = LayerHistory()
         self._event_provider.subscribe(
-            'paint_started', lambda data: self.register_action(data['layer'], 'layer_changed')
+            'paint_started', lambda data: self.register_action({'layer': data['layer']}, 'layer_changed')
         )
 
     def create_empty(self, internal_call=False):
@@ -26,7 +26,7 @@ class LayerManager:
         self.set_current_idx(layer.get_idx())
 
         if not internal_call:
-            self.register_action(layer, 'layer_created')
+            self.register_action({'layer': layer}, 'layer_created')
 
     def create_from_image(self, file_path: str):
         img_file = cv.imread(file_path, cv.IMREAD_UNCHANGED)
@@ -42,7 +42,7 @@ class LayerManager:
         self._append_layer(img)
         self._event_provider.notify({"type": "layer_created", "idx": img.get_idx(), "layer": img})
         self.set_current_idx(img.get_idx())
-        self.register_action(img, 'layer_created')
+        self.register_action({'layer': img}, 'layer_created')
 
     def _append_layer(self, layer: Layer):
         idx = layer.get_idx()
@@ -72,7 +72,7 @@ class LayerManager:
         if internal_call:
             self._event_provider.notify({"type": "layer_order_restored", "order": self._layers_order.copy()})
         else:
-            self.register_action(old_order, 'order')
+            self.register_action({'order': old_order}, 'order')
             self._event_provider.notify({"type": "layer_order_changed", "order": self._layers_order.copy()})
 
 
@@ -113,28 +113,58 @@ class LayerManager:
         self._event_provider.notify({"type": "layer_deleted", "idx": idx})
 
     def register_action(self, data, action):
-        self._history.push(data, action)
+        self._history.add_undo(data, action)
 
-    def pop_action(self):
-        data, action = self._history.pop()
+    def undo_action(self):
+        snap = self._history.undo()
+        if snap is None:
+            return
+        data, action = snap
+
         match action:
             case 'order':
-                self.reorder(data, internal_call=True)
+                self._history.add_redo({'order': self._layers_order}, action)
+                self.reorder(data['order'], internal_call=True)
             case 'layer_created':
-                self.delete(data.get_idx(), internal_call=True)
-            case 'layer_changed':
-                self.restore_layer(data)
+                self._history.add_redo({'layer': self._layers[data['layer'].get_idx()]}, action)
+                self.delete(data['layer'].get_idx(), internal_call=True)
+            case 'layer_changed':                
+                self._history.add_redo({'layer': self._layers[data['layer'].get_idx()]}, action)
+                self.restore_layer(data['layer'])
             case 'layer_deleted':
+                self._history.add_redo({'layer': data['layer'], 'order': data['order']}, action)
                 self.recreate_layer(data['layer'], data['order'])
+
+    def redo_action(self):
+        snap = self._history.redo()
+        if snap is None:
+            return
+        data, action = snap
+        match action:
+            case 'order':
+                self._history.add_undo({'order': self._layers_order}, action, reset=False)
+                self.reorder(data['order'], internal_call=True)
+            case 'layer_created':
+                self._history.add_undo({'layer': data['layer']}, action, reset=False)
+                self.recreate_layer(data['layer'])
+            case 'layer_changed':
+                self._history.add_undo({'layer': self._layers[data['layer'].get_idx()]}, action, reset=False)
+                self.restore_layer(data['layer'])
+            case 'layer_deleted':
+                self._history.add_undo({'layer': data['layer'], 'order': data['order']}, action, reset=False)
+                self.delete(data['layer'].get_idx(), internal_call=True)
 
     def restore_layer(self, layer: Layer):
         self._layers[layer.get_idx()] = layer
         self._event_provider.notify({"type": "layer_restored", "layer": layer})
 
-    def recreate_layer(self, layer: Layer, order: list[int]):
+    def recreate_layer(self, layer: Layer, order: list[int]=None):
         self._layers[layer.get_idx()] = layer
-        self._layers_order = order
-        self._event_provider.notify({"type": "layer_recreated", "layer": layer, "order": order})
+        if order:
+            self._layers_order = order
+        else:
+            self._layers_order.append(layer.get_idx())
+        self._event_provider.notify({"type": "layer_recreated", "layer": layer, "order": self._layers_order.copy()})
 
     def set_name(self, idx: int, name: str):
         if self._layers[idx]:

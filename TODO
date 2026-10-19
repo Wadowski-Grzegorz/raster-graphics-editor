@@ -6,14 +6,6 @@ operation started. That's why reconsider if operations should be executed based 
 When creating a layer, LayerPanel sends that layer is created and index is changed. So core sends two times
 curr_idx changed.
 
-Undo feature.
-
-History layer appies to all layer, I don't think first, initial layer should be included.
-
-Think if undo would only apply to layers, if yes, consider LayerHistory ownership by LayerManager.
-
 Check current_idx between LayerManager and CoreToolManager.
 
 Reconsider if CoreToolManager should send whole layer, not just idx.
-
-Add delete for undo action and reverse undo.
