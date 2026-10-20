@@ -7,8 +7,8 @@ import settings
 icons_catalog = os.path.join(settings.program_catalog, "resources", "icons")
 alt_icons_catalog = os.path.join(icons_catalog, "alt")
 icons = [
-    'menu_redo.png',
-    'menu_undo.png',
+    'menu_save.png',
+    'menu_open.png',
 ]
 
 for icon in icons:
