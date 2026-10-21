@@ -31,6 +31,9 @@ class LosslessLayer(Layer):
     def get_orig(self):
         return self._orig_img
 
+    def get_scale(self) -> tuple[float, float]:
+        return self._scale
+
     def transform_by(self, scale_x, scale_y):
         self._scale = (self._scale[0] * scale_x, self._scale[1] * scale_y)
         return self._scale
