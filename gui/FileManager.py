@@ -1,8 +1,9 @@
 from PyQt6 import QtCore
-from PyQt6.QtCore import QObject, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSlot, Qt
 from PyQt6.QtGui import QImage, QPainter
 from PyQt6.QtWidgets import QFileDialog
 
+import os
 import resources.settings as settings
 
 class FileManager(QObject):
@@ -17,18 +18,27 @@ class FileManager(QObject):
 
     @pyqtSlot()
     def save_file(self):
-        filename, _ = QFileDialog.getSaveFileName(
+        filename, selected_filter = QFileDialog.getSaveFileName(
             None,
             "Save File as",
             "my_work.png",
-            "PNG (*.png);; JPG (*jpg);; JPEG (*.jpeg)",
+            "All Files (*)",
         )
-        if filename is None:
+        if not filename:
             return
 
+        print(filename)
+        name, extension = os.path.splitext(filename)
+        if not extension:
+            filename = os.path.splitext(filename)[0] + '.png'
+            extension = '.png'
+                
         width, height = settings.layer_width, settings.layer_height
         result = QImage(width, height, QImage.Format.Format_ARGB32)
-        result.fill(0)
+        if extension == ".png":
+            result.fill(255)
+        elif extension in ('.jpg', '.jpeg'):
+            result.fill(Qt.GlobalColor.white)
 
         painter = QPainter(result)
 
@@ -39,12 +49,9 @@ class FileManager(QObject):
             painter.drawImage(layers[idx].position[0], layers[idx].position[1], layers[idx].layer)
         painter.end()
 
-        if filename.lower().endswith('.png'):
-            result.save(filename, "PNG")
-        elif filename.lower().endswith('.jpg') or filename.lower().endswith('.jpeg'):
-            result.save(filename, "JPEG")
-        else:
-            result.save(filename, "PNG")
+        print('saving file:', filename)
+        success = result.save(filename)
+        print(success)
 
     @pyqtSlot()
     def open_file(self):
@@ -52,7 +59,7 @@ class FileManager(QObject):
             None,
             "Select a File to Open",
             "",
-            "Images (*.png *.jpg)"
+            "Images (*.png *.jpg *.jpeg)"
         )
         if filename:
             self.read_image_order(filename)

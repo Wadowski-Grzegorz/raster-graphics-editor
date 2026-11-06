@@ -9,3 +9,5 @@ curr_idx changed.
 Check current_idx between LayerManager and CoreToolManager.
 
 Reconsider if CoreToolManager should send whole layer, not just idx.
+
+Initial rescale for gui Canvas.
