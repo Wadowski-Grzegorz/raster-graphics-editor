@@ -1,9 +1,8 @@
 # Custom 2D Raster Graphics Editor with Low-Level Pixel Manipulation
-A Python-based digital painting application featuring custom pixel-level processing. 
-The project implements manually developed drawing tools, layer compositing, and direct image buffer manipulation.
-It demonstrates a layered GUI-Controller-Core architecture with event-driven communication.
+A Python-based digital painting application with custom pixel-level processing. The project implements manually developed drawing tools, layer compositing, and direct image buffer manipulation, using layered GUI-Controller-Core architecture with event-driven communication.
 
 Supports layer-based editing, brush-based drawing, and basic image transformations.
+
 
 ## Demo
 The demo presenting:
@@ -15,12 +14,23 @@ The demo presenting:
 https://github.com/user-attachments/assets/fa775903-d319-4434-ac50-9c9eee54f57f
 
 
+## Features
+- Create a canvas using preset or custom dimensions
+- Import images as layers
+- Organize layers by reordering, hiding, and converting layer types
+- Paint, blur, erase with adjustable brushes
+- Apply move, resize, and zoom tools
+- Undo and redo edits
+- Export the composited artwork as PNG or JPEG
+
+
 ## System Architecture
 <diagram><img width="1546" height="716" alt="Group 5" src="https://github.com/user-attachments/assets/1fd18cf4-60fa-459e-8aea-8d94ea438708" />
 
 The application is structured using a layered GUI-Controller-Core architecture, enabling separation of concerns between user interaction and business logic.
 The Application Runtime State is managed within the Core layer as well as pixel-level processing.
 The GUI handles user interaction and communicates with the Core through the Controller. It is updated based on events via an event manager implementing an observer pattern.
+
 
 ## Communication (Event System)
 The application uses an event-driven communication model based on two complementary mechanisms:
@@ -37,6 +47,11 @@ The application uses an event-driven communication model based on two complement
 This division of communication mechanisms ensures a clear separation between layers and maintains loose coupling across the system.
 
 
+## Threading
+The GUI runs on the main thread, while Core operations are dispatched by the Controller to a single background worker. The worker processes submitted operations sequentially, keeping long-running image and tool operations from blocking the interface.
+When these operations trigger events that require UI updates, signals schedule the corresponding GUI handlers to run on the main thread.
+
+
 ## Layer System
 Managing image data within the application is handled by the Layer System, which provides a structured model for storing, modifying, and organizing layer state.
 
@@ -46,7 +61,7 @@ The model is divided into two main implementations:
 - RasterLayer, which allows direct modification of a pixel buffer, enabling irreversible image editing operations.
 - LosslessLayer, which preserves the original image data and applies transformations in a non-destructive manner by maintaining a separate transformed state.
 
-Both layer types inherit from  a common Layer class, ensuring a consistent interface and unified handling across the system. 
+Both layer types inherit from a common Layer class, ensuring a consistent interface and unified handling across the system. 
 Layers can be created either as empty layers or by importing external images.
 All state management and processing of layers are handled within the Core layer. The GUI accesses layer data through DTOs, which are used for rendering and user interaction.
 
@@ -73,7 +88,6 @@ Rendering of layer content is performed by the Canvas in the GUI layer, which vi
 Layers are composited according to their order, visibility, position and scale.
 The rendering mechanism operates on DTO representations of layers and does not access Core data directly.
 
-To maintain performance, redraws are rate-limited.
 
 ## Image Processing Implementation
 User, by using a tool, can edit how a layer is displayed or its content. Mouse input containing the position on the Canvas is provided to tools via events, which trigger corresponding operations on the active tool.
@@ -90,7 +104,7 @@ In cases where a temporary layer is used, only the overlapping region between th
 ## Setup and Run
 **Requirements**
 - Python 3.11+
-- PyQt6
+- Py6
 - numpy
 - opencv-python
 
